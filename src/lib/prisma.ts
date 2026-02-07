@@ -9,12 +9,20 @@ const globalForPrisma = globalThis as unknown as {
   pool: Pool | undefined;
 };
 
-// Create pool only once
+// Determine if we're using Supabase pooler (port 6543 for transaction mode)
+const connectionString = process.env.DATABASE_URL;
+
+// Create pool only once with conservative settings for serverless
 const pool =
   globalForPrisma.pool ??
   new Pool({
-    connectionString: process.env.DATABASE_URL,
+    connectionString,
     ssl: { rejectUnauthorized: false },
+    // Limit connections for serverless environment
+    max: 5, // Maximum connections in pool (Supabase free tier has limited connections)
+    min: 1, // Minimum connections
+    idleTimeoutMillis: 30000, // Close idle connections after 30s
+    connectionTimeoutMillis: 10000, // Timeout after 10s when acquiring connection
   });
 
 // Create adapter
@@ -28,7 +36,8 @@ export const prisma =
     log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
   });
 
-if (process.env.NODE_ENV !== "production") {
+// Cache globally in ALL environments (important for serverless)
+if (!globalForPrisma.prisma) {
   globalForPrisma.prisma = prisma;
   globalForPrisma.pool = pool;
 }

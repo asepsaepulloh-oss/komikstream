@@ -387,13 +387,11 @@ export async function getHomepageData() {
     console.error("DB query failed for homepage:", error);
   }
 
-  // Fallback to external API
-  const [komikLatest, komikPopular, animeLatest, animeRecommended] = await Promise.all([
-    getKomikLatest("mirror").catch(() => []),
-    getKomikPopular(1).catch(() => []),
-    getAnimeLatest().catch(() => []),
-    getAnimeRecommended(1).catch(() => []),
-  ]);
+  // Fallback to external API (sequential to avoid rate limiting)
+  const komikLatest = await getKomikLatest("mirror").catch(() => []);
+  const komikPopular = await getKomikPopular(1).catch(() => []);
+  const animeLatest = await getAnimeLatest().catch(() => []);
+  const animeRecommended = await getAnimeRecommended(1).catch(() => []);
 
   return {
     komikLatest,

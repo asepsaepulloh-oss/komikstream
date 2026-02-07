@@ -291,20 +291,20 @@ export async function countKomikInDB(): Promise<number> {
 
 /**
  * Search both anime and komik
+ * Uses sequential queries to avoid connection pool exhaustion
  */
 export async function searchAllInDB(
   query: string,
   limit: number = 10
 ): Promise<{ anime: Anime[]; komik: Komik[] }> {
-  const [anime, komik] = await Promise.all([
-    searchAnimeInDB(query, limit),
-    searchKomikInDB(query, limit),
-  ]);
+  const anime = await searchAnimeInDB(query, limit);
+  const komik = await searchKomikInDB(query, limit);
   return { anime, komik };
 }
 
 /**
  * Get homepage data from database
+ * Uses sequential queries to avoid connection pool exhaustion
  */
 export async function getHomepageDataFromDB(): Promise<{
   animeLatest: Anime[];
@@ -312,12 +312,12 @@ export async function getHomepageDataFromDB(): Promise<{
   komikLatest: Komik[];
   komikPopular: Komik[];
 }> {
-  const [animeLatest, animeRecommended, komikLatest, komikPopular] = await Promise.all([
-    getAnimeLatestFromDB(12),
-    getAnimeRecommendedFromDB(1, 12),
-    getKomikLatestFromDB(12),
-    getKomikPopularFromDB(1, 12),
-  ]);
+  // Run queries sequentially to avoid exhausting connection pool
+  // This is more efficient for serverless environments with limited connections
+  const animeLatest = await getAnimeLatestFromDB(12);
+  const animeRecommended = await getAnimeRecommendedFromDB(1, 12);
+  const komikLatest = await getKomikLatestFromDB(12);
+  const komikPopular = await getKomikPopularFromDB(1, 12);
 
   return {
     animeLatest,
@@ -329,21 +329,20 @@ export async function getHomepageDataFromDB(): Promise<{
 
 /**
  * Get database statistics
+ * Uses sequential queries to avoid connection pool exhaustion
  */
 export async function getDBStats(): Promise<{
   animeCount: number;
   komikCount: number;
   lastSync: Date | null;
 }> {
-  const [animeCount, komikCount, lastSync] = await Promise.all([
-    countAnimeInDB(),
-    countKomikInDB(),
-    prisma.syncLog.findFirst({
-      where: { status: "success" },
-      orderBy: { completedAt: "desc" },
-      select: { completedAt: true },
-    }),
-  ]);
+  const animeCount = await countAnimeInDB();
+  const komikCount = await countKomikInDB();
+  const lastSync = await prisma.syncLog.findFirst({
+    where: { status: "success" },
+    orderBy: { completedAt: "desc" },
+    select: { completedAt: true },
+  });
 
   return {
     animeCount,
