@@ -89,7 +89,11 @@ beforeAll(() => {
       typeof args[0] === "string" &&
       (args[0].includes("Warning: ReactDOM.render") ||
         args[0].includes("Warning: An update to") ||
-        args[0].includes("act(...)"))
+        args[0].includes("act(...)") ||
+        args[0].includes("whileHover") ||
+        args[0].includes("non-boolean attribute `fill`") ||
+        args[0].includes("non-boolean attribute `unoptimized`") ||
+        args[0].includes("React does not recognize"))
     ) {
       return;
     }

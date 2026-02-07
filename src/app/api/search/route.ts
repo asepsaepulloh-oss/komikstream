@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { transformDBAniomeToFrontend, transformDBKomikToFrontend } from "@/lib/database";
 
 export const dynamic = "force-dynamic";
 

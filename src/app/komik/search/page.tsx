@@ -26,7 +26,7 @@ export default async function KomikSearchPage({ searchParams }: SearchPageProps)
   if (query) {
     try {
       results = await searchKomik(query);
-    } catch (e) {
+    } catch {
       error = "Gagal mencari komik. Silakan coba lagi.";
     }
   }

@@ -103,8 +103,8 @@ async function seedAnime(): Promise<number> {
           });
           count++;
           console.log(`    ✓ ${anime.judul}`);
-        } catch (err) {
-          console.log(`    ✗ ${anime.judul} - ${err}`);
+        } catch {
+          console.log(`    ✗ ${anime.judul}`);
         }
       }
     }
@@ -141,7 +141,7 @@ async function seedAnime(): Promise<number> {
         });
         count++;
         console.log(`  ✓ ${anime.judul}`);
-      } catch (err) {
+      } catch {
         console.log(`  ✗ ${anime.judul}`);
       }
     }
@@ -178,7 +178,7 @@ async function seedAnime(): Promise<number> {
         });
         count++;
         console.log(`  ✓ ${anime.judul}`);
-      } catch (err) {
+      } catch {
         console.log(`  ✗ ${anime.judul}`);
       }
     }
@@ -275,7 +275,7 @@ async function seedKomik(): Promise<number> {
           });
           count++;
           console.log(`    ✓ ${komik.title}`);
-        } catch (err) {
+        } catch {
           console.log(`    ✗ ${komik.title}`);
         }
       }
@@ -332,7 +332,7 @@ async function seedKomik(): Promise<number> {
         });
         count++;
         console.log(`  ✓ ${komik.title}`);
-      } catch (err) {
+      } catch {
         console.log(`  ✗ ${komik.title}`);
       }
     }

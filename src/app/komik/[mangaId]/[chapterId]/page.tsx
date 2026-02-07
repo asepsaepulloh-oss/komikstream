@@ -11,7 +11,7 @@ interface ReaderPageProps {
 }
 
 export async function generateMetadata({ params }: ReaderPageProps): Promise<Metadata> {
-  const { mangaId, chapterId } = await params;
+  const { mangaId } = await params;
   const komik = await getKomikDetail(mangaId);
 
   if (!komik) {

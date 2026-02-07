@@ -49,7 +49,7 @@ const clerkHandler = clerkMiddleware(async (auth, req) => {
 });
 
 // Simple pass-through middleware when Clerk is not configured
-function simpleMiddleware(req: NextRequest) {
+function simpleMiddleware() {
   return NextResponse.next();
 }
 
@@ -64,7 +64,7 @@ export default function middleware(req: NextRequest) {
     // @ts-expect-error - Clerk middleware has different signature
     return clerkHandler(req);
   }
-  return simpleMiddleware(req);
+  return simpleMiddleware();
 }
 
 export const config = {

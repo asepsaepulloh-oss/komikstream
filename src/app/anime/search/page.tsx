@@ -26,7 +26,7 @@ export default async function AnimeSearchPage({ searchParams }: SearchPageProps)
   if (query) {
     try {
       results = await searchAnime(query);
-    } catch (e) {
+    } catch {
       error = "Gagal mencari anime. Silakan coba lagi.";
     }
   }

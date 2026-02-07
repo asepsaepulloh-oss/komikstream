@@ -154,7 +154,7 @@ export async function GET() {
         komikCount: stats[1],
       },
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Failed to get sync status" }, { status: 500 });
   }
 }
