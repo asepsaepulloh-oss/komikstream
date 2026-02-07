@@ -3,7 +3,7 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 // Dynamic import for prisma
 async function getPrisma() {
   try {
-    const { prisma } = await import("@/lib/db");
+    const { prisma } = await import("@/lib/prisma");
     return prisma;
   } catch {
     return null;

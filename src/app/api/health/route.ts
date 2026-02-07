@@ -34,7 +34,7 @@ export async function GET() {
     const dbUrl = process.env.DATABASE_URL;
 
     if (!skipDB && dbUrl && !dbUrl.includes("dummy")) {
-      const { prisma } = await import("@/lib/db");
+      const { prisma } = await import("@/lib/prisma");
 
       if (prisma) {
         await prisma.$queryRaw`SELECT 1`;

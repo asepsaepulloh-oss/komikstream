@@ -5,7 +5,7 @@ import { getOrCreateUser } from "@/lib/user";
 // Dynamic import for prisma to avoid build errors when DB is not configured
 async function getPrisma() {
   try {
-    const { prisma } = await import("@/lib/db");
+    const { prisma } = await import("@/lib/prisma");
     return prisma;
   } catch {
     return null;

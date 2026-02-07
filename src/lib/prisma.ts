@@ -4,82 +4,46 @@ import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
 
-// Check if we should skip database connection
-const shouldSkipDB = (): boolean => {
-  if (process.env.SKIP_DB_CONNECTION === "true") return true;
-
-  const dbUrl = process.env.DATABASE_URL;
-  if (!dbUrl) return true;
-  if (dbUrl.includes("dummy")) return true;
-  if (dbUrl.includes("localhost:5432/dummy")) return true;
-
-  return false;
-};
-
+// Global singleton pattern for Vercel serverless
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
   pool: Pool | undefined;
 };
 
-// Determine if we're using Supabase pooler (port 6543 for transaction mode)
 const connectionString = process.env.DATABASE_URL;
+const isProduction = process.env.NODE_ENV === "production";
 
-// Create a mock Prisma client for CI/build environments
-const createMockPrisma = () => {
-  const handler = {
-    get: () => {
-      return new Proxy(
-        {},
-        {
-          get: () => {
-            return async () => {
-              console.log("📦 Mock Prisma: Database operations skipped (CI/build mode)");
-              return null;
-            };
-          },
-        }
-      );
-    },
-  };
-  return new Proxy({}, handler) as unknown as PrismaClient;
-};
+// Validate DATABASE_URL exists (fail fast)
+if (!connectionString) {
+  throw new Error("DATABASE_URL is not defined. Please set it in your environment variables.");
+}
 
-// Initialize prisma conditionally
-let prisma: PrismaClient;
+// Create connection pool optimized for Vercel serverless + Supabase
+const pool =
+  globalForPrisma.pool ??
+  new Pool({
+    connectionString,
+    ssl: { rejectUnauthorized: false },
+    // Serverless optimization: minimal connections
+    max: isProduction ? 1 : 5, // 1 connection per serverless function in prod
+    min: 0, // Allow scaling to zero
+    idleTimeoutMillis: 10000, // Close idle connections after 10s
+    connectionTimeoutMillis: 5000, // Fast fail for serverless cold starts
+  });
 
-if (shouldSkipDB()) {
-  // Use mock prisma in CI/build
-  prisma = globalForPrisma.prisma ?? createMockPrisma();
-} else {
-  // Create pool only once with conservative settings for serverless
-  const pool =
-    globalForPrisma.pool ??
-    new Pool({
-      connectionString,
-      ssl: { rejectUnauthorized: false },
-      // Limit connections for serverless environment
-      max: 5, // Maximum connections in pool (Supabase free tier has limited connections)
-      min: 1, // Minimum connections
-      idleTimeoutMillis: 30000, // Close idle connections after 30s
-      connectionTimeoutMillis: 10000, // Timeout after 10s when acquiring connection
-    });
+const adapter = new PrismaPg(pool);
 
-  // Create adapter
-  const adapter = new PrismaPg(pool);
+const prisma =
+  globalForPrisma.prisma ??
+  new PrismaClient({
+    adapter,
+    log: isProduction ? ["error"] : ["error", "warn"],
+  });
 
-  // Create Prisma client with adapter
-  prisma =
-    globalForPrisma.prisma ??
-    new PrismaClient({
-      adapter,
-      log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
-    });
-
-  // Cache globally in ALL environments (important for serverless)
-  if (!globalForPrisma.prisma) {
-    globalForPrisma.prisma = prisma;
-    globalForPrisma.pool = pool;
-  }
+// ALWAYS cache globally (critical for serverless to prevent connection exhaustion!)
+if (!globalForPrisma.prisma) {
+  globalForPrisma.prisma = prisma;
+  globalForPrisma.pool = pool;
 }
 
 export { prisma };
