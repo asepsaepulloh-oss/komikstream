@@ -1,18 +1,104 @@
 /**
  * Client-side API - Fetches data via API routes
- * 
+ *
  * This module is safe to use in client components.
  * It calls internal API routes which handle server-side logic.
  */
 
-import type {
-  Anime,
-  Komik,
-  KomikChapter,
-  KomikImage,
-} from "@/types";
+import type { Anime, Komik, KomikChapter, KomikImage } from "@/types";
 
 const BASE_URL = "https://api.sansekai.my.id/api";
+
+// ==================== RAW API TYPES ====================
+
+interface RawAnimeListItem {
+  urlId?: string;
+  url_id?: string;
+  url?: string;
+  title?: string;
+  judul?: string;
+  thumbnail?: string;
+  image?: string;
+  cover?: string;
+  synopsis?: string;
+  sinopsis?: string;
+  description?: string;
+  rating?: string | number;
+  type?: string;
+  status?: string;
+  genres?: string[];
+  genre?: string[];
+  episodes?: RawEpisode[];
+  chapter?: RawEpisode[];
+  total_episodes?: number;
+  totalEpisodes?: number;
+}
+
+interface RawEpisode {
+  id?: number;
+  url?: string;
+  ch?: string;
+  title?: string;
+  date?: string;
+}
+
+interface RawKomikItem {
+  manga_id?: string;
+  title?: string;
+  thumbnail?: string;
+  cover?: string;
+  cover_image_url?: string;
+  type?: string;
+  status?: number | string;
+  rating?: string | number;
+  user_rate?: number;
+  description?: string;
+  synopsis?: string;
+  author?: string;
+  artist?: string;
+  genres?: string[];
+  chapters?: RawKomikChapterItem[];
+  latest_chapter?: string;
+  latestChapter?: string;
+  updated_at?: string;
+  updatedAt?: string;
+  taxonomy?: {
+    Genre?: Array<{ name: string }>;
+    Author?: Array<{ name: string }>;
+    Artist?: Array<{ name: string }>;
+  };
+}
+
+interface RawKomikChapterItem {
+  chapter_id?: string;
+  id?: string;
+  title?: string;
+  chapter?: number;
+  chapter_number?: number;
+  date?: string;
+  created_at?: string;
+}
+
+interface AnimeDetailResponse {
+  data?: RawAnimeListItem[];
+}
+
+interface KomikListResponse {
+  data?: RawKomikItem[];
+  retcode?: number;
+}
+
+interface KomikDetailResponse {
+  data?: RawKomikItem;
+}
+
+interface KomikImageResponse {
+  data?: {
+    chapter?: {
+      data?: string[];
+    };
+  };
+}
 
 // ==================== HELPER FUNCTIONS ====================
 
@@ -61,7 +147,7 @@ function ensureArray<T>(data: T | T[] | null | undefined): T[] {
 
 export async function getAnimeLatest(): Promise<Anime[]> {
   try {
-    const res = await fetchWithRetry<any[]>(`${BASE_URL}/anime/latest`);
+    const res = await fetchWithRetry<RawAnimeListItem[]>(`${BASE_URL}/anime/latest`);
     return ensureArray(res).map(transformAnimeList);
   } catch {
     return [];
@@ -70,7 +156,9 @@ export async function getAnimeLatest(): Promise<Anime[]> {
 
 export async function getAnimeRecommended(page: number = 1): Promise<Anime[]> {
   try {
-    const res = await fetchWithRetry<any[]>(`${BASE_URL}/anime/recommended?page=${page}`);
+    const res = await fetchWithRetry<RawAnimeListItem[]>(
+      `${BASE_URL}/anime/recommended?page=${page}`
+    );
     return ensureArray(res).map(transformAnimeList);
   } catch {
     return [];
@@ -79,7 +167,7 @@ export async function getAnimeRecommended(page: number = 1): Promise<Anime[]> {
 
 export async function getAnimeMovie(): Promise<Anime[]> {
   try {
-    const res = await fetchWithRetry<any[]>(`${BASE_URL}/anime/movie`);
+    const res = await fetchWithRetry<RawAnimeListItem[]>(`${BASE_URL}/anime/movie`);
     return ensureArray(res).map(transformAnimeList);
   } catch {
     return [];
@@ -88,7 +176,9 @@ export async function getAnimeMovie(): Promise<Anime[]> {
 
 export async function getAnimeDetail(urlId: string): Promise<Anime | null> {
   try {
-    const res = await fetchWithRetry<{ data?: any[] }>(`${BASE_URL}/anime/detail?urlId=${urlId}`);
+    const res = await fetchWithRetry<AnimeDetailResponse>(
+      `${BASE_URL}/anime/detail?urlId=${urlId}`
+    );
     const detail = res.data?.[0];
     return detail ? transformAnimeDetail(detail) : null;
   } catch {
@@ -98,14 +188,19 @@ export async function getAnimeDetail(urlId: string): Promise<Anime | null> {
 
 export async function searchAnime(query: string): Promise<Anime[]> {
   try {
-    const res = await fetchWithRetry<any[]>(`${BASE_URL}/anime/search?query=${encodeURIComponent(query)}`);
+    const res = await fetchWithRetry<RawAnimeListItem[]>(
+      `${BASE_URL}/anime/search?query=${encodeURIComponent(query)}`
+    );
     return ensureArray(res).map(transformAnimeList);
   } catch {
     return [];
   }
 }
 
-export async function getAnimeVideo(episodeId: string, resolution: string = "480p"): Promise<string | null> {
+export async function getAnimeVideo(
+  episodeId: string,
+  resolution: string = "480p"
+): Promise<string | null> {
   try {
     const res = await fetch(`/api/anime/video?chapterUrlId=${episodeId}&reso=${resolution}`);
     if (!res.ok) return null;
@@ -120,7 +215,7 @@ export async function getAnimeVideo(episodeId: string, resolution: string = "480
 
 export async function getKomikLatest(type: "project" | "mirror"): Promise<Komik[]> {
   try {
-    const res = await fetchWithRetry<{ data?: any[] }>(`${BASE_URL}/komik/latest?type=${type}`);
+    const res = await fetchWithRetry<KomikListResponse>(`${BASE_URL}/komik/latest?type=${type}`);
     return ensureArray(res.data).map(transformKomik);
   } catch {
     return [];
@@ -129,16 +224,20 @@ export async function getKomikLatest(type: "project" | "mirror"): Promise<Komik[
 
 export async function getKomikPopular(page: number = 1): Promise<Komik[]> {
   try {
-    const res = await fetchWithRetry<{ data?: any[] }>(`${BASE_URL}/komik/popular?page=${page}`);
+    const res = await fetchWithRetry<KomikListResponse>(`${BASE_URL}/komik/popular?page=${page}`);
     return ensureArray(res.data).map(transformKomik);
   } catch {
     return [];
   }
 }
 
-export async function getKomikRecommended(type: "manhwa" | "manhua" | "manga"): Promise<Komik[]> {
+export async function getKomikRecommended(
+  type: "manhwa" | "manhua" | "manga"
+): Promise<Komik[]> {
   try {
-    const res = await fetchWithRetry<{ data?: any[] }>(`${BASE_URL}/komik/recommended?type=${type}`);
+    const res = await fetchWithRetry<KomikListResponse>(
+      `${BASE_URL}/komik/recommended?type=${type}`
+    );
     return ensureArray(res.data).map(transformKomik);
   } catch {
     return [];
@@ -147,7 +246,9 @@ export async function getKomikRecommended(type: "manhwa" | "manhua" | "manga"): 
 
 export async function getKomikDetail(mangaId: string): Promise<Komik | null> {
   try {
-    const res = await fetchWithRetry<{ data?: any }>(`${BASE_URL}/komik/detail?manga_id=${mangaId}`);
+    const res = await fetchWithRetry<KomikDetailResponse>(
+      `${BASE_URL}/komik/detail?manga_id=${mangaId}`
+    );
     return res.data ? transformKomik(res.data) : null;
   } catch {
     return null;
@@ -156,8 +257,10 @@ export async function getKomikDetail(mangaId: string): Promise<Komik | null> {
 
 export async function getKomikChapterList(mangaId: string): Promise<KomikChapter[]> {
   try {
-    const res = await fetchWithRetry<{ data?: any[] }>(`${BASE_URL}/komik/chapterlist?manga_id=${mangaId}`);
-    return ensureArray(res.data).map(transformKomikChapter);
+    const res = await fetchWithRetry<KomikListResponse>(
+      `${BASE_URL}/komik/chapterlist?manga_id=${mangaId}`
+    );
+    return ensureArray(res.data).map((item) => transformKomikChapter(item as RawKomikChapterItem));
   } catch {
     return [];
   }
@@ -165,7 +268,9 @@ export async function getKomikChapterList(mangaId: string): Promise<KomikChapter
 
 export async function searchKomik(query: string): Promise<Komik[]> {
   try {
-    const res = await fetchWithRetry<{ data?: any[] }>(`${BASE_URL}/komik/search?query=${encodeURIComponent(query)}`);
+    const res = await fetchWithRetry<KomikListResponse>(
+      `${BASE_URL}/komik/search?query=${encodeURIComponent(query)}`
+    );
     return ensureArray(res.data).map(transformKomik);
   } catch {
     return [];
@@ -174,7 +279,9 @@ export async function searchKomik(query: string): Promise<Komik[]> {
 
 export async function getKomikImages(chapterId: string): Promise<KomikImage[]> {
   try {
-    const res = await fetchWithRetry<{ data?: { chapter?: { data?: string[] } } }>(`${BASE_URL}/komik/getimage?chapter_id=${chapterId}`);
+    const res = await fetchWithRetry<KomikImageResponse>(
+      `${BASE_URL}/komik/getimage?chapter_id=${chapterId}`
+    );
     const imageUrls = res.data?.chapter?.data || [];
     return imageUrls.map((url, index) => ({
       url,
@@ -188,13 +295,12 @@ export async function getKomikImages(chapterId: string): Promise<KomikImage[]> {
 // ==================== HOMEPAGE ====================
 
 export async function getHomepageData() {
-  const [komikLatest, komikPopular, animeLatest, animeRecommended] =
-    await Promise.all([
-      getKomikLatest("mirror").catch(() => []),
-      getKomikPopular(1).catch(() => []),
-      getAnimeLatest().catch(() => []),
-      getAnimeRecommended(1).catch(() => []),
-    ]);
+  const [komikLatest, komikPopular, animeLatest, animeRecommended] = await Promise.all([
+    getKomikLatest("mirror").catch(() => []),
+    getKomikPopular(1).catch(() => []),
+    getAnimeLatest().catch(() => []),
+    getAnimeRecommended(1).catch(() => []),
+  ]);
 
   return {
     komikLatest,
@@ -206,53 +312,61 @@ export async function getHomepageData() {
 
 // ==================== TRANSFORMERS ====================
 
-function transformAnimeList(raw: any): Anime {
+function transformAnimeList(raw: RawAnimeListItem): Anime {
   return {
-    urlId: raw.urlId || raw.url_id || "",
-    title: raw.title || "",
-    thumbnail: raw.thumbnail || raw.image || "",
-    synopsis: raw.synopsis || raw.description,
+    urlId: raw.urlId || raw.url_id || raw.url || "",
+    title: raw.title || raw.judul || "",
+    thumbnail: raw.thumbnail || raw.image || raw.cover || "",
+    synopsis: raw.synopsis || raw.sinopsis || raw.description,
     rating: raw.rating,
     type: raw.type,
     status: raw.status,
-    genres: raw.genres || [],
-    episodes: raw.episodes || [],
+    genres: raw.genres || raw.genre || [],
+    episodes: (raw.episodes || raw.chapter || []).map((ep) => ({
+      title: ep.title || ep.ch || "",
+      url: ep.url,
+      date: ep.date,
+    })),
   };
 }
 
-function transformAnimeDetail(raw: any): Anime {
+function transformAnimeDetail(raw: RawAnimeListItem): Anime {
   return {
-    urlId: raw.urlId || raw.url_id || "",
-    title: raw.title || "",
-    thumbnail: raw.thumbnail || raw.image || "",
+    urlId: raw.urlId || raw.url_id || raw.url || "",
+    title: raw.title || raw.judul || "",
+    thumbnail: raw.thumbnail || raw.image || raw.cover || "",
     cover: raw.cover || raw.thumbnail || raw.image,
-    synopsis: raw.synopsis || raw.description,
+    synopsis: raw.synopsis || raw.sinopsis || raw.description,
     rating: raw.rating,
     type: raw.type,
     status: raw.status,
-    genres: raw.genres || [],
-    episodes: raw.episodes || [],
+    genres: raw.genres || raw.genre || [],
+    episodes: (raw.episodes || raw.chapter || []).map((ep) => ({
+      title: ep.title || ep.ch || "",
+      url: ep.url,
+      date: ep.date,
+    })),
     totalEpisodes: raw.total_episodes || raw.totalEpisodes,
   };
 }
 
-function transformKomik(raw: any): Komik {
+function transformKomik(raw: RawKomikItem): Komik {
   return {
     manga_id: raw.manga_id || "",
     title: raw.title || "",
-    thumbnail: raw.thumbnail || raw.cover || "",
-    cover: raw.cover || raw.thumbnail,
+    thumbnail: raw.thumbnail || raw.cover || raw.cover_image_url || "",
+    cover: raw.cover || raw.thumbnail || raw.cover_image_url,
     type: raw.type,
-    status: raw.status,
-    rating: raw.rating,
+    status: typeof raw.status === "number" ? (raw.status === 1 ? "Ongoing" : "Completed") : raw.status,
+    rating: raw.rating || raw.user_rate,
     description: raw.description || raw.synopsis,
-    author: raw.author,
-    artist: raw.artist,
-    genres: raw.genres || [],
-    chapters: (raw.chapters || []).map((ch: any) => ({
-      chapter_id: ch.chapter_id || ch.id,
-      title: ch.title || `Chapter ${ch.chapter}`,
-      chapter: ch.chapter,
+    author: raw.author || raw.taxonomy?.Author?.[0]?.name,
+    artist: raw.artist || raw.taxonomy?.Artist?.[0]?.name,
+    genres: raw.genres || raw.taxonomy?.Genre?.map((g) => g.name) || [],
+    chapters: (raw.chapters || []).map((ch) => ({
+      chapter_id: ch.chapter_id || ch.id || "",
+      title: ch.title || `Chapter ${ch.chapter || ch.chapter_number}`,
+      chapter: ch.chapter || ch.chapter_number,
       date: ch.date || ch.created_at,
     })),
     latestChapter: raw.latest_chapter || raw.latestChapter,
@@ -260,11 +374,11 @@ function transformKomik(raw: any): Komik {
   };
 }
 
-function transformKomikChapter(raw: any): KomikChapter {
+function transformKomikChapter(raw: RawKomikChapterItem): KomikChapter {
   return {
     chapter_id: raw.chapter_id || raw.id || "",
-    title: raw.title || `Chapter ${raw.chapter}`,
-    chapter: raw.chapter || 0,
+    title: raw.title || `Chapter ${raw.chapter || raw.chapter_number}`,
+    chapter: raw.chapter || raw.chapter_number || 0,
     date: raw.date || raw.created_at,
   };
 }
