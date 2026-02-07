@@ -31,7 +31,25 @@ const config: Config = {
     "!src/**/*.d.ts",
     "!src/types/**/*",
     "!src/**/index.ts",
+    "!src/app/**/layout.tsx",
+    "!src/app/**/loading.tsx",
+    "!src/app/**/error.tsx",
+    "!src/app/**/not-found.tsx",
+    "!src/app/api/**/*",
   ],
+
+  // Coverage thresholds - fail if coverage drops below these values
+  coverageThreshold: {
+    global: {
+      statements: 30,
+      branches: 25,
+      functions: 30,
+      lines: 30,
+    },
+  },
+
+  // Coverage reporters
+  coverageReporters: ["text", "text-summary", "lcov", "html"],
 
   // Ignore patterns
   testPathIgnorePatterns: ["<rootDir>/node_modules/", "<rootDir>/.next/"],

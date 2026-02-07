@@ -1,0 +1,88 @@
+# ================================
+# Docker Compose for KomikStream
+# Local development environment
+# ================================
+
+services:
+  # ==================== APPLICATION ====================
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    container_name: komikstream-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=${DATABASE_URL}
+      - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+      - CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
+      - CLERK_WEBHOOK_SECRET=${CLERK_WEBHOOK_SECRET}
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://api.sansekai.my.id/api}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - komikstream-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ==================== DATABASE ====================
+  db:
+    image: postgres:16-alpine
+    container_name: komikstream-db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-komikstream}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-komikstream_secret}
+      - POSTGRES_DB=${POSTGRES_DB:-komikstream}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - komikstream-network
+    healthcheck:
+      test:
+        ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-komikstream} -d ${POSTGRES_DB:-komikstream}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ==================== DEV ONLY ====================
+  # Uncomment for local development with hot reload
+  # app-dev:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.dev
+  #   container_name: komikstream-dev
+  #   ports:
+  #     - "3000:3000"
+  #   volumes:
+  #     - .:/app
+  #     - /app/node_modules
+  #     - /app/.next
+  #   environment:
+  #     - NODE_ENV=development
+  #     - DATABASE_URL=postgresql://komikstream:komikstream_secret@db:5432/komikstream
+  #   depends_on:
+  #     - db
+  #   networks:
+  #     - komikstream-network
+
+# ==================== VOLUMES ====================
+volumes:
+  postgres_data:
+    driver: local
+
+# ==================== NETWORKS ====================
+networks:
+  komikstream-network:
+    driver: bridge

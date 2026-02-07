@@ -5,7 +5,31 @@ import type { PrismaClient } from "@prisma/client";
 
 let prisma: PrismaClient | null = null;
 
+// Check if we should skip database connection (for CI builds)
+const shouldSkipDB = (): boolean => {
+  // Skip during build time with dummy credentials
+  if (process.env.SKIP_DB_CONNECTION === "true") {
+    return true;
+  }
+
+  // Skip if DATABASE_URL is missing or contains dummy
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl || dbUrl.includes("dummy") || dbUrl.includes("localhost:5432")) {
+    return true;
+  }
+
+  return false;
+};
+
 async function initPrisma(): Promise<PrismaClient | null> {
+  // Skip DB connection during build or CI
+  if (shouldSkipDB()) {
+    if (process.env.NODE_ENV !== "production") {
+      console.log("📦 Skipping database connection (build mode or CI)");
+    }
+    return null;
+  }
+
   try {
     // Dynamic import to avoid build errors when Prisma is not generated yet
     const { PrismaClient: PrismaClientClass } = await import("@prisma/client");
