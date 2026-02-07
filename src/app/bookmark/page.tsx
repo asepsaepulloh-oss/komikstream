@@ -17,10 +17,10 @@ export default function BookmarkPage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="animate-pulse">
-          <div className="h-8 w-48 bg-muted rounded mb-8" />
+          <div className="bg-muted mb-8 h-8 w-48 rounded" />
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
             {Array.from({ length: 10 }).map((_, i) => (
-              <div key={i} className="aspect-[2/3] bg-muted rounded-lg" />
+              <div key={i} className="bg-muted aspect-[2/3] rounded-lg" />
             ))}
           </div>
         </div>
@@ -36,14 +36,12 @@ export default function BookmarkPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
-      <div className="flex flex-col gap-6 mb-8">
+      <div className="mb-8 flex flex-col gap-6">
         <div className="flex items-center gap-3">
-          <BookmarkIcon className="h-8 w-8 text-primary" />
+          <BookmarkIcon className="text-primary h-8 w-8" />
           <div>
             <h1 className="text-3xl font-bold">Bookmark</h1>
-            <p className="text-muted-foreground">
-              Koleksi komik dan anime favorit kamu
-            </p>
+            <p className="text-muted-foreground">Koleksi komik dan anime favorit kamu</p>
           </div>
         </div>
 
@@ -54,7 +52,7 @@ export default function BookmarkPage() {
               key={f}
               onClick={() => setFilter(f)}
               className={cn(
-                "px-4 py-2 rounded-full text-sm font-medium transition-colors",
+                "rounded-full px-4 py-2 text-sm font-medium transition-colors",
                 filter === f
                   ? "bg-primary text-primary-foreground"
                   : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
@@ -72,10 +70,14 @@ export default function BookmarkPage() {
           {filteredBookmarks.map((bookmark) => (
             <div key={bookmark.id} className="group relative">
               <Link
-                href={bookmark.type === "komik" ? `/komik/${bookmark.itemId}` : `/anime/${bookmark.itemId}`}
-                className="flex flex-col overflow-hidden rounded-lg bg-card border border-border/50 hover:border-primary/50 transition-all"
+                href={
+                  bookmark.type === "komik"
+                    ? `/komik/${bookmark.itemId}`
+                    : `/anime/${bookmark.itemId}`
+                }
+                className="bg-card border-border/50 hover:border-primary/50 flex flex-col overflow-hidden rounded-lg border transition-all"
               >
-                <div className="relative aspect-[2/3] overflow-hidden bg-muted">
+                <div className="bg-muted relative aspect-[2/3] overflow-hidden">
                   {bookmark.thumbnail ? (
                     <Image
                       src={bookmark.thumbnail}
@@ -87,29 +89,27 @@ export default function BookmarkPage() {
                   ) : (
                     <div className="flex h-full items-center justify-center">
                       {bookmark.type === "komik" ? (
-                        <Book className="h-12 w-12 text-muted-foreground" />
+                        <Book className="text-muted-foreground h-12 w-12" />
                       ) : (
-                        <Film className="h-12 w-12 text-muted-foreground" />
+                        <Film className="text-muted-foreground h-12 w-12" />
                       )}
                     </div>
                   )}
-                  <div className="absolute left-2 top-2">
-                    <span className="rounded bg-primary/90 px-2 py-0.5 text-xs font-medium text-primary-foreground capitalize">
+                  <div className="absolute top-2 left-2">
+                    <span className="bg-primary/90 text-primary-foreground rounded px-2 py-0.5 text-xs font-medium capitalize">
                       {bookmark.type}
                     </span>
                   </div>
                 </div>
                 <div className="p-3">
-                  <h3 className="line-clamp-2 text-sm font-medium">
-                    {bookmark.title}
-                  </h3>
+                  <h3 className="line-clamp-2 text-sm font-medium">{bookmark.title}</h3>
                 </div>
               </Link>
-              
+
               {/* Remove button */}
               <button
                 onClick={() => removeBookmark(bookmark.type, bookmark.itemId)}
-                className="absolute top-2 right-2 p-2 rounded-lg bg-destructive text-destructive-foreground opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/90"
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90 absolute top-2 right-2 rounded-lg p-2 opacity-0 transition-opacity group-hover:opacity-100"
                 title="Hapus dari bookmark"
               >
                 <Trash2 className="h-4 w-4" />
@@ -119,22 +119,22 @@ export default function BookmarkPage() {
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-16 text-center">
-          <BookmarkIcon className="h-16 w-16 text-muted-foreground/50 mb-4" />
+          <BookmarkIcon className="text-muted-foreground/50 mb-4 h-16 w-16" />
           <p className="text-lg font-medium">Belum ada bookmark</p>
-          <p className="text-sm text-muted-foreground mb-4">
+          <p className="text-muted-foreground mb-4 text-sm">
             Simpan komik atau anime favorit kamu di sini
           </p>
           <div className="flex gap-4">
             <Link
               href="/komik"
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors"
             >
               <Book className="h-4 w-4" />
               Jelajahi Komik
             </Link>
             <Link
               href="/anime"
-              className="inline-flex items-center gap-2 rounded-lg bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground hover:bg-secondary/80 transition-colors"
+              className="bg-secondary text-secondary-foreground hover:bg-secondary/80 inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors"
             >
               <Film className="h-4 w-4" />
               Jelajahi Anime

@@ -10,10 +10,12 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 // Create pool only once
-const pool = globalForPrisma.pool ?? new Pool({ 
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false },
-});
+const pool =
+  globalForPrisma.pool ??
+  new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false },
+  });
 
 // Create adapter
 const adapter = new PrismaPg(pool);

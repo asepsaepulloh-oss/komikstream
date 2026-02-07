@@ -2,20 +2,15 @@ import "server-only";
 
 /**
  * API Layer - Database-First Approach
- * 
+ *
  * This module provides data access functions that:
  * 1. First try to get data from Supabase database
  * 2. Fall back to external API only if database is empty or for real-time data
- * 
+ *
  * Video/Image URLs are always fetched fresh (they expire)
  */
 
-import type {
-  Anime,
-  Komik,
-  KomikChapter,
-  KomikImage,
-} from "@/types";
+import type { Anime, Komik, KomikChapter, KomikImage } from "@/types";
 
 import type {
   SansekaiResponse,
@@ -60,8 +55,7 @@ async function fetchExternal<T>(endpoint: string, retries = 3): Promise<T> {
       const res = await fetch(`${BASE_URL}${endpoint}`, {
         cache: "no-store",
         headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
           Accept: "application/json",
           "Accept-Language": "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7",
           Referer: "https://api.sansekai.my.id/",
@@ -136,9 +130,7 @@ export async function getAnimeRecommended(page: number = 1): Promise<Anime[]> {
 
   // Fallback to external API
   try {
-    const res = await fetchExternal<RawAnimeList[]>(
-      `/anime/recommended?page=${page}`
-    );
+    const res = await fetchExternal<RawAnimeList[]>(`/anime/recommended?page=${page}`);
     return ensureArray(res).map(transformAnimeList);
   } catch {
     return [];
@@ -178,9 +170,7 @@ export async function getAnimeDetail(urlId: string): Promise<Anime | null> {
 
   // Fallback to external API
   try {
-    const res = await fetchExternal<RawAnimeDetailResponse>(
-      `/anime/detail?urlId=${urlId}`
-    );
+    const res = await fetchExternal<RawAnimeDetailResponse>(`/anime/detail?urlId=${urlId}`);
     const detail = res.data?.[0];
     return detail ? transformAnimeDetail(detail) : null;
   } catch {
@@ -237,9 +227,7 @@ export async function getAnimeVideo(
 
 // ==================== KOMIK API (Database-First) ====================
 
-export async function getKomikLatest(
-  type: "project" | "mirror"
-): Promise<Komik[]> {
+export async function getKomikLatest(type: "project" | "mirror"): Promise<Komik[]> {
   try {
     // Try database first
     const fromDB = await getKomikLatestFromDB(20);
@@ -252,9 +240,7 @@ export async function getKomikLatest(
 
   // Fallback to external API
   try {
-    const res = await fetchExternal<SansekaiResponse<RawKomik[]>>(
-      `/komik/latest?type=${type}`
-    );
+    const res = await fetchExternal<SansekaiResponse<RawKomik[]>>(`/komik/latest?type=${type}`);
     return ensureArray(res.data).map(transformKomik);
   } catch {
     return [];
@@ -274,18 +260,14 @@ export async function getKomikPopular(page: number = 1): Promise<Komik[]> {
 
   // Fallback to external API
   try {
-    const res = await fetchExternal<SansekaiResponse<RawKomik[]>>(
-      `/komik/popular?page=${page}`
-    );
+    const res = await fetchExternal<SansekaiResponse<RawKomik[]>>(`/komik/popular?page=${page}`);
     return ensureArray(res.data).map(transformKomik);
   } catch {
     return [];
   }
 }
 
-export async function getKomikRecommended(
-  type: "manhwa" | "manhua" | "manga"
-): Promise<Komik[]> {
+export async function getKomikRecommended(type: "manhwa" | "manhua" | "manga"): Promise<Komik[]> {
   try {
     // Try database first
     const fromDB = await getKomikRecommendedFromDB(type, 20);
@@ -329,9 +311,7 @@ export async function getKomikDetail(mangaId: string): Promise<Komik | null> {
   }
 }
 
-export async function getKomikChapterList(
-  mangaId: string
-): Promise<KomikChapter[]> {
+export async function getKomikChapterList(mangaId: string): Promise<KomikChapter[]> {
   try {
     // Try database first
     const fromDB = await getKomikChaptersFromDB(mangaId);
@@ -373,9 +353,7 @@ export async function searchKomik(query: string): Promise<Komik[]> {
 }
 
 // Image URLs may expire - always fetch fresh from external API
-export async function getKomikImages(
-  chapterId: string
-): Promise<KomikImage[]> {
+export async function getKomikImages(chapterId: string): Promise<KomikImage[]> {
   try {
     const res = await fetchExternal<SansekaiResponse<RawKomikImageResponse>>(
       `/komik/getimage?chapter_id=${chapterId}`
@@ -397,10 +375,7 @@ export async function getHomepageData() {
   try {
     // Try database first
     const fromDB = await getHomepageDataFromDB();
-    if (
-      fromDB.animeLatest.length > 0 ||
-      fromDB.komikLatest.length > 0
-    ) {
+    if (fromDB.animeLatest.length > 0 || fromDB.komikLatest.length > 0) {
       return {
         komikLatest: fromDB.komikLatest,
         komikPopular: fromDB.komikPopular,
@@ -413,13 +388,12 @@ export async function getHomepageData() {
   }
 
   // Fallback to external API
-  const [komikLatest, komikPopular, animeLatest, animeRecommended] =
-    await Promise.all([
-      getKomikLatest("mirror").catch(() => []),
-      getKomikPopular(1).catch(() => []),
-      getAnimeLatest().catch(() => []),
-      getAnimeRecommended(1).catch(() => []),
-    ]);
+  const [komikLatest, komikPopular, animeLatest, animeRecommended] = await Promise.all([
+    getKomikLatest("mirror").catch(() => []),
+    getKomikPopular(1).catch(() => []),
+    getAnimeLatest().catch(() => []),
+    getAnimeRecommended(1).catch(() => []),
+  ]);
 
   return {
     komikLatest,

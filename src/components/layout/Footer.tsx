@@ -3,30 +3,30 @@ import Link from "next/link";
 
 export function Footer() {
   return (
-    <footer className="border-t border-border bg-card">
+    <footer className="border-border bg-card border-t">
       <div className="container mx-auto px-4 py-8">
         <div className="grid gap-8 md:grid-cols-4">
           {/* Brand */}
           <div className="md:col-span-2">
-            <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                <Book className="h-5 w-5 text-primary-foreground" />
+            <Link href="/" className="mb-4 flex items-center gap-2">
+              <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-lg">
+                <Book className="text-primary-foreground h-5 w-5" />
               </div>
               <span className="text-xl font-bold">
                 <span className="text-primary">Komik</span>
                 <span>Stream</span>
               </span>
             </Link>
-            <p className="text-sm text-muted-foreground max-w-sm">
-              Baca komik dan nonton anime favorit kamu secara gratis. Koleksi
-              terlengkap dengan update terbaru setiap hari.
+            <p className="text-muted-foreground max-w-sm text-sm">
+              Baca komik dan nonton anime favorit kamu secara gratis. Koleksi terlengkap dengan
+              update terbaru setiap hari.
             </p>
           </div>
 
           {/* Links */}
           <div>
-            <h3 className="font-semibold mb-4">Navigasi</h3>
-            <ul className="space-y-2 text-sm text-muted-foreground">
+            <h3 className="mb-4 font-semibold">Navigasi</h3>
+            <ul className="text-muted-foreground space-y-2 text-sm">
               <li>
                 <Link href="/komik" className="hover:text-primary transition-colors">
                   Komik
@@ -52,8 +52,8 @@ export function Footer() {
 
           {/* Categories */}
           <div>
-            <h3 className="font-semibold mb-4">Kategori Komik</h3>
-            <ul className="space-y-2 text-sm text-muted-foreground">
+            <h3 className="mb-4 font-semibold">Kategori Komik</h3>
+            <ul className="text-muted-foreground space-y-2 text-sm">
               <li>
                 <Link href="/komik?type=manhwa" className="hover:text-primary transition-colors">
                   Manhwa
@@ -74,11 +74,11 @@ export function Footer() {
         </div>
 
         {/* Bottom */}
-        <div className="mt-8 pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-muted-foreground">
+        <div className="border-border mt-8 flex flex-col items-center justify-between gap-4 border-t pt-8 md:flex-row">
+          <p className="text-muted-foreground text-sm">
             © {new Date().getFullYear()} KomikStream. All rights reserved.
           </p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-muted-foreground text-xs">
             Powered by{" "}
             <a
               href="https://xenzee.site"

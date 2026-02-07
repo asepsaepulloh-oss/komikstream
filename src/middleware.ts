@@ -6,13 +6,13 @@ import type { NextRequest } from "next/server";
 function isClerkConfigured(): boolean {
   const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
   const secretKey = process.env.CLERK_SECRET_KEY;
-  
+
   if (!publishableKey || !secretKey) return false;
   if (publishableKey === "pk_test_placeholder") return false;
   if (secretKey === "sk_test_placeholder") return false;
   if (!publishableKey.startsWith("pk_")) return false;
   if (!secretKey.startsWith("sk_")) return false;
-  
+
   return true;
 }
 
@@ -25,9 +25,7 @@ const isProtectedRoute = createRouteMatcher([
 ]);
 
 // Define public routes that should skip Clerk middleware entirely
-const isPublicApiRoute = createRouteMatcher([
-  "/api/webhooks(.*)",
-]);
+const isPublicApiRoute = createRouteMatcher(["/api/webhooks(.*)"]);
 
 // Clerk middleware handler
 const clerkHandler = clerkMiddleware(async (auth, req) => {
@@ -47,7 +45,7 @@ export default function middleware(req: NextRequest) {
   if (isPublicApiRoute(req)) {
     return NextResponse.next();
   }
-  
+
   if (isClerkConfigured()) {
     // @ts-expect-error - Clerk middleware has different signature
     return clerkHandler(req);

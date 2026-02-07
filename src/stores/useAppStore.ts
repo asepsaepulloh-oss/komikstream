@@ -10,7 +10,7 @@ interface AppState {
   addBookmark: (bookmark: Omit<Bookmark, "id" | "createdAt" | "userId">) => void;
   removeBookmark: (type: string, itemId: string) => void;
   isBookmarked: (type: string, itemId: string) => boolean;
-  
+
   // History
   history: History[];
   addToHistory: (item: Omit<History, "id" | "updatedAt" | "userId">) => void;
@@ -24,7 +24,7 @@ export const useAppStore = create<AppState>()(
     (set, get) => ({
       // Bookmarks
       bookmarks: [],
-      
+
       addBookmark: (bookmark) => {
         const newBookmark: Bookmark = {
           ...bookmark,
@@ -36,61 +36,53 @@ export const useAppStore = create<AppState>()(
           bookmarks: [newBookmark, ...state.bookmarks],
         }));
       },
-      
+
       removeBookmark: (type, itemId) => {
         set((state) => ({
-          bookmarks: state.bookmarks.filter(
-            (b) => !(b.type === type && b.itemId === itemId)
-          ),
+          bookmarks: state.bookmarks.filter((b) => !(b.type === type && b.itemId === itemId)),
         }));
       },
-      
+
       isBookmarked: (type, itemId) => {
-        return get().bookmarks.some(
-          (b) => b.type === type && b.itemId === itemId
-        );
+        return get().bookmarks.some((b) => b.type === type && b.itemId === itemId);
       },
 
       // History
       history: [],
-      
+
       addToHistory: (item) => {
         set((state) => {
           // Remove existing entry if exists
           const filtered = state.history.filter(
             (h) => !(h.type === item.type && h.itemId === item.itemId)
           );
-          
+
           const newHistory: History = {
             ...item,
             id: crypto.randomUUID(),
             userId: "local",
             updatedAt: new Date(),
           };
-          
+
           // Add to beginning, keep max 50 items
           return {
             history: [newHistory, ...filtered].slice(0, 50),
           };
         });
       },
-      
+
       removeFromHistory: (type, itemId) => {
         set((state) => ({
-          history: state.history.filter(
-            (h) => !(h.type === type && h.itemId === itemId)
-          ),
+          history: state.history.filter((h) => !(h.type === type && h.itemId === itemId)),
         }));
       },
-      
+
       clearHistory: () => {
         set({ history: [] });
       },
-      
+
       getLastProgress: (type, itemId) => {
-        const item = get().history.find(
-          (h) => h.type === type && h.itemId === itemId
-        );
+        const item = get().history.find((h) => h.type === type && h.itemId === itemId);
         return item?.progress || null;
       },
     }),

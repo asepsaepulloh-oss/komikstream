@@ -26,7 +26,7 @@ export interface DbUser {
  */
 export async function getOrCreateUser(): Promise<DbUser | null> {
   const { userId: clerkId } = await auth();
-  
+
   if (!clerkId) {
     return null;
   }
@@ -44,7 +44,7 @@ export async function getOrCreateUser(): Promise<DbUser | null> {
   // If user doesn't exist, create from Clerk data
   if (!user) {
     const clerkUser = await currentUser();
-    
+
     if (!clerkUser) {
       return null;
     }
@@ -54,9 +54,7 @@ export async function getOrCreateUser(): Promise<DbUser | null> {
       return null;
     }
 
-    const name = [clerkUser.firstName, clerkUser.lastName]
-      .filter(Boolean)
-      .join(" ") || null;
+    const name = [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(" ") || null;
 
     try {
       user = await prisma.user.create({
@@ -108,9 +106,7 @@ export async function syncUserFromClerk(clerkId: string): Promise<DbUser | null>
   }
 
   const email = clerkUser.emailAddresses?.[0]?.emailAddress;
-  const name = [clerkUser.firstName, clerkUser.lastName]
-    .filter(Boolean)
-    .join(" ") || null;
+  const name = [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(" ") || null;
 
   return prisma.user.upsert({
     where: { clerkId },

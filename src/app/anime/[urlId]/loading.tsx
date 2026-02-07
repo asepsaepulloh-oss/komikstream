@@ -20,7 +20,7 @@ export default function AnimeDetailLoading() {
 
           {/* Episode list skeleton */}
           <div className="mt-8">
-            <Skeleton className="h-8 w-32 mb-4" />
+            <Skeleton className="mb-4 h-8 w-32" />
             <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 md:grid-cols-8">
               {Array.from({ length: 12 }).map((_, i) => (
                 <Skeleton key={i} className="h-10 rounded" />

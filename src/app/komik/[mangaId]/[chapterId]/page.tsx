@@ -13,7 +13,7 @@ interface ReaderPageProps {
 export async function generateMetadata({ params }: ReaderPageProps): Promise<Metadata> {
   const { mangaId, chapterId } = await params;
   const komik = await getKomikDetail(mangaId);
-  
+
   if (!komik) {
     return { title: "Komik tidak ditemukan" };
   }
@@ -52,24 +52,22 @@ export default async function KomikReaderPage({ params }: ReaderPageProps) {
   return (
     <div className="min-h-screen bg-black">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border">
+      <header className="bg-background/95 border-border sticky top-0 z-50 border-b backdrop-blur">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-14">
+          <div className="flex h-14 items-center justify-between">
             {/* Back button */}
             <Link
               href={`/komik/${mangaId}`}
-              className="flex items-center gap-2 text-sm hover:text-primary transition-colors"
+              className="hover:text-primary flex items-center gap-2 text-sm transition-colors"
             >
               <ChevronLeft className="h-4 w-4" />
               <span className="hidden sm:inline">Kembali</span>
             </Link>
 
             {/* Title */}
-            <div className="flex-1 text-center px-4">
-              <h1 className="text-sm font-medium truncate">
-                {komik.title}
-              </h1>
-              <p className="text-xs text-muted-foreground truncate">
+            <div className="flex-1 px-4 text-center">
+              <h1 className="truncate text-sm font-medium">{komik.title}</h1>
+              <p className="text-muted-foreground truncate text-xs">
                 {currentChapter?.title || `Chapter ${chapterId}`}
               </p>
             </div>
@@ -78,13 +76,13 @@ export default async function KomikReaderPage({ params }: ReaderPageProps) {
             <div className="flex items-center gap-2">
               <Link
                 href="/"
-                className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-accent transition-colors"
+                className="hover:bg-accent flex h-9 w-9 items-center justify-center rounded-lg transition-colors"
               >
                 <Home className="h-4 w-4" />
               </Link>
               <Link
                 href={`/komik/${mangaId}`}
-                className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-accent transition-colors"
+                className="hover:bg-accent flex h-9 w-9 items-center justify-center rounded-lg transition-colors"
               >
                 <List className="h-4 w-4" />
               </Link>
@@ -94,40 +92,38 @@ export default async function KomikReaderPage({ params }: ReaderPageProps) {
       </header>
 
       {/* Navigation (top) */}
-      <nav className="bg-background border-b border-border">
+      <nav className="bg-background border-border border-b">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between py-3">
             {prevChapter ? (
               <Link
                 href={`/komik/${mangaId}/${prevChapter.chapter_id}`}
-                className="flex items-center gap-2 text-sm text-primary hover:underline"
+                className="text-primary flex items-center gap-2 text-sm hover:underline"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Prev
               </Link>
             ) : (
-              <span className="text-sm text-muted-foreground">
-                <ArrowLeft className="h-4 w-4 inline mr-1" />
+              <span className="text-muted-foreground text-sm">
+                <ArrowLeft className="mr-1 inline h-4 w-4" />
                 Prev
               </span>
             )}
 
-            <span className="text-sm font-medium">
-              {currentChapter?.title || "Loading..."}
-            </span>
+            <span className="text-sm font-medium">{currentChapter?.title || "Loading..."}</span>
 
             {nextChapter ? (
               <Link
                 href={`/komik/${mangaId}/${nextChapter.chapter_id}`}
-                className="flex items-center gap-2 text-sm text-primary hover:underline"
+                className="text-primary flex items-center gap-2 text-sm hover:underline"
               >
                 Next
                 <ArrowRight className="h-4 w-4" />
               </Link>
             ) : (
-              <span className="text-sm text-muted-foreground">
+              <span className="text-muted-foreground text-sm">
                 Next
-                <ArrowRight className="h-4 w-4 inline ml-1" />
+                <ArrowRight className="ml-1 inline h-4 w-4" />
               </span>
             )}
           </div>
@@ -137,13 +133,13 @@ export default async function KomikReaderPage({ params }: ReaderPageProps) {
       {/* Images */}
       <main className="flex flex-col items-center bg-black py-4">
         {imageUrls.map((url, index) => (
-          <div key={index} className="w-full max-w-4xl relative">
+          <div key={index} className="relative w-full max-w-4xl">
             <Image
               src={getImageUrl(url)}
               alt={`Page ${index + 1}`}
               width={1000}
               height={1500}
-              className="w-full h-auto"
+              className="h-auto w-full"
               priority={index < 3}
               unoptimized
             />
@@ -152,13 +148,13 @@ export default async function KomikReaderPage({ params }: ReaderPageProps) {
       </main>
 
       {/* Navigation (bottom) */}
-      <nav className="bg-background border-t border-border sticky bottom-0">
+      <nav className="bg-background border-border sticky bottom-0 border-t">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between py-4">
             {prevChapter ? (
               <Link
                 href={`/komik/${mangaId}/${prevChapter.chapter_id}`}
-                className="flex items-center gap-2 rounded-lg bg-secondary px-4 py-2 text-sm font-medium hover:bg-secondary/80 transition-colors"
+                className="bg-secondary hover:bg-secondary/80 flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Chapter Sebelumnya
@@ -170,7 +166,7 @@ export default async function KomikReaderPage({ params }: ReaderPageProps) {
             {nextChapter ? (
               <Link
                 href={`/komik/${mangaId}/${nextChapter.chapter_id}`}
-                className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors"
               >
                 Chapter Selanjutnya
                 <ArrowRight className="h-4 w-4" />
@@ -178,7 +174,7 @@ export default async function KomikReaderPage({ params }: ReaderPageProps) {
             ) : (
               <Link
                 href={`/komik/${mangaId}`}
-                className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors"
               >
                 <BookOpen className="h-4 w-4" />
                 Kembali ke Detail

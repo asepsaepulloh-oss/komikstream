@@ -16,27 +16,18 @@ async function getPrisma() {
 export async function GET(request: NextRequest) {
   try {
     if (!isClerkConfigured()) {
-      return NextResponse.json(
-        { error: "Authentication not configured" },
-        { status: 501 }
-      );
+      return NextResponse.json({ error: "Authentication not configured" }, { status: 501 });
     }
 
     const user = await getOrCreateUser();
-    
+
     if (!user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const prisma = await getPrisma();
     if (!prisma) {
-      return NextResponse.json(
-        { error: "Database not configured" },
-        { status: 501 }
-      );
+      return NextResponse.json({ error: "Database not configured" }, { status: 501 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -55,10 +46,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ history });
   } catch (error) {
     console.error("Error fetching history:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch history" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch history" }, { status: 500 });
   }
 }
 
@@ -66,27 +54,18 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     if (!isClerkConfigured()) {
-      return NextResponse.json(
-        { error: "Authentication not configured" },
-        { status: 501 }
-      );
+      return NextResponse.json({ error: "Authentication not configured" }, { status: 501 });
     }
 
     const user = await getOrCreateUser();
-    
+
     if (!user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const prisma = await getPrisma();
     if (!prisma) {
-      return NextResponse.json(
-        { error: "Database not configured" },
-        { status: 501 }
-      );
+      return NextResponse.json({ error: "Database not configured" }, { status: 501 });
     }
 
     const body = await request.json();
@@ -136,10 +115,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ history: historyEntry }, { status: 201 });
   } catch (error) {
     console.error("Error updating history:", error);
-    return NextResponse.json(
-      { error: "Failed to update history" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to update history" }, { status: 500 });
   }
 }
 
@@ -147,27 +123,18 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     if (!isClerkConfigured()) {
-      return NextResponse.json(
-        { error: "Authentication not configured" },
-        { status: 501 }
-      );
+      return NextResponse.json({ error: "Authentication not configured" }, { status: 501 });
     }
 
     const user = await getOrCreateUser();
-    
+
     if (!user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const prisma = await getPrisma();
     if (!prisma) {
-      return NextResponse.json(
-        { error: "Database not configured" },
-        { status: 501 }
-      );
+      return NextResponse.json({ error: "Database not configured" }, { status: 501 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -204,9 +171,6 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error deleting history:", error);
-    return NextResponse.json(
-      { error: "Failed to delete history" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to delete history" }, { status: 500 });
   }
 }

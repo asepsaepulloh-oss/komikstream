@@ -61,12 +61,15 @@ export function Pagination({ currentPage, totalPages, baseUrl, className }: Pagi
   const pages = getPageNumbers();
 
   return (
-    <nav className={cn("flex items-center justify-center gap-1", className)} aria-label="Pagination">
+    <nav
+      className={cn("flex items-center justify-center gap-1", className)}
+      aria-label="Pagination"
+    >
       {/* Previous button */}
       <Link
         href={currentPage > 1 ? buildUrl(currentPage - 1) : "#"}
         className={cn(
-          "flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors",
+          "flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
           currentPage > 1
             ? "hover:bg-accent text-foreground"
             : "text-muted-foreground pointer-events-none opacity-50"
@@ -84,7 +87,7 @@ export function Pagination({ currentPage, totalPages, baseUrl, className }: Pagi
             return (
               <span
                 key={`ellipsis-${index}`}
-                className="flex items-center justify-center w-10 h-10 text-muted-foreground"
+                className="text-muted-foreground flex h-10 w-10 items-center justify-center"
               >
                 <MoreHorizontal className="h-4 w-4" />
               </span>
@@ -98,10 +101,8 @@ export function Pagination({ currentPage, totalPages, baseUrl, className }: Pagi
               key={page}
               href={buildUrl(page)}
               className={cn(
-                "flex items-center justify-center w-10 h-10 text-sm font-medium rounded-lg transition-colors",
-                isActive
-                  ? "bg-primary text-primary-foreground"
-                  : "hover:bg-accent text-foreground"
+                "flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium transition-colors",
+                isActive ? "bg-primary text-primary-foreground" : "hover:bg-accent text-foreground"
               )}
               aria-current={isActive ? "page" : undefined}
             >
@@ -115,7 +116,7 @@ export function Pagination({ currentPage, totalPages, baseUrl, className }: Pagi
       <Link
         href={currentPage < totalPages ? buildUrl(currentPage + 1) : "#"}
         className={cn(
-          "flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors",
+          "flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
           currentPage < totalPages
             ? "hover:bg-accent text-foreground"
             : "text-muted-foreground pointer-events-none opacity-50"
@@ -146,9 +147,9 @@ export function LoadMoreButton({ onClick, isLoading, hasMore, className }: LoadM
         onClick={onClick}
         disabled={isLoading}
         className={cn(
-          "px-6 py-3 rounded-lg font-medium transition-all",
+          "rounded-lg px-6 py-3 font-medium transition-all",
           "bg-primary text-primary-foreground hover:bg-primary/90",
-          "disabled:opacity-50 disabled:cursor-not-allowed",
+          "disabled:cursor-not-allowed disabled:opacity-50",
           isLoading && "animate-pulse"
         )}
       >

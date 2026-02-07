@@ -1,11 +1,11 @@
 /**
  * Initial Database Seeding Script
- * 
+ *
  * This script populates the database with initial data from the external API.
  * Target: ~50 anime + ~100 komik (Option A - minimal seed)
- * 
+ *
  * Usage: npm run seed
- * 
+ *
  * Note: This script uses rate limiting (2s between requests) to avoid
  * hitting Cloudflare rate limits. Estimated runtime: 30-60 minutes.
  */
@@ -16,7 +16,7 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
 
 // For Prisma 7.x with PostgreSQL (Supabase requires SSL)
-const pool = new Pool({ 
+const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false },
 });
@@ -35,8 +35,7 @@ async function fetchAPI<T>(endpoint: string): Promise<T | null> {
     console.log(`  Fetching: ${endpoint}`);
     const response = await fetch(`${BASE_URL}${endpoint}`, {
       headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
         Accept: "application/json",
         "Accept-Language": "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7",
         Referer: "https://api.sansekai.my.id/",
@@ -79,7 +78,7 @@ async function seedAnime(): Promise<number> {
   for (let page = 1; page <= 3; page++) {
     console.log(`\n  Page ${page}:`);
     const data = await fetchAPI<RawAnimeList[]>(`/anime/recommended?page=${page}`);
-    
+
     if (data && Array.isArray(data)) {
       for (const anime of data) {
         try {
@@ -115,7 +114,7 @@ async function seedAnime(): Promise<number> {
   // 2. Seed from latest (1 request = ~10-20 anime)
   console.log("\n📌 Fetching latest anime...");
   const latestData = await fetchAPI<RawAnimeList[]>("/anime/latest");
-  
+
   if (latestData && Array.isArray(latestData)) {
     for (const anime of latestData) {
       try {
@@ -152,7 +151,7 @@ async function seedAnime(): Promise<number> {
   // 3. Seed from movies (1 request = ~10-20 anime)
   console.log("\n📌 Fetching anime movies...");
   const movieData = await fetchAPI<RawAnimeList[]>("/anime/movie");
-  
+
   if (movieData && Array.isArray(movieData)) {
     for (const anime of movieData) {
       try {
@@ -230,7 +229,7 @@ async function seedKomik(): Promise<number> {
   for (let page = 1; page <= 10; page++) {
     console.log(`\n  Page ${page}:`);
     const data = await fetchAPI<KomikResponse>(`/komik/popular?page=${page}`);
-    
+
     if (data?.data && Array.isArray(data.data)) {
       for (const komik of data.data) {
         const genres = komik.taxonomy?.Genre?.map((g) => g.name) || [];
@@ -287,7 +286,7 @@ async function seedKomik(): Promise<number> {
   // 2. Seed from latest mirror (1 request)
   console.log("\n📌 Fetching latest komik (mirror)...");
   const latestData = await fetchAPI<KomikResponse>("/komik/latest?type=mirror");
-  
+
   if (latestData?.data && Array.isArray(latestData.data)) {
     for (const komik of latestData.data) {
       const genres = komik.taxonomy?.Genre?.map((g) => g.name) || [];
@@ -392,7 +391,6 @@ async function main() {
     console.log(`  Total items: ${animeCount + komikCount}`);
     console.log(`  Duration: ${Math.round(duration / 1000)} seconds`);
     console.log(`\nCompleted at: ${new Date().toISOString()}\n`);
-
   } catch (error) {
     const duration = Date.now() - startTime;
 

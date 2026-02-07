@@ -231,9 +231,7 @@ export async function getKomikPopular(page: number = 1): Promise<Komik[]> {
   }
 }
 
-export async function getKomikRecommended(
-  type: "manhwa" | "manhua" | "manga"
-): Promise<Komik[]> {
+export async function getKomikRecommended(type: "manhwa" | "manhua" | "manga"): Promise<Komik[]> {
   try {
     const res = await fetchWithRetry<KomikListResponse>(
       `${BASE_URL}/komik/recommended?type=${type}`
@@ -357,7 +355,8 @@ function transformKomik(raw: RawKomikItem): Komik {
     thumbnail: raw.thumbnail || raw.cover || raw.cover_image_url || "",
     cover: raw.cover || raw.thumbnail || raw.cover_image_url,
     type: raw.type,
-    status: typeof raw.status === "number" ? (raw.status === 1 ? "Ongoing" : "Completed") : raw.status,
+    status:
+      typeof raw.status === "number" ? (raw.status === 1 ? "Ongoing" : "Completed") : raw.status,
     rating: raw.rating || raw.user_rate,
     description: raw.description || raw.synopsis,
     author: raw.author || raw.taxonomy?.Author?.[0]?.name,

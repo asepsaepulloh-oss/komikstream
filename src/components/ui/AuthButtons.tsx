@@ -14,7 +14,7 @@ export function AuthButtons({ clerkEnabled }: AuthButtonsProps) {
   if (!clerkEnabled) {
     return (
       <Link href="/sign-in">
-        <Button variant="outline" size="sm" className="hidden md:flex gap-2">
+        <Button variant="outline" size="sm" className="hidden gap-2 md:flex">
           <LogIn className="h-4 w-4" />
           Masuk
         </Button>

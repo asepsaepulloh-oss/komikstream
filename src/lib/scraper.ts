@@ -61,9 +61,7 @@ async function rateLimitedFetch<T>(endpoint: string): Promise<T> {
 /**
  * Transform raw anime list item to database format
  */
-export function transformAnimeToDBFormat(
-  raw: RawAnimeList
-): Prisma.AnimeCreateInput {
+export function transformAnimeToDBFormat(raw: RawAnimeList): Prisma.AnimeCreateInput {
   return {
     urlId: raw.url,
     title: raw.judul,
@@ -85,15 +83,14 @@ export function transformAnimeToDBFormat(
 /**
  * Transform raw anime detail to database format
  */
-export function transformAnimeDetailToDBFormat(
-  raw: RawAnimeDetail
-): Prisma.AnimeCreateInput {
-  const episodes = raw.chapter?.map((ch) => ({
-    id: ch.id,
-    url: ch.url,
-    title: ch.ch || `Episode ${ch.id}`,
-    date: ch.date || null,
-  })) || [];
+export function transformAnimeDetailToDBFormat(raw: RawAnimeDetail): Prisma.AnimeCreateInput {
+  const episodes =
+    raw.chapter?.map((ch) => ({
+      id: ch.id,
+      url: ch.url,
+      title: ch.ch || `Episode ${ch.id}`,
+      date: ch.date || null,
+    })) || [];
 
   return {
     urlId: raw.series_id,
@@ -129,13 +126,9 @@ export async function scrapeAnimeLatest(): Promise<Prisma.AnimeCreateInput[]> {
 /**
  * Scrape recommended anime from API (paginated)
  */
-export async function scrapeAnimeRecommended(
-  page: number = 1
-): Promise<Prisma.AnimeCreateInput[]> {
+export async function scrapeAnimeRecommended(page: number = 1): Promise<Prisma.AnimeCreateInput[]> {
   try {
-    const data = await rateLimitedFetch<RawAnimeList[]>(
-      `/anime/recommended?page=${page}`
-    );
+    const data = await rateLimitedFetch<RawAnimeList[]>(`/anime/recommended?page=${page}`);
     return data.map(transformAnimeToDBFormat);
   } catch (error) {
     console.error(`Failed to scrape anime recommended page ${page}:`, error);
@@ -159,13 +152,9 @@ export async function scrapeAnimeMovie(): Promise<Prisma.AnimeCreateInput[]> {
 /**
  * Scrape anime detail by urlId
  */
-export async function scrapeAnimeDetail(
-  urlId: string
-): Promise<Prisma.AnimeCreateInput | null> {
+export async function scrapeAnimeDetail(urlId: string): Promise<Prisma.AnimeCreateInput | null> {
   try {
-    const data = await rateLimitedFetch<RawAnimeDetailResponse>(
-      `/anime/detail?urlId=${urlId}`
-    );
+    const data = await rateLimitedFetch<RawAnimeDetailResponse>(`/anime/detail?urlId=${urlId}`);
     const detail = data.data?.[0];
     if (!detail) return null;
     return transformAnimeDetailToDBFormat(detail);
@@ -180,9 +169,7 @@ export async function scrapeAnimeDetail(
 /**
  * Transform raw komik to database format
  */
-export function transformKomikToDBFormat(
-  raw: RawKomik
-): Prisma.KomikCreateInput {
+export function transformKomikToDBFormat(raw: RawKomik): Prisma.KomikCreateInput {
   const genres = raw.taxonomy?.Genre?.map((g) => g.name) || [];
   const authors = raw.taxonomy?.Author || [];
   const artists = raw.taxonomy?.Artist || [];
@@ -207,10 +194,8 @@ export function transformKomikToDBFormat(
     artists: artists,
     latestChapterId: raw.latest_chapter_id || null,
     latestChapterNumber: raw.latest_chapter_number || null,
-    latestChapterDate: raw.latest_chapter_time
-      ? new Date(raw.latest_chapter_time)
-      : null,
-    chapters: raw.chapters as unknown as Prisma.InputJsonValue || [],
+    latestChapterDate: raw.latest_chapter_time ? new Date(raw.latest_chapter_time) : null,
+    chapters: (raw.chapters as unknown as Prisma.InputJsonValue) || [],
     sourceUrl: null,
   };
 }
@@ -222,9 +207,7 @@ export async function scrapeKomikLatest(
   type: "project" | "mirror" = "mirror"
 ): Promise<Prisma.KomikCreateInput[]> {
   try {
-    const data = await rateLimitedFetch<SansekaiResponse<RawKomik[]>>(
-      `/komik/latest?type=${type}`
-    );
+    const data = await rateLimitedFetch<SansekaiResponse<RawKomik[]>>(`/komik/latest?type=${type}`);
     if (!data.data || !Array.isArray(data.data)) return [];
     return data.data.map(transformKomikToDBFormat);
   } catch (error) {
@@ -236,9 +219,7 @@ export async function scrapeKomikLatest(
 /**
  * Scrape popular komik from API (paginated)
  */
-export async function scrapeKomikPopular(
-  page: number = 1
-): Promise<Prisma.KomikCreateInput[]> {
+export async function scrapeKomikPopular(page: number = 1): Promise<Prisma.KomikCreateInput[]> {
   try {
     const data = await rateLimitedFetch<SansekaiResponse<RawKomik[]>>(
       `/komik/popular?page=${page}`
@@ -272,9 +253,7 @@ export async function scrapeKomikRecommended(
 /**
  * Scrape komik detail by mangaId
  */
-export async function scrapeKomikDetail(
-  mangaId: string
-): Promise<Prisma.KomikCreateInput | null> {
+export async function scrapeKomikDetail(mangaId: string): Promise<Prisma.KomikCreateInput | null> {
   try {
     const data = await rateLimitedFetch<SansekaiResponse<RawKomik>>(
       `/komik/detail?manga_id=${mangaId}`

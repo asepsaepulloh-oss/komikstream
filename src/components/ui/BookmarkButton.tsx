@@ -45,11 +45,7 @@ export function BookmarkButton({
         )}
         title={bookmarked ? "Hapus dari bookmark" : "Tambah ke bookmark"}
       >
-        {bookmarked ? (
-          <BookmarkCheck className="h-5 w-5" />
-        ) : (
-          <Bookmark className="h-5 w-5" />
-        )}
+        {bookmarked ? <BookmarkCheck className="h-5 w-5" /> : <Bookmark className="h-5 w-5" />}
       </button>
     );
   }

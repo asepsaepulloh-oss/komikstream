@@ -17,13 +17,13 @@ function ExampleComponent({ title }: { title: string }) {
 describe("ExampleComponent", () => {
   it("renders title correctly", () => {
     render(<ExampleComponent title="Test Title" />);
-    
+
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Test Title");
   });
 
   it("renders welcome message", () => {
     render(<ExampleComponent title="Test" />);
-    
+
     expect(screen.getByText("Welcome to KomikStream")).toBeInTheDocument();
   });
 });
@@ -32,13 +32,13 @@ describe("Utility functions", () => {
   it("should format strings correctly", () => {
     const input = "hello world";
     const expected = "hello world";
-    
+
     expect(input).toBe(expected);
   });
 
   it("should handle empty arrays", () => {
     const arr: string[] = [];
-    
+
     expect(arr).toHaveLength(0);
     expect(Array.isArray(arr)).toBe(true);
   });

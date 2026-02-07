@@ -21,9 +21,7 @@ export function SearchBar({
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
-  const [value, setValue] = useState(
-    defaultValue || searchParams.get("q") || ""
-  );
+  const [value, setValue] = useState(defaultValue || searchParams.get("q") || "");
 
   const handleSearch = useCallback(() => {
     if (!value.trim()) return;
@@ -49,14 +47,9 @@ export function SearchBar({
   };
 
   return (
-    <div
-      className={cn(
-        "relative flex items-center w-full max-w-xl",
-        className
-      )}
-    >
+    <div className={cn("relative flex w-full max-w-xl items-center", className)}>
       <div className="relative flex-1">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
         <input
           type="text"
           value={value}
@@ -64,16 +57,16 @@ export function SearchBar({
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           className={cn(
-            "h-11 w-full rounded-lg border border-input bg-background pl-10 pr-10",
-            "text-sm placeholder:text-muted-foreground",
-            "focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent",
+            "border-input bg-background h-11 w-full rounded-lg border pr-10 pl-10",
+            "placeholder:text-muted-foreground text-sm",
+            "focus:ring-ring focus:border-transparent focus:ring-2 focus:outline-none",
             "transition-all duration-200"
           )}
         />
         {value && (
           <button
             onClick={handleClear}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2"
           >
             <X className="h-4 w-4" />
           </button>
@@ -83,15 +76,15 @@ export function SearchBar({
         onClick={handleSearch}
         disabled={isPending || !value.trim()}
         className={cn(
-          "ml-2 h-11 px-4 rounded-lg",
+          "ml-2 h-11 rounded-lg px-4",
           "bg-primary text-primary-foreground font-medium",
           "hover:bg-primary/90 transition-colors",
-          "disabled:opacity-50 disabled:cursor-not-allowed",
+          "disabled:cursor-not-allowed disabled:opacity-50",
           "flex items-center gap-2"
         )}
       >
         {isPending ? (
-          <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
+          <div className="border-primary-foreground h-4 w-4 animate-spin rounded-full border-2 border-t-transparent" />
         ) : (
           "Cari"
         )}

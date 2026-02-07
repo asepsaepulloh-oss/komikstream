@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import {
-  transformDBAniomeToFrontend,
-  transformDBKomikToFrontend,
-} from "@/lib/database";
+import { transformDBAniomeToFrontend, transformDBKomikToFrontend } from "@/lib/database";
 
 export const dynamic = "force-dynamic";
 
@@ -51,10 +48,7 @@ export async function GET(request: NextRequest) {
           ],
         },
         take: type === "anime" ? limit : Math.floor(limit / 2),
-        orderBy: [
-          { rating: "desc" },
-          { createdAt: "desc" },
-        ],
+        orderBy: [{ rating: "desc" }, { createdAt: "desc" }],
       });
 
       results.push(
@@ -82,10 +76,7 @@ export async function GET(request: NextRequest) {
           ],
         },
         take: type === "komik" ? limit : Math.floor(limit / 2),
-        orderBy: [
-          { viewCount: "desc" },
-          { createdAt: "desc" },
-        ],
+        orderBy: [{ viewCount: "desc" }, { createdAt: "desc" }],
       });
 
       results.push(
@@ -110,9 +101,6 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("Search error:", error);
-    return NextResponse.json(
-      { error: "Search failed", results: [] },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Search failed", results: [] }, { status: 500 });
   }
 }

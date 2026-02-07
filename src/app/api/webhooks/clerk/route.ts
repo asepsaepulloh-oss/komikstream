@@ -19,10 +19,7 @@ export async function POST(req: Request) {
 
   if (!WEBHOOK_SECRET) {
     console.error("Missing CLERK_WEBHOOK_SECRET environment variable");
-    return NextResponse.json(
-      { error: "Webhook secret not configured" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Webhook secret not configured" }, { status: 500 });
   }
 
   // Get the headers
@@ -33,10 +30,7 @@ export async function POST(req: Request) {
 
   // If there are no headers, error out
   if (!svix_id || !svix_timestamp || !svix_signature) {
-    return NextResponse.json(
-      { error: "Missing svix headers" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Missing svix headers" }, { status: 400 });
   }
 
   // Get the body
@@ -57,10 +51,7 @@ export async function POST(req: Request) {
     }) as WebhookEvent;
   } catch (err) {
     console.error("Error verifying webhook:", err);
-    return NextResponse.json(
-      { error: "Invalid webhook signature" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Invalid webhook signature" }, { status: 400 });
   }
 
   // Get the event type
@@ -69,26 +60,20 @@ export async function POST(req: Request) {
   const prisma = await getPrisma();
   if (!prisma) {
     console.error("Database not configured");
-    return NextResponse.json(
-      { error: "Database not configured" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Database not configured" }, { status: 500 });
   }
 
   try {
     switch (eventType) {
       case "user.created": {
         const { id, email_addresses, first_name, last_name, image_url } = evt.data;
-        
+
         const email = email_addresses?.[0]?.email_address;
         const name = [first_name, last_name].filter(Boolean).join(" ") || null;
 
         if (!email) {
           console.error("No email found for user:", id);
-          return NextResponse.json(
-            { error: "No email found" },
-            { status: 400 }
-          );
+          return NextResponse.json({ error: "No email found" }, { status: 400 });
         }
 
         // Create user in database
@@ -107,7 +92,7 @@ export async function POST(req: Request) {
 
       case "user.updated": {
         const { id, email_addresses, first_name, last_name, image_url } = evt.data;
-        
+
         const email = email_addresses?.[0]?.email_address;
         const name = [first_name, last_name].filter(Boolean).join(" ") || null;
 
@@ -131,10 +116,7 @@ export async function POST(req: Request) {
 
         if (!id) {
           console.error("No user ID found in delete event");
-          return NextResponse.json(
-            { error: "No user ID found" },
-            { status: 400 }
-          );
+          return NextResponse.json({ error: "No user ID found" }, { status: 400 });
         }
 
         // Delete user from database (cascade will delete bookmarks and history)
@@ -153,9 +135,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error(`Error processing webhook ${eventType}:`, error);
-    return NextResponse.json(
-      { error: "Failed to process webhook" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to process webhook" }, { status: 500 });
   }
 }

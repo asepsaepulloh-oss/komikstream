@@ -26,12 +26,14 @@ export function transformDBAniomeToFrontend(dbAnime: PrismaAnime): Anime {
     type: dbAnime.type || undefined,
     rating: dbAnime.rating || undefined,
     genres: (dbAnime.genres as string[]) || [],
-    episodes: ((dbAnime.episodes as Array<{
-      id: number;
-      url: string;
-      title: string;
-      date: string | null;
-    }>) || []).map(ep => ({
+    episodes: (
+      (dbAnime.episodes as Array<{
+        id: number;
+        url: string;
+        title: string;
+        date: string | null;
+      }>) || []
+    ).map((ep) => ({
       ...ep,
       date: ep.date ?? undefined,
     })),
@@ -44,11 +46,12 @@ export function transformDBAniomeToFrontend(dbAnime: PrismaAnime): Anime {
  * Transform Prisma Komik to frontend Komik type
  */
 export function transformDBKomikToFrontend(dbKomik: PrismaKomik): Komik {
-  const chapters = (dbKomik.chapters as Array<{
-    chapter_id: string;
-    chapter_number: number;
-    created_at: string;
-  }>) || [];
+  const chapters =
+    (dbKomik.chapters as Array<{
+      chapter_id: string;
+      chapter_number: number;
+      created_at: string;
+    }>) || [];
 
   return {
     manga_id: dbKomik.mangaId,
@@ -78,10 +81,7 @@ export function transformDBKomikToFrontend(dbKomik: PrismaKomik): Komik {
 /**
  * Get all anime from database (with pagination)
  */
-export async function getAnimeListFromDB(
-  limit: number = 20,
-  offset: number = 0
-): Promise<Anime[]> {
+export async function getAnimeListFromDB(limit: number = 20, offset: number = 0): Promise<Anime[]> {
   const anime = await prisma.anime.findMany({
     take: limit,
     skip: offset,
@@ -174,10 +174,7 @@ export async function countAnimeInDB(): Promise<number> {
 /**
  * Get all komik from database (with pagination)
  */
-export async function getKomikListFromDB(
-  limit: number = 20,
-  offset: number = 0
-): Promise<Komik[]> {
+export async function getKomikListFromDB(limit: number = 20, offset: number = 0): Promise<Komik[]> {
   const komik = await prisma.komik.findMany({
     take: limit,
     skip: offset,
@@ -249,15 +246,15 @@ export async function getKomikChaptersFromDB(mangaId: string): Promise<KomikChap
     where: { mangaId },
     select: { chapters: true },
   });
-  
+
   if (!komik || !komik.chapters) return [];
-  
+
   const chapters = komik.chapters as Array<{
     chapter_id: string;
     chapter_number: number;
     created_at: string;
   }>;
-  
+
   return chapters.map((ch) => ({
     chapter_id: ch.chapter_id,
     title: `Chapter ${ch.chapter_number}`,

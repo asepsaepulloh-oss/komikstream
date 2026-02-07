@@ -17,53 +17,54 @@ interface CardProps {
 
 export function Card({ item, type, className, index = 0 }: CardProps) {
   const [imageError, setImageError] = useState(false);
-  
+
   const isKomik = type === "komik";
   const komik = item as Komik;
   const anime = item as Anime;
 
   const id = isKomik ? komik.manga_id : anime.urlId;
-  
+
   // Skip if no valid ID
   if (!id) return null;
-  
+
   const title = item.title || "Untitled";
-  const thumbnail =
-    item.thumbnail || (item as Komik).cover || (item as Anime).poster || "";
+  const thumbnail = item.thumbnail || (item as Komik).cover || (item as Anime).poster || "";
   const rating = item.rating || (item as Anime).score;
   const itemType = isKomik ? komik.type : anime.type;
 
   const href = isKomik ? `/komik/${id}` : `/anime/${id}`;
-  const imageUrl = imageError ? "https://placehold.co/300x450/1a1a2e/ffffff?text=No+Image" : getImageUrl(thumbnail);
+  const imageUrl = imageError
+    ? "https://placehold.co/300x450/1a1a2e/ffffff?text=No+Image"
+    : getImageUrl(thumbnail);
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ 
-        duration: 0.3, 
+      transition={{
+        duration: 0.3,
         delay: Math.min(index * 0.05, 0.5), // Cap delay at 0.5s
-        ease: "easeOut" 
+        ease: "easeOut",
       }}
-      whileHover={{ 
+      whileHover={{
         y: -4,
-        transition: { duration: 0.2 }
+        transition: { duration: 0.2 },
       }}
     >
       <Link
         href={href}
         className={cn(
           "group relative flex flex-col overflow-hidden rounded-lg",
-          "bg-card border border-border/50 transition-all duration-300",
-          "hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10",
+          "bg-card border-border/50 border transition-all duration-300",
+          "hover:border-primary/50 hover:shadow-primary/10 hover:shadow-lg",
           className
         )}
       >
         {/* Thumbnail */}
-        <div className="relative aspect-[2/3] overflow-hidden bg-muted">
+        <div className="bg-muted relative aspect-[2/3] overflow-hidden">
           {imageError ? (
-            <div className="absolute inset-0 flex items-center justify-center bg-muted">
-              <ImageOff className="h-8 w-8 text-muted-foreground" />
+            <div className="bg-muted absolute inset-0 flex items-center justify-center">
+              <ImageOff className="text-muted-foreground h-8 w-8" />
             </div>
           ) : (
             <Image
@@ -78,14 +79,14 @@ export function Card({ item, type, className, index = 0 }: CardProps) {
           )}
 
           {/* Overlay on hover */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
           {/* Play/Read icon on hover */}
-          <motion.div 
-            className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          <motion.div
+            className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100"
             whileHover={{ scale: 1.1 }}
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg">
+            <div className="bg-primary text-primary-foreground flex h-12 w-12 items-center justify-center rounded-full shadow-lg">
               {isKomik ? (
                 <BookOpen className="h-5 w-5" />
               ) : (
@@ -96,8 +97,8 @@ export function Card({ item, type, className, index = 0 }: CardProps) {
 
           {/* Type badge */}
           {itemType && (
-            <div className="absolute left-2 top-2">
-              <span className="rounded bg-primary/90 px-2 py-0.5 text-xs font-medium text-primary-foreground capitalize">
+            <div className="absolute top-2 left-2">
+              <span className="bg-primary/90 text-primary-foreground rounded px-2 py-0.5 text-xs font-medium capitalize">
                 {itemType}
               </span>
             </div>
@@ -105,7 +106,7 @@ export function Card({ item, type, className, index = 0 }: CardProps) {
 
           {/* Rating badge */}
           {rating && (
-            <div className="absolute right-2 top-2">
+            <div className="absolute top-2 right-2">
               <span className="flex items-center gap-1 rounded bg-black/70 px-2 py-0.5 text-xs font-medium text-yellow-400">
                 <Star className="h-3 w-3 fill-yellow-400" />
                 {rating}
@@ -116,13 +117,11 @@ export function Card({ item, type, className, index = 0 }: CardProps) {
 
         {/* Content */}
         <div className="flex flex-1 flex-col gap-1 p-3">
-          <h3 className="line-clamp-2 text-sm font-medium leading-tight group-hover:text-primary transition-colors">
+          <h3 className="group-hover:text-primary line-clamp-2 text-sm leading-tight font-medium transition-colors">
             {truncate(title, 50)}
           </h3>
           {komik.latestChapter && (
-            <p className="text-xs text-muted-foreground">
-              Ch. {komik.latestChapter}
-            </p>
+            <p className="text-muted-foreground text-xs">Ch. {komik.latestChapter}</p>
           )}
         </div>
       </Link>

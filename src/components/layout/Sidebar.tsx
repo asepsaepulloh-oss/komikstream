@@ -1,15 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import {
-  Book,
-  Bookmark,
-  Film,
-  History,
-  Home,
-  LogIn,
-  X,
-} from "lucide-react";
+import { Book, Bookmark, Film, History, Home, LogIn, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
@@ -55,7 +47,7 @@ export function Sidebar({ isOpen, onClose, clerkEnabled = false }: SidebarProps)
       <div
         className={cn(
           "fixed inset-0 z-50 bg-black/50 transition-opacity md:hidden",
-          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+          isOpen ? "opacity-100" : "pointer-events-none opacity-0"
         )}
         onClick={onClose}
       />
@@ -63,16 +55,16 @@ export function Sidebar({ isOpen, onClose, clerkEnabled = false }: SidebarProps)
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-72 bg-background border-r border-border",
+          "bg-background border-border fixed inset-y-0 left-0 z-50 w-72 border-r",
           "transform transition-transform duration-300 ease-in-out md:hidden",
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
         {/* Header */}
-        <div className="flex h-16 items-center justify-between px-4 border-b border-border">
+        <div className="border-border flex h-16 items-center justify-between border-b px-4">
           <Link href="/" className="flex items-center gap-2" onClick={onClose}>
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-              <Book className="h-5 w-5 text-primary-foreground" />
+            <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-lg">
+              <Book className="text-primary-foreground h-5 w-5" />
             </div>
             <span className="text-xl font-bold">
               <span className="text-primary">Komik</span>
@@ -81,7 +73,7 @@ export function Sidebar({ isOpen, onClose, clerkEnabled = false }: SidebarProps)
           </Link>
           <button
             onClick={onClose}
-            className="flex h-10 w-10 items-center justify-center rounded-lg hover:bg-accent transition-colors"
+            className="hover:bg-accent flex h-10 w-10 items-center justify-center rounded-lg transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
@@ -90,10 +82,7 @@ export function Sidebar({ isOpen, onClose, clerkEnabled = false }: SidebarProps)
         {/* Navigation */}
         <nav className="flex flex-col gap-1 p-4">
           {navigation.map((item) => {
-            const isActive =
-              item.href === "/"
-                ? pathname === "/"
-                : pathname.startsWith(item.href);
+            const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
             return (
               <Link
                 key={item.name}
@@ -125,10 +114,8 @@ export function Sidebar({ isOpen, onClose, clerkEnabled = false }: SidebarProps)
         )}
 
         {/* Footer */}
-        <div className="absolute bottom-0 left-0 right-0 border-t border-border p-4">
-          <p className="text-xs text-muted-foreground text-center">
-            © 2025 KomikStream
-          </p>
+        <div className="border-border absolute right-0 bottom-0 left-0 border-t p-4">
+          <p className="text-muted-foreground text-center text-xs">© 2025 KomikStream</p>
         </div>
       </aside>
     </>

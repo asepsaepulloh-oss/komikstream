@@ -25,8 +25,8 @@ export default async function AnimePage({ searchParams }: AnimePageProps) {
     getAnimeMovie().catch(() => []),
   ]);
 
-  const displayAnime = sort === "recommended" ? recommendedAnime : 
-                       sort === "movie" ? movieAnime : latestAnime;
+  const displayAnime =
+    sort === "recommended" ? recommendedAnime : sort === "movie" ? movieAnime : latestAnime;
 
   const filters = [
     { label: "Terbaru", value: "latest", href: "/anime", icon: Sparkles },
@@ -47,33 +47,31 @@ export default async function AnimePage({ searchParams }: AnimePageProps) {
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
-      <div className="flex flex-col gap-6 mb-8">
+      <div className="mb-8 flex flex-col gap-6">
         <div className="flex items-center gap-3">
-          <Film className="h-8 w-8 text-primary" />
+          <Film className="text-primary h-8 w-8" />
           <div>
             <h1 className="text-3xl font-bold">Anime</h1>
-            <p className="text-muted-foreground">
-              Nonton anime subtitle Indonesia terlengkap
-            </p>
+            <p className="text-muted-foreground">Nonton anime subtitle Indonesia terlengkap</p>
           </div>
         </div>
 
         {/* Search */}
-        <SearchBar 
-          placeholder="Cari judul anime..." 
+        <SearchBar
+          placeholder="Cari judul anime..."
           searchPath="/anime/search"
           className="max-w-xl"
         />
 
         {/* Filters */}
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex flex-wrap items-center gap-2">
           {filters.map((f) => {
             const Icon = f.icon;
             return (
               <Link
                 key={f.value}
                 href={f.href}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
                   sort === f.value
                     ? "bg-primary text-primary-foreground"
                     : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
@@ -89,20 +87,21 @@ export default async function AnimePage({ searchParams }: AnimePageProps) {
 
       {/* Main Grid */}
       <section className="mb-12">
-        <div className="flex items-center gap-2 mb-6">
+        <div className="mb-6 flex items-center gap-2">
           {sort === "movie" ? (
-            <Clapperboard className="h-5 w-5 text-primary" />
+            <Clapperboard className="text-primary h-5 w-5" />
           ) : (
-            <Sparkles className="h-5 w-5 text-primary" />
+            <Sparkles className="text-primary h-5 w-5" />
           )}
           <h2 className="text-xl font-bold">
-            {sort === "recommended" ? "Anime Rekomendasi" : 
-             sort === "movie" ? "Anime Movie" : "Anime Terbaru"}
+            {sort === "recommended"
+              ? "Anime Rekomendasi"
+              : sort === "movie"
+                ? "Anime Movie"
+                : "Anime Terbaru"}
           </h2>
           {sort === "recommended" && (
-            <span className="text-sm text-muted-foreground ml-2">
-              Halaman {page}
-            </span>
+            <span className="text-muted-foreground ml-2 text-sm">Halaman {page}</span>
           )}
         </div>
 
@@ -126,11 +125,9 @@ export default async function AnimePage({ searchParams }: AnimePageProps) {
           </>
         ) : (
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <Film className="h-16 w-16 text-muted-foreground/50 mb-4" />
+            <Film className="text-muted-foreground/50 mb-4 h-16 w-16" />
             <p className="text-lg font-medium">Tidak ada anime ditemukan</p>
-            <p className="text-sm text-muted-foreground">
-              Coba filter atau pencarian yang berbeda
-            </p>
+            <p className="text-muted-foreground text-sm">Coba filter atau pencarian yang berbeda</p>
           </div>
         )}
       </section>
@@ -138,15 +135,12 @@ export default async function AnimePage({ searchParams }: AnimePageProps) {
       {/* Movie Section (if not already showing movies) */}
       {sort !== "movie" && movieAnime.length > 0 && (
         <section className="mb-12">
-          <div className="flex items-center justify-between mb-6">
+          <div className="mb-6 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Clapperboard className="h-5 w-5 text-primary" />
+              <Clapperboard className="text-primary h-5 w-5" />
               <h2 className="text-xl font-bold">Anime Movie</h2>
             </div>
-            <Link
-              href="/anime?sort=movie"
-              className="text-sm text-primary hover:underline"
-            >
+            <Link href="/anime?sort=movie" className="text-primary text-sm hover:underline">
               Lihat Semua
             </Link>
           </div>
@@ -161,15 +155,12 @@ export default async function AnimePage({ searchParams }: AnimePageProps) {
       {/* Recommended Section (if not already showing recommended) */}
       {sort !== "recommended" && recommendedAnime.length > 0 && (
         <section className="mb-12">
-          <div className="flex items-center justify-between mb-6">
+          <div className="mb-6 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-primary" />
+              <Sparkles className="text-primary h-5 w-5" />
               <h2 className="text-xl font-bold">Rekomendasi</h2>
             </div>
-            <Link
-              href="/anime?sort=recommended"
-              className="text-sm text-primary hover:underline"
-            >
+            <Link href="/anime?sort=recommended" className="text-primary text-sm hover:underline">
               Lihat Semua
             </Link>
           </div>

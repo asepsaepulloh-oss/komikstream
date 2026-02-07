@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import {
-  scrapeAnimeLatest,
-  scrapeKomikLatest,
-  delay,
-} from "@/lib/scraper";
+import { scrapeAnimeLatest, scrapeKomikLatest, delay } from "@/lib/scraper";
 
 /**
  * POST /api/sync/latest
@@ -18,10 +14,7 @@ export async function POST(request: NextRequest) {
 
   // Allow if CRON_SECRET is set and matches, or if not set (for development)
   if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-    return NextResponse.json(
-      { error: "Unauthorized" },
-      { status: 401 }
-    );
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const startTime = Date.now();
@@ -101,7 +94,6 @@ export async function POST(request: NextRequest) {
     }
 
     console.log(`✅ Sync completed: ${newAnimeCount} new anime, ${newKomikCount} new komik`);
-
   } catch (error) {
     errorMessage = error instanceof Error ? error.message : "Unknown error";
     console.error("❌ Sync failed:", errorMessage);
@@ -140,10 +132,7 @@ export async function GET() {
       prisma.syncLog.findFirst({
         orderBy: { startedAt: "desc" },
       }),
-      Promise.all([
-        prisma.anime.count(),
-        prisma.komik.count(),
-      ]),
+      Promise.all([prisma.anime.count(), prisma.komik.count()]),
     ]);
 
     return NextResponse.json({
@@ -166,9 +155,6 @@ export async function GET() {
       },
     });
   } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to get sync status" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to get sync status" }, { status: 500 });
   }
 }

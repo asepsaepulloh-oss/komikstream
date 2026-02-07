@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
     ],
     unoptimized: true, // Since we use unoptimized for external images
   },
-  
+
   // Mark server-only packages
   serverExternalPackages: ["pg", "@prisma/client", "@prisma/adapter-pg"],
 };

@@ -27,12 +27,12 @@ export function Navbar({ clerkEnabled = false }: NavbarProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="border-border/40 bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-              <Book className="h-5 w-5 text-primary-foreground" />
+            <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-lg">
+              <Book className="text-primary-foreground h-5 w-5" />
             </div>
             <span className="text-xl font-bold">
               <span className="text-primary">Komik</span>
@@ -41,12 +41,10 @@ export function Navbar({ clerkEnabled = false }: NavbarProps) {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="hidden items-center gap-1 md:flex">
             {navigation.map((item) => {
               const isActive =
-                item.href === "/"
-                  ? pathname === "/"
-                  : pathname.startsWith(item.href);
+                item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
               return (
                 <Link
                   key={item.name}
@@ -94,9 +92,9 @@ export function Navbar({ clerkEnabled = false }: NavbarProps) {
       </header>
 
       {/* Mobile Sidebar */}
-      <Sidebar 
-        isOpen={isSidebarOpen} 
-        onClose={() => setIsSidebarOpen(false)} 
+      <Sidebar
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
         clerkEnabled={clerkEnabled}
       />
     </>

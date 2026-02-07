@@ -20,7 +20,7 @@ export default function KomikDetailLoading() {
 
           {/* Chapter list skeleton */}
           <div className="mt-8">
-            <Skeleton className="h-8 w-32 mb-4" />
+            <Skeleton className="mb-4 h-8 w-32" />
             <div className="space-y-2">
               {Array.from({ length: 10 }).map((_, i) => (
                 <Skeleton key={i} className="h-12 w-full rounded" />

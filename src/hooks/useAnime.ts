@@ -22,7 +22,7 @@ export const animeKeys = {
   movies: () => [...animeKeys.all, "movies"] as const,
   search: (query: string) => [...animeKeys.all, "search", query] as const,
   detail: (urlId: string) => [...animeKeys.all, "detail", urlId] as const,
-  video: (episodeId: string, resolution: VideoResolution) => 
+  video: (episodeId: string, resolution: VideoResolution) =>
     [...animeKeys.all, "video", episodeId, resolution] as const,
 };
 

@@ -1,9 +1,4 @@
-import type {
-  Anime,
-  AnimeEpisode,
-  Komik,
-  KomikChapter,
-} from "./index";
+import type { Anime, AnimeEpisode, Komik, KomikChapter } from "./index";
 import type {
   RawKomik,
   RawKomikChapter,

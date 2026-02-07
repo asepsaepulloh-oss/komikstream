@@ -20,17 +20,18 @@ export default async function KomikPage({ searchParams }: KomikPageProps) {
   const page = parseInt(params.page || "1", 10);
 
   // Fetch data based on filters
-  const [latestKomik, popularKomik, recommendedManhwa, recommendedManhua, recommendedManga] = await Promise.all([
-    getKomikLatest("mirror").catch(() => []),
-    getKomikPopular(page).catch(() => []),
-    type === "manhwa" ? getKomikRecommended("manhwa").catch(() => []) : Promise.resolve([]),
-    type === "manhua" ? getKomikRecommended("manhua").catch(() => []) : Promise.resolve([]),
-    type === "manga" ? getKomikRecommended("manga").catch(() => []) : Promise.resolve([]),
-  ]);
+  const [latestKomik, popularKomik, recommendedManhwa, recommendedManhua, recommendedManga] =
+    await Promise.all([
+      getKomikLatest("mirror").catch(() => []),
+      getKomikPopular(page).catch(() => []),
+      type === "manhwa" ? getKomikRecommended("manhwa").catch(() => []) : Promise.resolve([]),
+      type === "manhua" ? getKomikRecommended("manhua").catch(() => []) : Promise.resolve([]),
+      type === "manga" ? getKomikRecommended("manga").catch(() => []) : Promise.resolve([]),
+    ]);
 
   // Determine display data based on filters
   let displayKomik = sort === "popular" ? popularKomik : latestKomik;
-  
+
   // If type is specified, show recommended for that type
   if (type === "manhwa") {
     displayKomik = recommendedManhwa;
@@ -61,9 +62,9 @@ export default async function KomikPage({ searchParams }: KomikPageProps) {
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
-      <div className="flex flex-col gap-6 mb-8">
+      <div className="mb-8 flex flex-col gap-6">
         <div className="flex items-center gap-3">
-          <Book className="h-8 w-8 text-primary" />
+          <Book className="text-primary h-8 w-8" />
           <div>
             <h1 className="text-3xl font-bold">Komik</h1>
             <p className="text-muted-foreground">
@@ -73,20 +74,20 @@ export default async function KomikPage({ searchParams }: KomikPageProps) {
         </div>
 
         {/* Search */}
-        <SearchBar 
-          placeholder="Cari judul komik..." 
+        <SearchBar
+          placeholder="Cari judul komik..."
           searchPath="/komik/search"
           className="max-w-xl"
         />
 
         {/* Type Filter */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <Filter className="h-4 w-4 text-muted-foreground" />
+        <div className="flex flex-wrap items-center gap-2">
+          <Filter className="text-muted-foreground h-4 w-4" />
           {types.map((t) => (
             <Link
               key={t.label}
               href={t.href}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
                 type === t.value || (!type && t.value === undefined)
                   ? "bg-primary text-primary-foreground"
                   : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
@@ -99,13 +100,13 @@ export default async function KomikPage({ searchParams }: KomikPageProps) {
 
         {/* Sort Tabs */}
         {!type && (
-          <div className="flex items-center gap-2 border-b border-border pb-2">
+          <div className="border-border flex items-center gap-2 border-b pb-2">
             <Link
               href="/komik"
-              className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-[9px] ${
+              className={`-mb-[9px] border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
                 sort === "latest"
                   ? "border-primary text-primary"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
+                  : "text-muted-foreground hover:text-foreground border-transparent"
               }`}
             >
               <span className="flex items-center gap-2">
@@ -115,10 +116,10 @@ export default async function KomikPage({ searchParams }: KomikPageProps) {
             </Link>
             <Link
               href="/komik?sort=popular"
-              className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-[9px] ${
+              className={`-mb-[9px] border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
                 sort === "popular"
                   ? "border-primary text-primary"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
+                  : "text-muted-foreground hover:text-foreground border-transparent"
               }`}
             >
               <span className="flex items-center gap-2">
@@ -132,20 +133,21 @@ export default async function KomikPage({ searchParams }: KomikPageProps) {
 
       {/* Main Grid */}
       <section className="mb-12">
-        <div className="flex items-center gap-2 mb-6">
+        <div className="mb-6 flex items-center gap-2">
           {sort === "popular" ? (
-            <TrendingUp className="h-5 w-5 text-primary" />
+            <TrendingUp className="text-primary h-5 w-5" />
           ) : (
-            <Sparkles className="h-5 w-5 text-primary" />
+            <Sparkles className="text-primary h-5 w-5" />
           )}
           <h2 className="text-xl font-bold">
-            {type ? `Rekomendasi ${type.charAt(0).toUpperCase() + type.slice(1)}` : 
-             sort === "popular" ? "Komik Populer" : "Komik Terbaru"}
+            {type
+              ? `Rekomendasi ${type.charAt(0).toUpperCase() + type.slice(1)}`
+              : sort === "popular"
+                ? "Komik Populer"
+                : "Komik Terbaru"}
           </h2>
           {sort === "popular" && (
-            <span className="text-sm text-muted-foreground ml-2">
-              Halaman {page}
-            </span>
+            <span className="text-muted-foreground ml-2 text-sm">Halaman {page}</span>
           )}
         </div>
 
@@ -169,11 +171,9 @@ export default async function KomikPage({ searchParams }: KomikPageProps) {
           </>
         ) : (
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <Book className="h-16 w-16 text-muted-foreground/50 mb-4" />
+            <Book className="text-muted-foreground/50 mb-4 h-16 w-16" />
             <p className="text-lg font-medium">Tidak ada komik ditemukan</p>
-            <p className="text-sm text-muted-foreground">
-              Coba filter atau pencarian yang berbeda
-            </p>
+            <p className="text-muted-foreground text-sm">Coba filter atau pencarian yang berbeda</p>
           </div>
         )}
       </section>
@@ -181,15 +181,12 @@ export default async function KomikPage({ searchParams }: KomikPageProps) {
       {/* Popular Section (if not already showing popular) */}
       {sort !== "popular" && !type && popularKomik.length > 0 && (
         <section className="mb-12">
-          <div className="flex items-center justify-between mb-6">
+          <div className="mb-6 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-primary" />
+              <TrendingUp className="text-primary h-5 w-5" />
               <h2 className="text-xl font-bold">Komik Populer</h2>
             </div>
-            <Link
-              href="/komik?sort=popular"
-              className="text-sm text-primary hover:underline"
-            >
+            <Link href="/komik?sort=popular" className="text-primary text-sm hover:underline">
               Lihat Semua
             </Link>
           </div>

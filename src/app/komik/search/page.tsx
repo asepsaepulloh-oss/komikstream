@@ -19,7 +19,7 @@ export async function generateMetadata({ searchParams }: SearchPageProps): Promi
 export default async function KomikSearchPage({ searchParams }: SearchPageProps) {
   const params = await searchParams;
   const query = params.q || "";
-  
+
   let results: Awaited<ReturnType<typeof searchKomik>> = [];
   let error: string | null = null;
 
@@ -34,14 +34,12 @@ export default async function KomikSearchPage({ searchParams }: SearchPageProps)
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
-      <div className="flex flex-col gap-6 mb-8">
+      <div className="mb-8 flex flex-col gap-6">
         <div className="flex items-center gap-3">
-          <Book className="h-8 w-8 text-primary" />
+          <Book className="text-primary h-8 w-8" />
           <div>
             <h1 className="text-3xl font-bold">Cari Komik</h1>
-            <p className="text-muted-foreground">
-              Temukan komik favorit kamu
-            </p>
+            <p className="text-muted-foreground">Temukan komik favorit kamu</p>
           </div>
         </div>
 
@@ -58,17 +56,19 @@ export default async function KomikSearchPage({ searchParams }: SearchPageProps)
       {query ? (
         <>
           <div className="mb-6">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               {error ? (
                 <span className="text-destructive">{error}</span>
               ) : results.length > 0 ? (
                 <>
-                  Ditemukan <span className="font-medium text-foreground">{results.length}</span> hasil untuk{" "}
-                  <span className="font-medium text-foreground">&quot;{query}&quot;</span>
+                  Ditemukan <span className="text-foreground font-medium">{results.length}</span>{" "}
+                  hasil untuk{" "}
+                  <span className="text-foreground font-medium">&quot;{query}&quot;</span>
                 </>
               ) : (
                 <>
-                  Tidak ada hasil untuk <span className="font-medium text-foreground">&quot;{query}&quot;</span>
+                  Tidak ada hasil untuk{" "}
+                  <span className="text-foreground font-medium">&quot;{query}&quot;</span>
                 </>
               )}
             </p>
@@ -82,21 +82,17 @@ export default async function KomikSearchPage({ searchParams }: SearchPageProps)
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-16 text-center">
-              <SearchX className="h-16 w-16 text-muted-foreground/50 mb-4" />
+              <SearchX className="text-muted-foreground/50 mb-4 h-16 w-16" />
               <p className="text-lg font-medium">Tidak ada hasil ditemukan</p>
-              <p className="text-sm text-muted-foreground">
-                Coba kata kunci yang berbeda
-              </p>
+              <p className="text-muted-foreground text-sm">Coba kata kunci yang berbeda</p>
             </div>
           )}
         </>
       ) : (
         <div className="flex flex-col items-center justify-center py-16 text-center">
-          <Book className="h-16 w-16 text-muted-foreground/50 mb-4" />
+          <Book className="text-muted-foreground/50 mb-4 h-16 w-16" />
           <p className="text-lg font-medium">Masukkan kata kunci pencarian</p>
-          <p className="text-sm text-muted-foreground">
-            Ketik judul komik yang ingin kamu cari
-          </p>
+          <p className="text-muted-foreground text-sm">Ketik judul komik yang ingin kamu cari</p>
         </div>
       )}
     </div>
