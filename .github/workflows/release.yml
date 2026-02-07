@@ -48,7 +48,12 @@ jobs:
           fi
 
           # Check commit messages for conventional commits
-          COMMITS=$(git log --format="%s" HEAD~5..HEAD 2>/dev/null || git log --format="%s" HEAD~1..HEAD)
+          COMMIT_COUNT=$(git rev-list --count HEAD 2>/dev/null || echo "1")
+          if [ "$COMMIT_COUNT" -gt 5 ]; then
+            COMMITS=$(git log --format="%s" -n 5)
+          else
+            COMMITS=$(git log --format="%s" -n "$COMMIT_COUNT")
+          fi
 
           # Look for feat:, fix:, BREAKING CHANGE:
           if echo "$COMMITS" | grep -qE "^(feat|fix|perf|refactor)(\(.+\))?!?:"; then
@@ -73,7 +78,12 @@ jobs:
 
           if [ -z "$BUMP_TYPE" ]; then
             # Auto-detect from commits
-            COMMITS=$(git log --format="%s" HEAD~5..HEAD 2>/dev/null || git log --format="%s" HEAD~1..HEAD)
+            COMMIT_COUNT=$(git rev-list --count HEAD 2>/dev/null || echo "1")
+            if [ "$COMMIT_COUNT" -gt 5 ]; then
+              COMMITS=$(git log --format="%s" -n 5)
+            else
+              COMMITS=$(git log --format="%s" -n "$COMMIT_COUNT")
+            fi
 
             if echo "$COMMITS" | grep -qE "BREAKING CHANGE:|^[a-z]+(\(.+\))?!:"; then
               BUMP_TYPE="major"
@@ -139,7 +149,12 @@ jobs:
           LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
 
           if [ -z "$LAST_TAG" ]; then
-            COMMITS=$(git log --format="- %s (%h)" HEAD~20..HEAD)
+            # No tags yet, get all commits (up to 50)
+            COMMIT_COUNT=$(git rev-list --count HEAD 2>/dev/null || echo "1")
+            if [ "$COMMIT_COUNT" -gt 50 ]; then
+              COMMIT_COUNT=50
+            fi
+            COMMITS=$(git log --format="- %s (%h)" -n "$COMMIT_COUNT" 2>/dev/null || echo "- Initial release")
           else
             COMMITS=$(git log --format="- %s (%h)" ${LAST_TAG}..HEAD)
           fi
