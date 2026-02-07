@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.2] - 2026-02-07
+
+### 🐛 Bug Fixes
+- fix: database connection for Clerk webhook and API routes (ef0b79f)
+
+
+
 ## [0.3.1] - 2026-02-07
 
 ### 🐛 Bug Fixes
