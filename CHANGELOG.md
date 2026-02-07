@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] - 2026-02-07
+
+### 🐛 Bug Fixes
+- fix(ci): add mock Prisma client for CI/build environments (bed8736)
+
+
+
 ## [0.2.0] - 2026-02-07
 
 ### ✨ Features
