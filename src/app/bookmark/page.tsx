@@ -2,20 +2,16 @@
 
 import { cn } from "@/lib/utils";
 import { useAppStore } from "@/stores/useAppStore";
-import type { Anime, Komik } from "@/types";
 import { Book, Bookmark as BookmarkIcon, Film, Trash2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useMounted } from "@/hooks/useMounted";
 
 export default function BookmarkPage() {
   const { bookmarks, removeBookmark } = useAppStore();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useMounted();
   const [filter, setFilter] = useState<"all" | "komik" | "anime">("all");
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   if (!mounted) {
     return (

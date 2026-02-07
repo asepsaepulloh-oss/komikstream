@@ -2,7 +2,7 @@
 
 import { ArrowLeft, Film, Home, Settings } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { use, useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 // Fetch video via API route (server-side)
@@ -23,7 +23,7 @@ interface WatchPageProps {
 
 export default function AnimeWatchPage({ params }: WatchPageProps) {
   const searchParams = useSearchParams();
-  const [episodeId, setEpisodeId] = useState<string>("");
+  const { episodeId } = use(params);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -31,28 +31,25 @@ export default function AnimeWatchPage({ params }: WatchPageProps) {
   const reso = searchParams.get("reso") || "480p";
   const resolutions = ["360p", "480p", "720p", "1080p"];
 
-  useEffect(() => {
-    params.then((p) => {
-      setEpisodeId(p.episodeId);
-    });
-  }, [params]);
-
-  useEffect(() => {
+  const loadVideo = useCallback(async () => {
     if (!episodeId) return;
 
     setLoading(true);
     setError(null);
 
-    fetchAnimeVideo(episodeId, reso)
-      .then((url) => {
-        setVideoUrl(url);
-        setLoading(false);
-      })
-      .catch(() => {
-        setError("Gagal memuat video. Silakan coba lagi.");
-        setLoading(false);
-      });
+    try {
+      const url = await fetchAnimeVideo(episodeId, reso);
+      setVideoUrl(url);
+    } catch {
+      setError("Gagal memuat video. Silakan coba lagi.");
+    } finally {
+      setLoading(false);
+    }
   }, [episodeId, reso]);
+
+  useEffect(() => {
+    loadVideo();
+  }, [loadVideo]);
 
   return (
     <div className="min-h-screen bg-black">

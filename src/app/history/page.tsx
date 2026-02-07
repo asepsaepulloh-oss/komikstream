@@ -5,16 +5,13 @@ import { useAppStore } from "@/stores/useAppStore";
 import { Book, Clock, Film, Trash2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useMounted } from "@/hooks/useMounted";
 
 export default function HistoryPage() {
   const { history, removeFromHistory, clearHistory } = useAppStore();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useMounted();
   const [filter, setFilter] = useState<"all" | "komik" | "anime">("all");
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   if (!mounted) {
     return (

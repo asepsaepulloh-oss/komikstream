@@ -3,7 +3,8 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
 import { useTheme } from "next-themes";
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode } from "react";
+import { useMounted } from "@/hooks/useMounted";
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -12,11 +13,7 @@ interface AuthProviderProps {
 
 function ClerkProviderWithTheme({ children }: { children: ReactNode }) {
   const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useMounted();
 
   // Always wrap in ClerkProvider, but only apply theme after mount
   // This ensures SignedIn/SignedOut components always have a ClerkProvider parent
