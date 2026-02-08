@@ -1,4 +1,4 @@
-import { searchKomik } from "@/lib/api";
+import { searchKomik } from "@/lib/api-client";
 import { Card, SearchBar } from "@/components/ui";
 import { Book, SearchX } from "lucide-react";
 import type { Metadata } from "next";

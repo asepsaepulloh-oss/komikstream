@@ -1,4 +1,4 @@
-import { getKomikChapterList, getKomikDetail } from "@/lib/api";
+import { getKomikChapterList, getKomikDetail } from "@/lib/api-client";
 import { getImageUrl, truncate } from "@/lib/utils";
 import { Book, BookOpen, Clock, Star, User, AlertTriangle } from "lucide-react";
 import type { Metadata } from "next";

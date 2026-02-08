@@ -1,4 +1,4 @@
-import { getAnimeLatest, getAnimeMovie, getAnimeRecommended } from "@/lib/api";
+import { getAnimeLatest, getAnimeMovie, getAnimeRecommended } from "@/lib/api-client";
 import { Card, SearchBar, Pagination } from "@/components/ui";
 import { Film, Sparkles, Clapperboard } from "lucide-react";
 import type { Metadata } from "next";

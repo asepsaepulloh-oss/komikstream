@@ -27,3 +27,23 @@ export function GridSkeleton({ count = 12 }: { count?: number }) {
     </div>
   );
 }
+
+export function SectionSkeleton() {
+  return (
+    <section className="py-8 md:py-12">
+      <div className="container mx-auto px-4">
+        <div className="mb-6 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Skeleton className="h-5 w-5 rounded" />
+            <div>
+              <Skeleton className="h-6 w-32 md:h-7 md:w-40" />
+              <Skeleton className="mt-1 h-4 w-48" />
+            </div>
+          </div>
+          <Skeleton className="h-4 w-20" />
+        </div>
+        <GridSkeleton count={12} />
+      </div>
+    </section>
+  );
+}

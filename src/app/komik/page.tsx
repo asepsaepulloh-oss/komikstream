@@ -1,4 +1,4 @@
-import { getKomikLatest, getKomikPopular, getKomikRecommended } from "@/lib/api";
+import { getKomikLatest, getKomikPopular, getKomikRecommended } from "@/lib/api-client";
 import { Card, SearchBar, Pagination } from "@/components/ui";
 import { Book, TrendingUp, Sparkles, Filter } from "lucide-react";
 import type { Metadata } from "next";

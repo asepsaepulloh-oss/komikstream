@@ -1,11 +1,12 @@
 /**
- * Client-side API - Fetches data via API routes
+ * API Client with ISR Caching
  *
- * This module is safe to use in client components.
- * It calls internal API routes which handle server-side logic.
+ * Optimized for performance with Incremental Static Regeneration.
+ * Safe to use in both client and server components.
  */
 
 import type { Anime, Komik, KomikChapter, KomikImage } from "@/types";
+import { CACHE_TIMES, CACHE_TAGS, getCacheOptions } from "./cache-config";
 
 const BASE_URL = "https://api.sansekai.my.id/api";
 
@@ -102,15 +103,15 @@ interface KomikImageResponse {
 
 // ==================== HELPER FUNCTIONS ====================
 
-async function fetchWithRetry<T>(url: string, retries = 3): Promise<T> {
+async function fetchWithCache<T>(
+  url: string,
+  revalidate: number,
+  tags?: string[],
+  retries = 2
+): Promise<T> {
   for (let i = 0; i <= retries; i++) {
     try {
-      const res = await fetch(url, {
-        cache: "no-store",
-        headers: {
-          Accept: "application/json",
-        },
-      });
+      const res = await fetch(url, getCacheOptions(revalidate, tags));
 
       if (res.status === 429) {
         const waitTime = Math.min(1000 * Math.pow(2, i), 10000);
@@ -147,7 +148,11 @@ function ensureArray<T>(data: T | T[] | null | undefined): T[] {
 
 export async function getAnimeLatest(): Promise<Anime[]> {
   try {
-    const res = await fetchWithRetry<RawAnimeListItem[]>(`${BASE_URL}/anime/latest`);
+    const res = await fetchWithCache<RawAnimeListItem[]>(
+      `${BASE_URL}/anime/latest`,
+      CACHE_TIMES.LATEST,
+      [CACHE_TAGS.ANIME_LATEST]
+    );
     return ensureArray(res).map(transformAnimeList);
   } catch {
     return [];
@@ -156,8 +161,10 @@ export async function getAnimeLatest(): Promise<Anime[]> {
 
 export async function getAnimeRecommended(page: number = 1): Promise<Anime[]> {
   try {
-    const res = await fetchWithRetry<RawAnimeListItem[]>(
-      `${BASE_URL}/anime/recommended?page=${page}`
+    const res = await fetchWithCache<RawAnimeListItem[]>(
+      `${BASE_URL}/anime/recommended?page=${page}`,
+      CACHE_TIMES.POPULAR,
+      [CACHE_TAGS.ANIME_RECOMMENDED]
     );
     return ensureArray(res).map(transformAnimeList);
   } catch {
@@ -167,7 +174,11 @@ export async function getAnimeRecommended(page: number = 1): Promise<Anime[]> {
 
 export async function getAnimeMovie(): Promise<Anime[]> {
   try {
-    const res = await fetchWithRetry<RawAnimeListItem[]>(`${BASE_URL}/anime/movie`);
+    const res = await fetchWithCache<RawAnimeListItem[]>(
+      `${BASE_URL}/anime/movie`,
+      CACHE_TIMES.POPULAR,
+      [CACHE_TAGS.ANIME_MOVIE]
+    );
     return ensureArray(res).map(transformAnimeList);
   } catch {
     return [];
@@ -176,8 +187,10 @@ export async function getAnimeMovie(): Promise<Anime[]> {
 
 export async function getAnimeDetail(urlId: string): Promise<Anime | null> {
   try {
-    const res = await fetchWithRetry<AnimeDetailResponse>(
-      `${BASE_URL}/anime/detail?urlId=${urlId}`
+    const res = await fetchWithCache<AnimeDetailResponse>(
+      `${BASE_URL}/anime/detail?urlId=${urlId}`,
+      CACHE_TIMES.DETAIL,
+      [CACHE_TAGS.ANIME_DETAIL, `anime-${urlId}`]
     );
     const detail = res.data?.[0];
     return detail ? transformAnimeDetail(detail) : null;
@@ -188,8 +201,9 @@ export async function getAnimeDetail(urlId: string): Promise<Anime | null> {
 
 export async function searchAnime(query: string): Promise<Anime[]> {
   try {
-    const res = await fetchWithRetry<RawAnimeListItem[]>(
-      `${BASE_URL}/anime/search?query=${encodeURIComponent(query)}`
+    const res = await fetchWithCache<RawAnimeListItem[]>(
+      `${BASE_URL}/anime/search?query=${encodeURIComponent(query)}`,
+      CACHE_TIMES.SEARCH
     );
     return ensureArray(res).map(transformAnimeList);
   } catch {
@@ -215,7 +229,11 @@ export async function getAnimeVideo(
 
 export async function getKomikLatest(type: "project" | "mirror"): Promise<Komik[]> {
   try {
-    const res = await fetchWithRetry<KomikListResponse>(`${BASE_URL}/komik/latest?type=${type}`);
+    const res = await fetchWithCache<KomikListResponse>(
+      `${BASE_URL}/komik/latest?type=${type}`,
+      CACHE_TIMES.LATEST,
+      [CACHE_TAGS.KOMIK_LATEST, `komik-latest-${type}`]
+    );
     return ensureArray(res.data).map(transformKomik);
   } catch {
     return [];
@@ -224,7 +242,11 @@ export async function getKomikLatest(type: "project" | "mirror"): Promise<Komik[
 
 export async function getKomikPopular(page: number = 1): Promise<Komik[]> {
   try {
-    const res = await fetchWithRetry<KomikListResponse>(`${BASE_URL}/komik/popular?page=${page}`);
+    const res = await fetchWithCache<KomikListResponse>(
+      `${BASE_URL}/komik/popular?page=${page}`,
+      CACHE_TIMES.POPULAR,
+      [CACHE_TAGS.KOMIK_POPULAR]
+    );
     return ensureArray(res.data).map(transformKomik);
   } catch {
     return [];
@@ -233,8 +255,10 @@ export async function getKomikPopular(page: number = 1): Promise<Komik[]> {
 
 export async function getKomikRecommended(type: "manhwa" | "manhua" | "manga"): Promise<Komik[]> {
   try {
-    const res = await fetchWithRetry<KomikListResponse>(
-      `${BASE_URL}/komik/recommended?type=${type}`
+    const res = await fetchWithCache<KomikListResponse>(
+      `${BASE_URL}/komik/recommended?type=${type}`,
+      CACHE_TIMES.POPULAR,
+      [CACHE_TAGS.KOMIK_RECOMMENDED, `komik-recommended-${type}`]
     );
     return ensureArray(res.data).map(transformKomik);
   } catch {
@@ -244,8 +268,10 @@ export async function getKomikRecommended(type: "manhwa" | "manhua" | "manga"): 
 
 export async function getKomikDetail(mangaId: string): Promise<Komik | null> {
   try {
-    const res = await fetchWithRetry<KomikDetailResponse>(
-      `${BASE_URL}/komik/detail?manga_id=${mangaId}`
+    const res = await fetchWithCache<KomikDetailResponse>(
+      `${BASE_URL}/komik/detail?manga_id=${mangaId}`,
+      CACHE_TIMES.DETAIL,
+      [CACHE_TAGS.KOMIK_DETAIL, `komik-${mangaId}`]
     );
     return res.data ? transformKomik(res.data) : null;
   } catch {
@@ -255,8 +281,10 @@ export async function getKomikDetail(mangaId: string): Promise<Komik | null> {
 
 export async function getKomikChapterList(mangaId: string): Promise<KomikChapter[]> {
   try {
-    const res = await fetchWithRetry<KomikListResponse>(
-      `${BASE_URL}/komik/chapterlist?manga_id=${mangaId}`
+    const res = await fetchWithCache<KomikListResponse>(
+      `${BASE_URL}/komik/chapterlist?manga_id=${mangaId}`,
+      CACHE_TIMES.DETAIL,
+      [CACHE_TAGS.KOMIK_CHAPTERS, `komik-chapters-${mangaId}`]
     );
     return ensureArray(res.data).map((item) => transformKomikChapter(item as RawKomikChapterItem));
   } catch {
@@ -266,8 +294,9 @@ export async function getKomikChapterList(mangaId: string): Promise<KomikChapter
 
 export async function searchKomik(query: string): Promise<Komik[]> {
   try {
-    const res = await fetchWithRetry<KomikListResponse>(
-      `${BASE_URL}/komik/search?query=${encodeURIComponent(query)}`
+    const res = await fetchWithCache<KomikListResponse>(
+      `${BASE_URL}/komik/search?query=${encodeURIComponent(query)}`,
+      CACHE_TIMES.SEARCH
     );
     return ensureArray(res.data).map(transformKomik);
   } catch {
@@ -277,11 +306,13 @@ export async function searchKomik(query: string): Promise<Komik[]> {
 
 export async function getKomikImages(chapterId: string): Promise<KomikImage[]> {
   try {
-    const res = await fetchWithRetry<KomikImageResponse>(
-      `${BASE_URL}/komik/getimage?chapter_id=${chapterId}`
+    const res = await fetchWithCache<KomikImageResponse>(
+      `${BASE_URL}/komik/getimage?chapter_id=${chapterId}`,
+      CACHE_TIMES.IMAGES,
+      [CACHE_TAGS.KOMIK_IMAGES, `chapter-${chapterId}`]
     );
     const imageUrls = res.data?.chapter?.data || [];
-    return imageUrls.map((url, index) => ({
+    return imageUrls.map((url: string, index: number) => ({
       url,
       page: index + 1,
     }));

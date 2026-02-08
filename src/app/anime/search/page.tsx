@@ -1,4 +1,4 @@
-import { searchAnime } from "@/lib/api";
+import { searchAnime } from "@/lib/api-client";
 import { Card, SearchBar } from "@/components/ui";
 import { Film, SearchX } from "lucide-react";
 import type { Metadata } from "next";

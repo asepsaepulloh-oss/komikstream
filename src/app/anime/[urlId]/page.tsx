@@ -1,4 +1,4 @@
-import { getAnimeDetail } from "@/lib/api";
+import { getAnimeDetail } from "@/lib/api-client";
 import { getImageUrl, truncate } from "@/lib/utils";
 import { Calendar, Clock, Film, Play, Star, Tv, AlertTriangle } from "lucide-react";
 import type { Metadata } from "next";

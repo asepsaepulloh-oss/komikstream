@@ -23,7 +23,7 @@ const nextConfig: NextConfig = {
   // Standalone output for Docker deployment
   output: "standalone",
 
-  // Allow images from external sources
+  // Image optimization for performance
   images: {
     remotePatterns: [
       {
@@ -31,7 +31,14 @@ const nextConfig: NextConfig = {
         hostname: "**",
       },
     ],
-    unoptimized: true,
+    // Enable modern formats for 60-80% size reduction
+    formats: ["image/avif", "image/webp"],
+    // Cache optimized images for 7 days
+    minimumCacheTTL: 604800,
+    // Device sizes for responsive images
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    // Image sizes for thumbnails
+    imageSizes: [16, 32, 48, 64, 96, 128, 256],
   },
 
   // Mark server-only packages

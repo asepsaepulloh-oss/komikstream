@@ -20,6 +20,11 @@ export function ClerkProviderWrapper({ children }: ClerkProviderWrapperProps) {
           colorPrimary: "hsl(263 70% 50%)",
         },
       }}
+      // Disable telemetry for better performance
+      telemetry={false}
+      // Optimize sign-in/sign-up redirects
+      signInFallbackRedirectUrl="/"
+      signUpFallbackRedirectUrl="/"
     >
       {children}
     </ClerkProvider>
