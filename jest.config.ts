@@ -55,11 +55,6 @@ const config: Config = {
   // Ignore patterns
   testPathIgnorePatterns: ["<rootDir>/node_modules/", "<rootDir>/.next/"],
 
-  // Transform settings
-  transform: {
-    "^.+\\.(ts|tsx)$": ["ts-jest", { tsconfig: "tsconfig.json" }],
-  },
-
   // Module file extensions
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json"],
 
