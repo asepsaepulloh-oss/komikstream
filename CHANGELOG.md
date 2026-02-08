@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.5] - 2026-02-08
+
+### 🐛 Bug Fixes
+- fix: resolve merge conflict in package-lock.json (ab5a78e)
+- fix: re-add @tailwindcss/postcss required by postcss config (5b4f0a7)
+- fix: update search API to use api-client, add prisma fallback for build (02f78e5)
+- fix: revert homepage to simpler approach using HomePageClient (d1e094a)
+- fix: force dynamic rendering for homepage to avoid build-time API calls (52994c9)
+- fix: correct TypeScript types for Next.js fetch options (b62f029)
+
+### 📦 Other Changes
+- perf: major performance optimization (7245430)
+
+
+
 ## [0.3.4] - 2026-02-08
 
 ### 🐛 Bug Fixes
