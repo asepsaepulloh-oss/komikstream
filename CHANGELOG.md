@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.4] - 2026-02-08
+
+### 🐛 Bug Fixes
+- fix: remove directUrl from prisma.config.ts and fix unused vars in e2e tests (11848a5)
+
+
+
 ## [0.3.3] - 2026-02-08
 
 ### 🐛 Bug Fixes
