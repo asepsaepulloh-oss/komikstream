@@ -48,7 +48,6 @@ test.describe("Local Storage", () => {
 
     // Get initial theme
     const html = page.locator("html");
-    const initialClass = await html.getAttribute("class");
 
     // Find and click theme toggle if exists
     const themeToggle = page.locator('[data-testid="theme-toggle"]').first();
@@ -61,9 +60,7 @@ test.describe("Local Storage", () => {
       // Reload page
       await page.reload();
 
-      // Theme should be persisted
-      const newClass = await html.getAttribute("class");
-      // Just verify page loads correctly after reload
+      // Theme should be persisted - verify page loads correctly after reload
       await expect(page.locator("body")).toBeVisible();
     }
   });
