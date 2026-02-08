@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { searchAnime, searchKomik } from "@/lib/api-client";
 
 export const dynamic = "force-dynamic";
 
@@ -7,8 +7,8 @@ interface SearchResult {
   type: "anime" | "komik";
   id: string;
   title: string;
-  thumbnail: string | null;
-  rating: number | null;
+  thumbnail: string | null | undefined;
+  rating: string | number | null;
   status: string | null;
   genres: string[];
   urlId?: string;
@@ -17,15 +17,14 @@ interface SearchResult {
 
 /**
  * GET /api/search?q=query&type=anime|komik&limit=20
- * Real-time search in database
+ * Search via external API
  */
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const query = searchParams.get("q") || "";
-  const type = searchParams.get("type"); // "anime", "komik", or null for both
+  const type = searchParams.get("type");
   const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 50);
 
-  // Minimum query length
   if (query.length < 2) {
     return NextResponse.json({
       results: [],
@@ -38,56 +37,38 @@ export async function GET(request: NextRequest) {
 
     // Search anime
     if (!type || type === "anime") {
-      const anime = await prisma.anime.findMany({
-        where: {
-          OR: [
-            { title: { contains: query, mode: "insensitive" } },
-            { alternativeTitle: { contains: query, mode: "insensitive" } },
-            { synopsis: { contains: query, mode: "insensitive" } },
-          ],
-        },
-        take: type === "anime" ? limit : Math.floor(limit / 2),
-        orderBy: [{ rating: "desc" }, { createdAt: "desc" }],
-      });
+      const anime = await searchAnime(query);
+      const animeResults = anime.slice(0, type === "anime" ? limit : Math.floor(limit / 2));
 
       results.push(
-        ...anime.map((a) => ({
+        ...animeResults.map((a) => ({
           type: "anime" as const,
-          id: a.id,
+          id: a.urlId,
           urlId: a.urlId,
           title: a.title,
-          thumbnail: a.cover,
-          rating: a.rating,
-          status: a.status,
-          genres: (a.genres as string[]) || [],
+          thumbnail: a.thumbnail,
+          rating: a.rating ?? null,
+          status: a.status ?? null,
+          genres: a.genres || [],
         }))
       );
     }
 
     // Search komik
     if (!type || type === "komik") {
-      const komik = await prisma.komik.findMany({
-        where: {
-          OR: [
-            { title: { contains: query, mode: "insensitive" } },
-            { alternativeTitle: { contains: query, mode: "insensitive" } },
-            { synopsis: { contains: query, mode: "insensitive" } },
-          ],
-        },
-        take: type === "komik" ? limit : Math.floor(limit / 2),
-        orderBy: [{ viewCount: "desc" }, { createdAt: "desc" }],
-      });
+      const komik = await searchKomik(query);
+      const komikResults = komik.slice(0, type === "komik" ? limit : Math.floor(limit / 2));
 
       results.push(
-        ...komik.map((k) => ({
+        ...komikResults.map((k) => ({
           type: "komik" as const,
-          id: k.id,
-          mangaId: k.mangaId,
+          id: k.manga_id,
+          mangaId: k.manga_id,
           title: k.title,
-          thumbnail: k.coverImage,
-          rating: k.rating,
-          status: k.status === 1 ? "Ongoing" : k.status === 2 ? "Completed" : null,
-          genres: (k.genres as string[]) || [],
+          thumbnail: k.thumbnail,
+          rating: k.rating ?? null,
+          status: k.status ?? null,
+          genres: k.genres || [],
         }))
       );
     }
