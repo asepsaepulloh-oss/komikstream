@@ -48,7 +48,10 @@ export const CACHE_TAGS = {
 /**
  * Generate fetch options with ISR caching
  */
-export function getCacheOptions(revalidateSeconds: number, tags?: string[]): RequestInit {
+export function getCacheOptions(
+  revalidateSeconds: number,
+  tags?: string[]
+): { next: { revalidate: number; tags?: string[] }; headers: { Accept: string } } {
   return {
     next: {
       revalidate: revalidateSeconds,

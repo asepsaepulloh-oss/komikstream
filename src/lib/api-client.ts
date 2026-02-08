@@ -6,7 +6,7 @@
  */
 
 import type { Anime, Komik, KomikChapter, KomikImage } from "@/types";
-import { CACHE_TIMES, CACHE_TAGS, getCacheOptions } from "./cache-config";
+import { CACHE_TIMES, CACHE_TAGS } from "./cache-config";
 
 const BASE_URL = "https://api.sansekai.my.id/api";
 
@@ -111,7 +111,15 @@ async function fetchWithCache<T>(
 ): Promise<T> {
   for (let i = 0; i <= retries; i++) {
     try {
-      const res = await fetch(url, getCacheOptions(revalidate, tags));
+      const res = await fetch(url, {
+        next: {
+          revalidate: revalidate,
+          tags: tags,
+        },
+        headers: {
+          Accept: "application/json",
+        },
+      } as RequestInit);
 
       if (res.status === 429) {
         const waitTime = Math.min(1000 * Math.pow(2, i), 10000);
