@@ -8,6 +8,10 @@ import {
   AnimeRecommendedSection,
 } from "@/components/home/sections";
 
+// Force dynamic rendering to avoid build-time API calls
+// ISR caching is handled at the fetch level in api-client.ts
+export const dynamic = "force-dynamic";
+
 export default function HomePage() {
   return (
     <div className="flex flex-col">
