@@ -84,24 +84,24 @@ jobs:
     steps:
       - name: Health Check
         env:
-          DEPLOY_URL: ${{ needs.deploy.outputs.url }}
+          PRODUCTION_URL: "https://www.kuromanga.me"
         run: |
-          echo "Checking deployment health..."
-          sleep 10
-          MAX_RETRIES=3
+          echo "Checking deployment health at ${PRODUCTION_URL}..."
+          sleep 15
+          MAX_RETRIES=5
           RETRY_COUNT=0
           while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-            response=$(curl -s -o /dev/null -w "%{http_code}" "${DEPLOY_URL}/api/health" || echo "000")
+            response=$(curl -s -o /dev/null -w "%{http_code}" "${PRODUCTION_URL}/api/health" || echo "000")
             if [ "$response" = "200" ]; then
               echo "✅ Health check passed (HTTP $response)"
-              curl -s "${DEPLOY_URL}/api/health" | head -c 500
+              curl -s "${PRODUCTION_URL}/api/health" | head -c 500
               echo ""
               exit 0
             fi
             RETRY_COUNT=$((RETRY_COUNT + 1))
             echo "⚠️ Health check attempt $RETRY_COUNT/$MAX_RETRIES failed (HTTP $response)"
             if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
-              sleep 5
+              sleep 10
             fi
           done
           echo "❌ Health check failed after $MAX_RETRIES attempts"
