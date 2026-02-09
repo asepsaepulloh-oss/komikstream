@@ -127,7 +127,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version-file: '.node-version'
           cache: "npm"
 
       - name: Configure Git
@@ -210,7 +210,7 @@ jobs:
       - name: Commit changes
         run: |
           git add package.json package-lock.json CHANGELOG.md
-          git commit -m "chore(release): v${{ needs.check-release.outputs.version }}"
+          git commit -m "chore(release): v${{ needs.check-release.outputs.version }} [skip ci]"
 
       - name: Create and push tag
         run: |

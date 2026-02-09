@@ -43,7 +43,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version-file: '.node-version'
           cache: "npm"
 
       - name: Install Vercel CLI
@@ -85,7 +85,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version-file: '.node-version'
           cache: "npm"
 
       - name: Install dependencies
@@ -100,15 +100,29 @@ jobs:
           PLAYWRIGHT_BASE_URL: ${{ needs.deploy-staging.outputs.url }}
 
       - name: Health Check
+        env:
+          DEPLOY_URL: ${{ needs.deploy-staging.outputs.url }}
         run: |
           echo "Checking staging deployment health..."
           sleep 10
-          response=$(curl -s -o /dev/null -w "%{http_code}" "${{ needs.deploy-staging.outputs.url }}" || echo "000")
-          if [ "$response" = "200" ]; then
-            echo "✅ Health check passed (HTTP $response)"
-          else
-            echo "⚠️ Health check returned HTTP $response"
-          fi
+          MAX_RETRIES=3
+          RETRY_COUNT=0
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            response=$(curl -s -o /dev/null -w "%{http_code}" "${DEPLOY_URL}/api/health" || echo "000")
+            if [ "$response" = "200" ]; then
+              echo "✅ Health check passed (HTTP $response)"
+              curl -s "${DEPLOY_URL}/api/health" | head -c 500
+              echo ""
+              exit 0
+            fi
+            RETRY_COUNT=$((RETRY_COUNT + 1))
+            echo "⚠️ Health check attempt $RETRY_COUNT/$MAX_RETRIES failed (HTTP $response)"
+            if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
+              sleep 5
+            fi
+          done
+          echo "❌ Health check failed after $MAX_RETRIES attempts"
+          exit 1
 
       - name: Staging Summary
         run: |

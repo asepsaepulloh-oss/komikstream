@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import packageJson from "../../../../package.json";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -21,7 +22,7 @@ export async function GET() {
     status: "healthy",
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    version: process.env.npm_package_version || "0.1.0",
+    version: packageJson.version,
     checks: {
       database: "skipped",
       api: "operational",
