@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.6] - 2026-02-09
+
+### 🐛 Bug Fixes
+- fix: remove transform settings from Jest configuration (daddc22)
+
+
+
 ## [0.3.5] - 2026-02-08
 
 ### 🐛 Bug Fixes
