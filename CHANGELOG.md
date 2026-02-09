@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0] - 2026-02-09
+
+### 🐛 Bug Fixes
+- fix: change default value of skip_tests input to boolean type in deploy workflow (98f6fee)
+- fix: standardize node-version-file quotes in CI workflows (6bea1c4)
+
+
+
 ## [0.4.0] - 2026-02-09
 
 ### ✨ Features
