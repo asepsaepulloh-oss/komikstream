@@ -87,7 +87,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/lcov.info
           flags: unittests
-          name: codecov-komikstream
+          name: codecov-komikmanga
           fail_ci_if_error: false
           verbose: true
 

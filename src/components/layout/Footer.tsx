@@ -3,18 +3,18 @@ import Link from "next/link";
 
 export function Footer() {
   return (
-    <footer className="border-border bg-card border-t">
+    <footer className="border-border bg-card/50 border-t backdrop-blur-sm">
       <div className="container mx-auto px-4 py-8">
         <div className="grid gap-8 md:grid-cols-4">
           {/* Brand */}
           <div className="md:col-span-2">
             <Link href="/" className="mb-4 flex items-center gap-2">
-              <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-lg">
+              <div className="bg-primary shadow-primary/25 flex h-9 w-9 items-center justify-center rounded-xl shadow-lg">
                 <Book className="text-primary-foreground h-5 w-5" />
               </div>
               <span className="text-xl font-bold">
                 <span className="text-primary">Komik</span>
-                <span>Stream</span>
+                <span>Manga</span>
               </span>
             </Link>
             <p className="text-muted-foreground max-w-sm text-sm">
@@ -76,7 +76,7 @@ export function Footer() {
         {/* Bottom */}
         <div className="border-border mt-8 flex flex-col items-center justify-between gap-4 border-t pt-8 md:flex-row">
           <p className="text-muted-foreground text-sm">
-            © {new Date().getFullYear()} KomikStream. All rights reserved.
+            © {new Date().getFullYear()} KomikManga. All rights reserved.
           </p>
           <p className="text-muted-foreground text-xs">
             Powered by{" "}

@@ -17,41 +17,126 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://kuromanga.me"),
   title: {
-    default: "KomikStream - Baca Komik & Nonton Anime Gratis",
-    template: "%s | KomikStream",
+    default: "KomikManga - Baca Komik Manga, Manhwa, Manhua Sub Indo Gratis",
+    template: "%s | KomikManga",
   },
   description:
-    "Baca komik manhwa, manhua, manga dan nonton anime subtitle Indonesia secara gratis. Update terbaru setiap hari.",
+    "Baca komik manga, manhwa, manhua subtitle Indonesia secara gratis. Koleksi terlengkap dengan update terbaru setiap hari di kuromanga.me",
+  applicationName: "KomikManga",
   keywords: [
-    "komik",
-    "manga",
-    "manhwa",
-    "manhua",
-    "anime",
-    "streaming",
-    "baca komik",
-    "nonton anime",
-    "subtitle indonesia",
+    "baca komik online",
+    "baca manga online",
+    "manhwa sub indo",
+    "manhua sub indo",
+    "komik gratis",
+    "manga indonesia",
+    "komik indonesia",
+    "baca manga gratis",
+    "manga online gratis",
+    "nonton anime sub indo",
+    "anime subtitle indonesia",
+    "kuromanga",
+    "komikmanga",
   ],
-  authors: [{ name: "KomikStream" }],
+  authors: [{ name: "KomikManga", url: "https://kuromanga.me" }],
+  creator: "KomikManga",
+  publisher: "KomikManga",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   openGraph: {
     type: "website",
     locale: "id_ID",
-    siteName: "KomikStream",
+    url: "https://kuromanga.me",
+    siteName: "KomikManga",
+    title: "KomikManga - Baca Komik Manga, Manhwa, Manhua Sub Indo Gratis",
+    description:
+      "Baca komik manga, manhwa, manhua subtitle Indonesia secara gratis. Koleksi terlengkap dengan update terbaru setiap hari.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "KomikManga - Baca Komik Online Gratis",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "KomikManga - Baca Komik Manga, Manhwa, Manhua Sub Indo Gratis",
+    description:
+      "Baca komik manga, manhwa, manhua subtitle Indonesia secara gratis. Koleksi terlengkap dengan update terbaru setiap hari.",
+    images: ["/og-image.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
   },
 };
+
+// Static structured data for SEO - safe to inline as it contains no user input
+const structuredData = JSON.stringify({
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://kuromanga.me/#website",
+      url: "https://kuromanga.me",
+      name: "KomikManga",
+      description: "Baca komik manga, manhwa, manhua subtitle Indonesia secara gratis",
+      publisher: {
+        "@id": "https://kuromanga.me/#organization",
+      },
+      potentialAction: {
+        "@type": "SearchAction",
+        target: {
+          "@type": "EntryPoint",
+          urlTemplate: "https://kuromanga.me/komik/search?query={search_term_string}",
+        },
+        "query-input": "required name=search_term_string",
+      },
+      inLanguage: "id-ID",
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://kuromanga.me/#organization",
+      name: "KomikManga",
+      url: "https://kuromanga.me",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://kuromanga.me/logo.svg",
+      },
+    },
+  ],
+});
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Check if Clerk is configured at build/runtime
   const clerkEnabled = isClerkConfigured();
 
   return (
     <html lang="id" suppressHydrationWarning>
+      <head>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: structuredData }} />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} flex min-h-screen flex-col antialiased`}
       >

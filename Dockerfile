@@ -1,5 +1,5 @@
 # ================================
-# KomikStream Dockerfile
+# KomikManga Dockerfile
 # Multi-stage build for production
 # ================================
 

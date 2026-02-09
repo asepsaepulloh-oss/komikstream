@@ -54,9 +54,9 @@ export function Card({ item, type, className, index = 0 }: CardProps) {
       <Link
         href={href}
         className={cn(
-          "group relative flex flex-col overflow-hidden rounded-lg",
-          "bg-card border-border/50 border transition-all duration-300",
-          "hover:border-primary/50 hover:shadow-primary/10 hover:shadow-lg",
+          "group relative flex flex-col overflow-hidden rounded-xl",
+          "bg-card/80 border-border/50 border backdrop-blur-sm transition-all duration-300",
+          "hover:border-primary/50 hover:shadow-primary/20 hover:shadow-2xl",
           className
         )}
       >
@@ -79,14 +79,14 @@ export function Card({ item, type, className, index = 0 }: CardProps) {
           )}
 
           {/* Overlay on hover */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
           {/* Play/Read icon on hover */}
           <motion.div
             className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100"
             whileHover={{ scale: 1.1 }}
           >
-            <div className="bg-primary text-primary-foreground flex h-12 w-12 items-center justify-center rounded-full shadow-lg">
+            <div className="bg-primary text-primary-foreground shadow-primary/50 flex h-14 w-14 items-center justify-center rounded-full shadow-xl">
               {isKomik ? (
                 <BookOpen className="h-5 w-5" />
               ) : (

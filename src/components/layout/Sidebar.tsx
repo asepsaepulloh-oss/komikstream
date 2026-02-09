@@ -63,12 +63,12 @@ export function Sidebar({ isOpen, onClose, clerkEnabled = false }: SidebarProps)
         {/* Header */}
         <div className="border-border flex h-16 items-center justify-between border-b px-4">
           <Link href="/" className="flex items-center gap-2" onClick={onClose}>
-            <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-lg">
+            <div className="bg-primary shadow-primary/25 flex h-9 w-9 items-center justify-center rounded-xl shadow-lg">
               <Book className="text-primary-foreground h-5 w-5" />
             </div>
             <span className="text-xl font-bold">
               <span className="text-primary">Komik</span>
-              <span>Stream</span>
+              <span>Manga</span>
             </span>
           </Link>
           <button
@@ -115,7 +115,9 @@ export function Sidebar({ isOpen, onClose, clerkEnabled = false }: SidebarProps)
 
         {/* Footer */}
         <div className="border-border absolute right-0 bottom-0 left-0 border-t p-4">
-          <p className="text-muted-foreground text-center text-xs">© 2025 KomikStream</p>
+          <p className="text-muted-foreground text-center text-xs">
+            © {new Date().getFullYear()} KomikManga
+          </p>
         </div>
       </aside>
     </>

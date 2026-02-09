@@ -63,7 +63,7 @@ jobs:
 
       - name: Alias to staging subdomain
         run: |
-          vercel alias set ${{ steps.deploy.outputs.url }} staging-komikstream.vercel.app --token=${{ secrets.VERCEL_TOKEN }} || true
+          vercel alias set ${{ steps.deploy.outputs.url }} staging-komikmanga.vercel.app --token=${{ secrets.VERCEL_TOKEN }} || true
 
       - name: Create Deployment Status
         uses: actions/github-script@v7

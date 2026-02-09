@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: ReaderPageProps): Promise<Met
 
   return {
     title: `Baca ${komik.title}`,
-    description: truncate(`Baca ${komik.title} secara gratis di KomikStream`, 160),
+    description: truncate(`Baca ${komik.title} secara gratis di KomikManga`, 160),
   };
 }
 

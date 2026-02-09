@@ -27,16 +27,16 @@ export function Navbar({ clerkEnabled = false }: NavbarProps) {
 
   return (
     <>
-      <header className="border-border/40 bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur">
+      <header className="border-border/40 bg-background/80 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b shadow-sm backdrop-blur-xl">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-lg">
+            <div className="bg-primary shadow-primary/25 flex h-9 w-9 items-center justify-center rounded-xl shadow-lg">
               <Book className="text-primary-foreground h-5 w-5" />
             </div>
             <span className="text-xl font-bold">
               <span className="text-primary">Komik</span>
-              <span>Stream</span>
+              <span>Manga</span>
             </span>
           </Link>
 

@@ -10,7 +10,7 @@ services:
       context: .
       dockerfile: Dockerfile
       target: runner
-    container_name: komikstream-app
+    container_name: komikmanga-app
     restart: unless-stopped
     ports:
       - "3000:3000"
@@ -25,7 +25,7 @@ services:
       db:
         condition: service_healthy
     networks:
-      - komikstream-network
+      - komikmanga-network
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
       interval: 30s
@@ -36,21 +36,21 @@ services:
   # ==================== DATABASE ====================
   db:
     image: postgres:16-alpine
-    container_name: komikstream-db
+    container_name: komikmanga-db
     restart: unless-stopped
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_USER=${POSTGRES_USER:-komikstream}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-komikstream_secret}
-      - POSTGRES_DB=${POSTGRES_DB:-komikstream}
+      - POSTGRES_USER=${POSTGRES_USER:-komikmanga}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-komikmanga_secret}
+      - POSTGRES_DB=${POSTGRES_DB:-komikmanga}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - komikstream-network
+      - komikmanga-network
     healthcheck:
       test:
-        ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-komikstream} -d ${POSTGRES_DB:-komikstream}"]
+        ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-komikmanga} -d ${POSTGRES_DB:-komikmanga}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -62,7 +62,7 @@ services:
   #   build:
   #     context: .
   #     dockerfile: Dockerfile.dev
-  #   container_name: komikstream-dev
+  #   container_name: komikmanga-dev
   #   ports:
   #     - "3000:3000"
   #   volumes:
@@ -71,11 +71,11 @@ services:
   #     - /app/.next
   #   environment:
   #     - NODE_ENV=development
-  #     - DATABASE_URL=postgresql://komikstream:komikstream_secret@db:5432/komikstream
+  #     - DATABASE_URL=postgresql://komikmanga:komikmanga_secret@db:5432/komikmanga
   #   depends_on:
   #     - db
   #   networks:
-  #     - komikstream-network
+  #     - komikmanga-network
 
 # ==================== VOLUMES ====================
 volumes:
@@ -84,5 +84,5 @@ volumes:
 
 # ==================== NETWORKS ====================
 networks:
-  komikstream-network:
+  komikmanga-network:
     driver: bridge

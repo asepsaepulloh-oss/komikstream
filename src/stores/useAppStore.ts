@@ -87,7 +87,7 @@ export const useAppStore = create<AppState>()(
       },
     }),
     {
-      name: "komikstream-storage",
+      name: "komikmanga-storage",
       partialize: (state) => ({
         bookmarks: state.bookmarks,
         history: state.history,

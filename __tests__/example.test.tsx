@@ -1,5 +1,5 @@
 /**
- * Example test file demonstrating testing patterns for KomikStream
+ * Example test file demonstrating testing patterns for KomikManga
  */
 
 import { render, screen } from "@testing-library/react";
@@ -9,7 +9,7 @@ function ExampleComponent({ title }: { title: string }) {
   return (
     <div>
       <h1>{title}</h1>
-      <p>Welcome to KomikStream</p>
+      <p>Welcome to KomikManga</p>
     </div>
   );
 }
@@ -24,7 +24,7 @@ describe("ExampleComponent", () => {
   it("renders welcome message", () => {
     render(<ExampleComponent title="Test" />);
 
-    expect(screen.getByText("Welcome to KomikStream")).toBeInTheDocument();
+    expect(screen.getByText("Welcome to KomikManga")).toBeInTheDocument();
   });
 });
 

@@ -345,7 +345,7 @@ async function seedKomik(): Promise<number> {
 
 async function main() {
   console.log("\n" + "=".repeat(60));
-  console.log("🌱 KOMIKSTREAM DATABASE SEEDING");
+  console.log("🌱 KOMIKMANGA DATABASE SEEDING");
   console.log("=".repeat(60));
   console.log(`\nStarted at: ${new Date().toISOString()}`);
   console.log("Target: ~50 anime + ~100 komik");
