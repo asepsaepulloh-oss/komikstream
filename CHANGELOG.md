@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.0] - 2026-02-09
+
+### ✨ Features
+- feat: add manifest, robots, and sitemap routes for SEO and PWA support (926732c)
+
+### 🐛 Bug Fixes
+- fix: add missing scripts section in package.json (00cbb0f)
+
+
+
 ## [0.5.1] - 2026-02-09
 
 ### 🐛 Bug Fixes
