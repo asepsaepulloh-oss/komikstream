@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0] - 2026-02-09
+
+### ✨ Features
+- feat: update CI/CD workflows and add security headers (e157dc6)
+
+
+
 ## [0.3.6] - 2026-02-09
 
 ### 🐛 Bug Fixes
