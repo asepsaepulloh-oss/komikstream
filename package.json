@@ -2,6 +2,7 @@
   "name": "komikstream",
   "version": "0.5.1",
   "private": true,
+  "scripts": {
     "start": "next start",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
