@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.2] - 2026-02-10
+
+### 📦 Other Changes
+- update (d446cdb)
+
+
+
 ## [0.7.1] - 2026-02-10
 
 ### 🐛 Bug Fixes
