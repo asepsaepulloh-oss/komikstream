@@ -61,7 +61,7 @@ test.describe("Local Storage", () => {
       await page.reload();
 
       // Theme should be persisted - verify page loads correctly after reload
-      await expect(page.locator("body")).toBeVisible();
+      await expect(html).toBeVisible();
     }
   });
 });

@@ -136,13 +136,17 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Update package.json version
+        env:
+          RELEASE_VERSION: ${{ needs.check-release.outputs.version }}
         run: |
-          npm version ${{ needs.check-release.outputs.version }} --no-git-tag-version
+          npm version "${RELEASE_VERSION}" --no-git-tag-version
 
       - name: Generate Changelog
         id: changelog
+        env:
+          RELEASE_VERSION: ${{ needs.check-release.outputs.version }}
         run: |
-          VERSION="${{ needs.check-release.outputs.version }}"
+          VERSION="${RELEASE_VERSION}"
           DATE=$(date +%Y-%m-%d)
 
           # Get commits since last tag
@@ -184,8 +188,11 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Update CHANGELOG.md
+        env:
+          RELEASE_VERSION: ${{ needs.check-release.outputs.version }}
+          CHANGELOG_CONTENT: ${{ steps.changelog.outputs.changelog }}
         run: |
-          VERSION="${{ needs.check-release.outputs.version }}"
+          VERSION="${RELEASE_VERSION}"
           DATE=$(date +%Y-%m-%d)
 
           # Create CHANGELOG if not exists
@@ -198,7 +205,7 @@ jobs:
 
           # Prepend new changelog entry
           TEMP_FILE=$(mktemp)
-          echo "${{ steps.changelog.outputs.changelog }}" > "$TEMP_FILE"
+          echo "${CHANGELOG_CONTENT}" > "$TEMP_FILE"
           echo "" >> "$TEMP_FILE"
 
           # Insert after header
@@ -208,25 +215,34 @@ jobs:
           mv CHANGELOG.new.md CHANGELOG.md
 
       - name: Commit changes
+        env:
+          RELEASE_VERSION: ${{ needs.check-release.outputs.version }}
         run: |
           git add package.json package-lock.json CHANGELOG.md
-          git commit -m "chore(release): v${{ needs.check-release.outputs.version }} [skip ci]"
+          git commit -m "chore(release): v${RELEASE_VERSION} [skip ci]"
 
       - name: Create and push tag
+        env:
+          RELEASE_VERSION: ${{ needs.check-release.outputs.version }}
         run: |
-          git tag -a "v${{ needs.check-release.outputs.version }}" -m "Release v${{ needs.check-release.outputs.version }}"
+          git tag -a "v${RELEASE_VERSION}" -m "Release v${RELEASE_VERSION}"
           git push origin main --follow-tags
 
       - name: Create GitHub Release
         uses: actions/github-script@v7
+        env:
+          RELEASE_VERSION: ${{ needs.check-release.outputs.version }}
+          CHANGELOG: ${{ steps.changelog.outputs.changelog }}
         with:
           script: |
+            const version = process.env.RELEASE_VERSION;
+            const changelog = process.env.CHANGELOG;
             const { data: release } = await github.rest.repos.createRelease({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              tag_name: 'v${{ needs.check-release.outputs.version }}',
-              name: '🚀 Release v${{ needs.check-release.outputs.version }}',
-              body: `${{ steps.changelog.outputs.changelog }}`,
+              tag_name: `v${version}`,
+              name: `🚀 Release v${version}`,
+              body: changelog,
               draft: false,
               prerelease: false,
             });
@@ -234,7 +250,10 @@ jobs:
             console.log(`Created release: ${release.html_url}`);
 
       - name: Release Summary
+        env:
+          RELEASE_VERSION: ${{ needs.check-release.outputs.version }}
+          CHANGELOG: ${{ steps.changelog.outputs.changelog }}
         run: |
-          echo "## 🚀 Release v${{ needs.check-release.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "## 🚀 Release v${RELEASE_VERSION}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "${{ steps.changelog.outputs.changelog }}" >> $GITHUB_STEP_SUMMARY
+          echo "${CHANGELOG}" >> $GITHUB_STEP_SUMMARY

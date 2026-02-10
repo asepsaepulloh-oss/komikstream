@@ -8,7 +8,7 @@ on:
       skip_tests:
         description: "Skip tests before deployment"
         required: false
-        default: false
+        default: "false"
         type: boolean
 
 concurrency:
@@ -70,9 +70,11 @@ jobs:
 
       - name: Create GitHub Deployment Status
         uses: actions/github-script@v7
+        env:
+          DEPLOY_URL: ${{ steps.deploy.outputs.url }}
         with:
           script: |
-            const url = '${{ steps.deploy.outputs.url }}';
+            const url = process.env.DEPLOY_URL;
             console.log(`✅ Deployed to production: ${url}`);
 
   # ==================== POST-DEPLOYMENT ====================
@@ -108,12 +110,17 @@ jobs:
           exit 1
 
       - name: Deployment Summary
+        env:
+          DEPLOY_URL: ${{ needs.deploy.outputs.url }}
+          COMMIT_SHA: ${{ github.sha }}
+          BRANCH_NAME: ${{ github.ref_name }}
+          ACTOR: ${{ github.actor }}
         run: |
           echo "## 🚀 Production Deployment Complete" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
           echo "| -------- | ----- |" >> $GITHUB_STEP_SUMMARY
-          echo "| URL | ${{ needs.deploy.outputs.url }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Commit | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| Branch | \`${{ github.ref_name }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| Triggered by | ${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| URL | ${DEPLOY_URL} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit | \`${COMMIT_SHA}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Branch | \`${BRANCH_NAME}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Triggered by | ${ACTOR} |" >> $GITHUB_STEP_SUMMARY
