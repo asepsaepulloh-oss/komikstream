@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.1] - 2026-02-10
+
+### 🐛 Bug Fixes
+- fix: update visibility check in local storage test to use HTML element (40b6091)
+
+
+
 ## [0.7.0] - 2026-02-10
 
 ### 🐛 Bug Fixes
