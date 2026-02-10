@@ -3,10 +3,10 @@
 Website untuk membaca komik (manhwa, manhua, manga) dan streaming anime dengan subtitle Indonesia.
 
 <!-- Badges -->
-[![CI](https://github.com/KanekiCraynet/komikmanga/actions/workflows/ci.yml/badge.svg)](https://github.com/KanekiCraynet/komikmanga/actions/workflows/ci.yml)
-[![E2E Tests](https://github.com/KanekiCraynet/komikmanga/actions/workflows/e2e.yml/badge.svg)](https://github.com/KanekiCraynet/komikmanga/actions/workflows/e2e.yml)
-[![Deploy Production](https://github.com/KanekiCraynet/komikmanga/actions/workflows/deploy-production.yml/badge.svg)](https://github.com/KanekiCraynet/komikmanga/actions/workflows/deploy-production.yml)
-[![codecov](https://codecov.io/gh/KanekiCraynet/komikmanga/branch/main/graph/badge.svg)](https://codecov.io/gh/KanekiCraynet/komikmanga)
+[![CI](https://github.com/KanekiCraynet/komikstream/actions/workflows/ci.yml/badge.svg)](https://github.com/KanekiCraynet/komikstream/actions/workflows/ci.yml)
+[![E2E Tests](https://github.com/KanekiCraynet/komikstream/actions/workflows/e2e.yml/badge.svg)](https://github.com/KanekiCraynet/komikstream/actions/workflows/e2e.yml)
+[![Deploy Production](https://github.com/KanekiCraynet/komikstream/actions/workflows/deploy-production.yml/badge.svg)](https://github.com/KanekiCraynet/komikstream/actions/workflows/deploy-production.yml)
+[![codecov](https://codecov.io/gh/KanekiCraynet/komikstream/branch/main/graph/badge.svg)](https://codecov.io/gh/KanekiCraynet/komikstream)
 
 ![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
@@ -61,8 +61,8 @@ Website untuk membaca komik (manhwa, manhua, manga) dan streaming anime dengan s
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/KanekiCraynet/komikmanga.git
-cd komikmanga
+git clone https://github.com/KanekiCraynet/komikstream.git
+cd komikstream
 
 # 2. Install dependencies
 npm install
@@ -80,8 +80,8 @@ open http://localhost:3000
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/KanekiCraynet/komikmanga.git
-cd komikmanga
+git clone https://github.com/KanekiCraynet/komikstream.git
+cd komikstream
 
 # 2. Install dependencies
 npm install
@@ -285,7 +285,7 @@ SKIP_DB_CONNECTION="true"
 
 ```bash
 # Build image
-docker build -t komikmanga .
+docker build -t komikstream .
 
 # Run container
 docker run -p 3000:3000 \
