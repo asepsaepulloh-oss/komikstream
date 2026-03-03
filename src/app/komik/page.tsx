@@ -17,7 +17,7 @@ export default async function KomikPage({ searchParams }: KomikPageProps) {
   const params = await searchParams;
   const type = params.type as "manhwa" | "manhua" | "manga" | undefined;
   const sort = params.sort || "latest";
-  const page = parseInt(params.page || "1", 10);
+  const page = parseInt(params.page || "1", 10) || 1;
 
   // Fetch data based on filters
   const [latestKomik, popularKomik, recommendedManhwa, recommendedManhua, recommendedManga] =

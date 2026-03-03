@@ -17,7 +17,7 @@ interface AnimePageProps {
 export default async function AnimePage({ searchParams }: AnimePageProps) {
   const params = await searchParams;
   const sort = params.sort || "latest";
-  const page = parseInt(params.page || "1", 10);
+  const page = parseInt(params.page || "1", 10) || 1;
 
   const [latestAnime, recommendedAnime, movieAnime] = await Promise.all([
     getAnimeLatest().catch(() => []),

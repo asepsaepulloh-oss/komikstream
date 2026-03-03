@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const type = searchParams.get("type");
-    const limit = parseInt(searchParams.get("limit") || "50", 10);
+    const limit = parseInt(searchParams.get("limit") || "50", 10) || 50;
 
     const history = await prisma.history.findMany({
       where: {

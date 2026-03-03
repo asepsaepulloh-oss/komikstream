@@ -12,36 +12,52 @@ interface ReaderPageProps {
 
 export async function generateMetadata({ params }: ReaderPageProps): Promise<Metadata> {
   const { mangaId } = await params;
-  const komik = await getKomikDetail(mangaId);
 
-  if (!komik) {
+  try {
+    const komik = await getKomikDetail(mangaId);
+
+    if (!komik) {
+      return { title: "Komik tidak ditemukan" };
+    }
+
+    return {
+      title: `Baca ${komik.title}`,
+      description: truncate(`Baca ${komik.title} secara gratis di KomikManga`, 160),
+    };
+  } catch {
     return { title: "Komik tidak ditemukan" };
   }
-
-  return {
-    title: `Baca ${komik.title}`,
-    description: truncate(`Baca ${komik.title} secara gratis di KomikManga`, 160),
-  };
 }
 
 export default async function KomikReaderPage({ params }: ReaderPageProps) {
   const { mangaId, chapterId } = await params;
 
-  const [komik, chapters, images] = await Promise.all([
-    getKomikDetail(mangaId),
-    getKomikChapterList(mangaId),
-    getKomikImages(chapterId),
-  ]);
+  let komik, chapters, images;
+  try {
+    [komik, chapters, images] = await Promise.all([
+      getKomikDetail(mangaId),
+      getKomikChapterList(mangaId),
+      getKomikImages(chapterId),
+    ]);
+  } catch {
+    // Let the route error boundary handle API failures
+    throw new Error("Gagal memuat data chapter. Silakan coba lagi.");
+  }
 
-  if (!komik || !images || images.length === 0) {
+  if (!komik) {
+    notFound();
+  }
+
+  if (!images || images.length === 0) {
     notFound();
   }
 
   // Find current, prev, next chapter
   const currentIndex = chapters.findIndex((ch) => ch.chapter_id === chapterId);
-  const currentChapter = chapters[currentIndex];
+  const currentChapter = currentIndex >= 0 ? chapters[currentIndex] : null;
   const prevChapter = currentIndex > 0 ? chapters[currentIndex - 1] : null;
-  const nextChapter = currentIndex < chapters.length - 1 ? chapters[currentIndex + 1] : null;
+  const nextChapter =
+    currentIndex >= 0 && currentIndex < chapters.length - 1 ? chapters[currentIndex + 1] : null;
 
   // Get image URLs
   const imageUrls = images.map((img) => {
