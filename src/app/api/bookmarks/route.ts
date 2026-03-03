@@ -140,14 +140,12 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Missing required params: type, itemId" }, { status: 400 });
     }
 
-    // Delete bookmark
-    await prisma.bookmark.delete({
+    // Delete bookmark (uses deleteMany to avoid crash if not found)
+    await prisma.bookmark.deleteMany({
       where: {
-        userId_type_itemId: {
-          userId: user.id,
-          type,
-          itemId,
-        },
+        userId: user.id,
+        type,
+        itemId,
       },
     });
 

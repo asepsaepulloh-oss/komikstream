@@ -90,7 +90,7 @@ export function useAnimeDetail(urlId: string) {
 }
 
 // Hook for fetching anime video
-export function useAnimeVideo(episodeId: string, resolution: VideoResolution = "720p") {
+export function useAnimeVideo(episodeId: string, resolution: VideoResolution = "480p") {
   return useQuery({
     queryKey: animeKeys.video(episodeId, resolution),
     queryFn: () => getAnimeVideo(episodeId, resolution),

@@ -1,18 +1,31 @@
-// Check if Clerk is properly configured
+// Check if Clerk is properly configured (single source of truth)
 export function isClerkConfigured(): boolean {
   const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+  const secretKey = process.env.CLERK_SECRET_KEY;
 
-  // Check if key exists and is not a placeholder/dummy
+  // Check if keys exist
   if (!publishableKey) return false;
-  if (publishableKey === "pk_test_placeholder") return false;
-  if (publishableKey === "pk_test_dummy") return false;
-  if (!publishableKey.startsWith("pk_")) return false;
+  if (!secretKey) return false;
 
-  // Clerk keys have a specific format: pk_test_xxx or pk_live_xxx
-  // The third segment should be a base64-like string, not "dummy" or "placeholder"
-  const parts = publishableKey.split("_");
-  if (parts.length < 3) return false;
-  if (parts[2] === "dummy" || parts[2] === "placeholder") return false;
+  // Reject known placeholder/dummy values
+  if (publishableKey === "pk_test_placeholder" || publishableKey === "pk_test_dummy") return false;
+  if (secretKey === "sk_test_placeholder" || secretKey === "sk_test_dummy") return false;
+
+  // Validate key prefixes
+  if (!publishableKey.startsWith("pk_")) return false;
+  if (!secretKey.startsWith("sk_")) return false;
+
+  // Reject any key with "dummy" or "placeholder" in the third segment
+  const pubParts = publishableKey.split("_");
+  const secParts = secretKey.split("_");
+  if (pubParts.length < 3 || secParts.length < 3) return false;
+  if (
+    pubParts[2] === "dummy" ||
+    pubParts[2] === "placeholder" ||
+    secParts[2] === "dummy" ||
+    secParts[2] === "placeholder"
+  )
+    return false;
 
   return true;
 }

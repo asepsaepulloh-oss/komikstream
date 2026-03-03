@@ -48,6 +48,10 @@ const nextConfig: NextConfig = {
   },
 
   // Image optimization for performance
+  // NOTE: Wildcard hostname is intentional — images come from an external
+  // scraper API (api.sansekai.my.id) whose CDN hostnames are unpredictable.
+  // Restricting to HTTPS-only mitigates plaintext interception. If you move
+  // to a self-hosted image pipeline, replace "**" with explicit hostnames.
   images: {
     remotePatterns: [
       {

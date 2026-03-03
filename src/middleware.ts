@@ -1,34 +1,7 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-
-// Check if Clerk is properly configured
-function isClerkConfigured(): boolean {
-  const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
-  const secretKey = process.env.CLERK_SECRET_KEY;
-
-  if (!publishableKey || !secretKey) return false;
-  if (publishableKey === "pk_test_placeholder") return false;
-  if (publishableKey === "pk_test_dummy") return false;
-  if (secretKey === "sk_test_placeholder") return false;
-  if (secretKey === "sk_test_dummy") return false;
-  if (!publishableKey.startsWith("pk_")) return false;
-  if (!secretKey.startsWith("sk_")) return false;
-
-  // Reject any key with "dummy" or "placeholder" in the third segment
-  const pubParts = publishableKey.split("_");
-  const secParts = secretKey.split("_");
-  if (pubParts.length < 3 || secParts.length < 3) return false;
-  if (
-    pubParts[2] === "dummy" ||
-    pubParts[2] === "placeholder" ||
-    secParts[2] === "dummy" ||
-    secParts[2] === "placeholder"
-  )
-    return false;
-
-  return true;
-}
+import { isClerkConfigured } from "@/lib/auth-config";
 
 // Define protected routes that require authentication
 const isProtectedRoute = createRouteMatcher([

@@ -8,7 +8,7 @@
 import type { Anime, Komik, KomikChapter, KomikImage } from "@/types";
 import { CACHE_TIMES, CACHE_TAGS } from "./cache-config";
 
-const BASE_URL = "https://api.sansekai.my.id/api";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.sansekai.my.id/api";
 
 // ==================== RAW API TYPES ====================
 

@@ -23,7 +23,7 @@ const pool = new Pool({
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
-const BASE_URL = "https://api.sansekai.my.id/api";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.sansekai.my.id/api";
 const REQUEST_DELAY = 2000; // 2 seconds between requests
 
 async function delay(ms: number): Promise<void> {

@@ -96,14 +96,20 @@ export async function POST(req: Request) {
         const email = email_addresses?.[0]?.email_address;
         const name = [first_name, last_name].filter(Boolean).join(" ") || null;
 
-        // Update user in database
-        await prisma.user.update({
+        // Upsert user in database (handles case where updated event arrives before created)
+        await prisma.user.upsert({
           where: { clerkId: id },
-          data: {
+          update: {
             ...(email ? { email } : {}),
             name,
             imageUrl: image_url || null,
             updatedAt: new Date(),
+          },
+          create: {
+            clerkId: id,
+            email: email || `${id}@placeholder.clerk`,
+            name,
+            imageUrl: image_url || null,
           },
         });
 
@@ -119,8 +125,8 @@ export async function POST(req: Request) {
           return NextResponse.json({ error: "No user ID found" }, { status: 400 });
         }
 
-        // Delete user from database (cascade will delete bookmarks and history)
-        await prisma.user.delete({
+        // Delete user from database (uses deleteMany to avoid crash if user doesn't exist)
+        await prisma.user.deleteMany({
           where: { clerkId: id },
         });
 

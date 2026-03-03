@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { useAppStore } from "@/stores/useAppStore";
+import { useMounted } from "@/hooks/useMounted";
 import { Bookmark, BookmarkCheck } from "lucide-react";
 
 interface BookmarkButtonProps {
@@ -22,7 +23,8 @@ export function BookmarkButton({
   variant = "default",
 }: BookmarkButtonProps) {
   const { isBookmarked, addBookmark, removeBookmark } = useAppStore();
-  const bookmarked = isBookmarked(type, itemId);
+  const mounted = useMounted();
+  const bookmarked = mounted && isBookmarked(type, itemId);
 
   const handleToggle = () => {
     if (bookmarked) {

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const BASE_URL = "https://api.sansekai.my.id/api";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.sansekai.my.id/api";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);

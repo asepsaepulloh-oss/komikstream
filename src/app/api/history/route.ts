@@ -151,14 +151,12 @@ export async function DELETE(request: NextRequest) {
         },
       });
     } else if (type && itemId) {
-      // Delete specific history entry
-      await prisma.history.delete({
+      // Delete specific history entry (uses deleteMany to avoid crash if not found)
+      await prisma.history.deleteMany({
         where: {
-          userId_type_itemId: {
-            userId: user.id,
-            type,
-            itemId,
-          },
+          userId: user.id,
+          type,
+          itemId,
         },
       });
     } else {
