@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.6] - 2026-03-03
+
+### 📦 Other Changes
+- improve: error handling and resilience (Phase B) (269a5a7)
+
+
+
 ## [0.7.5] - 2026-03-03
 
 ### 📦 Other Changes
