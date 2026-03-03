@@ -66,7 +66,7 @@ export function Navbar({ clerkEnabled = false }: NavbarProps) {
           {/* Right section */}
           <div className="flex items-center gap-2">
             {/* Search button (mobile) */}
-            <Link href="/komik/search">
+            <Link href="/komik/search" aria-label="Cari komik">
               <Button variant="ghost" size="icon" className="md:hidden">
                 <Search className="h-5 w-5" />
               </Button>
@@ -84,6 +84,7 @@ export function Navbar({ clerkEnabled = false }: NavbarProps) {
               size="icon"
               className="md:hidden"
               onClick={() => setIsSidebarOpen(true)}
+              aria-label="Buka menu"
             >
               <Menu className="h-5 w-5" />
             </Button>

@@ -110,7 +110,7 @@ export default function BookmarkPage() {
               <button
                 onClick={() => removeBookmark(bookmark.type, bookmark.itemId)}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90 absolute top-2 right-2 rounded-lg p-2 opacity-0 transition-opacity group-hover:opacity-100"
-                title="Hapus dari bookmark"
+                aria-label="Hapus dari bookmark"
               >
                 <Trash2 className="h-4 w-4" />
               </button>

@@ -67,6 +67,7 @@ export function SearchBar({
           <button
             onClick={handleClear}
             className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2"
+            aria-label="Hapus pencarian"
           >
             <X className="h-4 w-4" />
           </button>

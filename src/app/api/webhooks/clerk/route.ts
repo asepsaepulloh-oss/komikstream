@@ -86,7 +86,7 @@ export async function POST(req: Request) {
           },
         });
 
-        console.log(`User created: ${id} (${email})`);
+        console.log(`User created: ${id}`);
         break;
       }
 

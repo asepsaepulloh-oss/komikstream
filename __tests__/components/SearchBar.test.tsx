@@ -50,7 +50,7 @@ describe("SearchBar", () => {
     render(<SearchBar defaultValue="test" />);
 
     // The clear button (X) should be visible
-    const clearButton = screen.getByRole("button", { name: "" }); // X button has no text
+    const clearButton = screen.getByRole("button", { name: /hapus pencarian/i });
     expect(clearButton).toBeInTheDocument();
   });
 
@@ -59,18 +59,17 @@ describe("SearchBar", () => {
     const input = screen.getByRole("textbox");
 
     // Find and click the clear button
-    const buttons = screen.getAllByRole("button");
-    const clearButton = buttons.find((btn) => btn.textContent === "");
+    const clearButton = screen.getByRole("button", { name: /hapus pencarian/i });
 
     if (clearButton) {
       await userEvent.click(clearButton);
-      expect(input).toHaveValue("");
     }
+    expect(input).toHaveValue("");
   });
 
   it("has disabled search button when input is empty", () => {
     render(<SearchBar />);
-    const searchButton = screen.getByRole("button", { name: /cari/i });
+    const searchButton = screen.getByRole("button", { name: /^cari$/i });
     expect(searchButton).toBeDisabled();
   });
 
@@ -80,7 +79,7 @@ describe("SearchBar", () => {
 
     await userEvent.type(input, "test");
 
-    const searchButton = screen.getByRole("button", { name: /cari/i });
+    const searchButton = screen.getByRole("button", { name: /^cari$/i });
     expect(searchButton).not.toBeDisabled();
   });
 
@@ -106,7 +105,7 @@ describe("SearchBar", () => {
 
     await userEvent.type(input, "Bleach");
 
-    const searchButton = screen.getByRole("button", { name: /cari/i });
+    const searchButton = screen.getByRole("button", { name: /^cari$/i });
     await userEvent.click(searchButton);
 
     expect(mockPush).toHaveBeenCalledWith("/anime/search?q=Bleach");
@@ -118,7 +117,7 @@ describe("SearchBar", () => {
 
     await userEvent.type(input, "Test");
 
-    const searchButton = screen.getByRole("button", { name: /cari/i });
+    const searchButton = screen.getByRole("button", { name: /^cari$/i });
     await userEvent.click(searchButton);
 
     expect(mockPush).toHaveBeenCalledWith("/komik/search?q=Test");
@@ -130,7 +129,7 @@ describe("SearchBar", () => {
 
     await userEvent.type(input, "  hello world  ");
 
-    const searchButton = screen.getByRole("button", { name: /cari/i });
+    const searchButton = screen.getByRole("button", { name: /^cari$/i });
     await userEvent.click(searchButton);
 
     expect(mockPush).toHaveBeenCalledWith("/search?q=hello%20world");
@@ -142,7 +141,7 @@ describe("SearchBar", () => {
 
     await userEvent.type(input, "   ");
 
-    const searchButton = screen.getByRole("button", { name: /cari/i });
+    const searchButton = screen.getByRole("button", { name: /^cari$/i });
     expect(searchButton).toBeDisabled();
   });
 });

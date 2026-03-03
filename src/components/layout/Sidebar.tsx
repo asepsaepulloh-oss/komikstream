@@ -74,6 +74,7 @@ export function Sidebar({ isOpen, onClose, clerkEnabled = false }: SidebarProps)
           <button
             onClick={onClose}
             className="hover:bg-accent flex h-10 w-10 items-center justify-center rounded-lg transition-colors"
+            aria-label="Tutup menu"
           >
             <X className="h-5 w-5" />
           </button>

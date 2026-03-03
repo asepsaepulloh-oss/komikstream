@@ -76,6 +76,7 @@ export default function AnimeWatchPage({ params }: WatchPageProps) {
               <Link
                 href="/"
                 className="hover:bg-accent flex h-9 w-9 items-center justify-center rounded-lg transition-colors"
+                aria-label="Beranda"
               >
                 <Home className="h-4 w-4" />
               </Link>
@@ -131,6 +132,7 @@ export default function AnimeWatchPage({ params }: WatchPageProps) {
             <iframe
               src={videoUrl}
               className="h-full w-full"
+              title="Video player"
               allowFullScreen
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             />

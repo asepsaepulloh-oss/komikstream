@@ -150,7 +150,7 @@ export default function HistoryPage() {
                 <button
                   onClick={() => removeFromHistory(item.type, item.itemId)}
                   className="bg-secondary text-secondary-foreground hover:bg-destructive hover:text-destructive-foreground rounded-lg p-2 transition-colors"
-                  title="Hapus dari history"
+                  aria-label="Hapus dari history"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>

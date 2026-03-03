@@ -77,12 +77,14 @@ export default async function KomikReaderPage({ params }: ReaderPageProps) {
               <Link
                 href="/"
                 className="hover:bg-accent flex h-9 w-9 items-center justify-center rounded-lg transition-colors"
+                aria-label="Beranda"
               >
                 <Home className="h-4 w-4" />
               </Link>
               <Link
                 href={`/komik/${mangaId}`}
                 className="hover:bg-accent flex h-9 w-9 items-center justify-center rounded-lg transition-colors"
+                aria-label="Daftar chapter"
               >
                 <List className="h-4 w-4" />
               </Link>
