@@ -30,30 +30,6 @@ export interface KomikImage {
   page?: number;
 }
 
-export interface KomikListResponse {
-  status: boolean;
-  data: Komik[];
-  message?: string;
-}
-
-export interface KomikDetailResponse {
-  status: boolean;
-  data: Komik;
-  message?: string;
-}
-
-export interface KomikChapterListResponse {
-  status: boolean;
-  data: KomikChapter[];
-  message?: string;
-}
-
-export interface KomikImageResponse {
-  status: boolean;
-  data: KomikImage[] | string[];
-  message?: string;
-}
-
 // ==================== ANIME TYPES ====================
 
 export interface Anime {
@@ -93,24 +69,6 @@ export interface AnimeVideo {
   resolution?: string;
 }
 
-export interface AnimeListResponse {
-  status: boolean;
-  data: Anime[];
-  message?: string;
-}
-
-export interface AnimeDetailResponse {
-  status: boolean;
-  data: Anime;
-  message?: string;
-}
-
-export interface AnimeVideoResponse {
-  status: boolean;
-  data: AnimeVideo | string;
-  message?: string;
-}
-
 // ==================== USER & BOOKMARK TYPES ====================
 
 export interface User {
@@ -141,24 +99,3 @@ export interface History {
   progressTitle?: string;
   updatedAt: Date;
 }
-
-// ==================== API RESPONSE TYPES ====================
-
-export interface ApiResponse<T> {
-  status: boolean;
-  data: T;
-  message?: string;
-}
-
-export interface PaginatedResponse<T> {
-  status: boolean;
-  data: T[];
-  page?: number;
-  totalPages?: number;
-  hasNext?: boolean;
-  message?: string;
-}
-
-// Raw API types and transformers
-export * from "./api-raw";
-export * from "./transformers";

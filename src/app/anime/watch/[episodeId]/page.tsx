@@ -1,21 +1,10 @@
 "use client";
 
+import { getAnimeVideo } from "@/lib/api-client";
 import { ArrowLeft, Film, Home, Settings } from "lucide-react";
 import Link from "next/link";
 import { use, useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-
-// Fetch video via API route (server-side)
-async function fetchAnimeVideo(episodeId: string, reso: string): Promise<string | null> {
-  try {
-    const res = await fetch(`/api/anime/video?chapterUrlId=${episodeId}&reso=${reso}`);
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data.url || null;
-  } catch {
-    return null;
-  }
-}
 
 interface WatchPageProps {
   params: Promise<{ episodeId: string }>;
@@ -38,7 +27,7 @@ export default function AnimeWatchPage({ params }: WatchPageProps) {
     setError(null);
 
     try {
-      const url = await fetchAnimeVideo(episodeId, reso);
+      const url = await getAnimeVideo(episodeId, reso);
       setVideoUrl(url);
     } catch {
       setError("Gagal memuat video. Silakan coba lagi.");

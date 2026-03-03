@@ -46,10 +46,12 @@ export default function BookmarkPage() {
         </div>
 
         {/* Filter */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2" role="tablist" aria-label="Filter bookmark">
           {(["all", "komik", "anime"] as const).map((f) => (
             <button
               key={f}
+              role="tab"
+              aria-selected={filter === f}
               onClick={() => setFilter(f)}
               className={cn(
                 "rounded-full px-4 py-2 text-sm font-medium transition-colors",
