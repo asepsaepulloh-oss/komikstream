@@ -33,10 +33,10 @@ runs:
         sleep "${INITIAL_DELAY}"
         RETRY_COUNT=0
         while [ "$RETRY_COUNT" -lt "$MAX_RETRIES" ]; do
-          response=$(curl -s -o /dev/null -w "%{http_code}" "${HEALTH_URL}" || echo "000")
+          response=$(curl -sL -o /dev/null -w "%{http_code}" "${HEALTH_URL}" || echo "000")
           if [ "$response" = "200" ]; then
             echo "Health check passed (HTTP $response)"
-            curl -s "${HEALTH_URL}" | head -c 500
+            curl -sL "${HEALTH_URL}" | head -c 500
             echo ""
             exit 0
           fi
