@@ -56,13 +56,39 @@ describe("isClerkConfigured", () => {
     expect(isClerkConfigured()).toBe(false);
   });
 
-  it("returns true for valid Clerk key format", () => {
+  it("returns false when only publishable key is set (no secret key)", () => {
     process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY = "pk_test_abc123xyz456";
+    delete process.env.CLERK_SECRET_KEY;
+    expect(isClerkConfigured()).toBe(false);
+  });
+
+  it("returns false when only secret key is set (no publishable key)", () => {
+    delete process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+    process.env.CLERK_SECRET_KEY = "sk_test_abc123xyz456";
+    expect(isClerkConfigured()).toBe(false);
+  });
+
+  it("returns false for placeholder secret key", () => {
+    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY = "pk_test_abc123xyz456";
+    process.env.CLERK_SECRET_KEY = "sk_test_placeholder";
+    expect(isClerkConfigured()).toBe(false);
+  });
+
+  it("returns false for dummy secret key", () => {
+    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY = "pk_test_abc123xyz456";
+    process.env.CLERK_SECRET_KEY = "sk_test_dummy";
+    expect(isClerkConfigured()).toBe(false);
+  });
+
+  it("returns true for valid Clerk key format (both keys set)", () => {
+    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY = "pk_test_abc123xyz456";
+    process.env.CLERK_SECRET_KEY = "sk_test_abc123xyz456";
     expect(isClerkConfigured()).toBe(true);
   });
 
-  it("returns true for live Clerk key", () => {
+  it("returns true for live Clerk keys", () => {
     process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY = "pk_live_realkey123";
+    process.env.CLERK_SECRET_KEY = "sk_live_realkey123";
     expect(isClerkConfigured()).toBe(true);
   });
 });
