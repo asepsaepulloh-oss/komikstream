@@ -81,19 +81,18 @@ jest.mock("framer-motion", () => ({
   useInView: () => true,
 }));
 
-// Suppress console errors during tests (optional)
+// Suppress known harmless console errors during tests
 const originalError = console.error;
 beforeAll(() => {
   console.error = (...args: unknown[]) => {
+    const msg = args.map(String).join(" ");
     if (
-      typeof args[0] === "string" &&
-      (args[0].includes("Warning: ReactDOM.render") ||
-        args[0].includes("Warning: An update to") ||
-        args[0].includes("act(...)") ||
-        args[0].includes("whileHover") ||
-        args[0].includes("non-boolean attribute `fill`") ||
-        args[0].includes("non-boolean attribute `unoptimized`") ||
-        args[0].includes("React does not recognize"))
+      msg.includes("Warning: ReactDOM.render") ||
+      msg.includes("Warning: An update to") ||
+      msg.includes("act(...)") ||
+      msg.includes("whileHover") ||
+      msg.includes("non-boolean attribute") ||
+      msg.includes("React does not recognize")
     ) {
       return;
     }

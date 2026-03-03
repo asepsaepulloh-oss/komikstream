@@ -39,13 +39,13 @@ const config: Config = {
   ],
 
   // Coverage thresholds - fail if coverage drops below these values
-  // Start low and increase as more tests are added
+  // Baseline: Stmts 23.76%, Branch 32.09%, Funcs 23.48%, Lines 23%
   coverageThreshold: {
     global: {
-      statements: 5,
-      branches: 5,
-      functions: 5,
-      lines: 5,
+      statements: 20,
+      branches: 20,
+      functions: 20,
+      lines: 20,
     },
   },
 
