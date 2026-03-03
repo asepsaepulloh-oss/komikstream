@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.9] - 2026-03-03
+
+### 📦 Other Changes
+- test: add 65 new tests and raise coverage threshold to 20% (Phase D) (bad6fd2)
+
+
+
 ## [0.7.8] - 2026-03-03
 
 ### 📦 Other Changes
