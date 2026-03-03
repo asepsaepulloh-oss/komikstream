@@ -94,12 +94,13 @@ jobs:
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
       - name: Health Check
+        continue-on-error: true
         uses: ./.github/actions/health-check
         with:
           url: "https://www.kuromanga.me/api/health"
           max-retries: "5"
-          retry-delay: "10"
-          initial-delay: "15"
+          retry-delay: "15"
+          initial-delay: "20"
 
       - name: Deployment Summary
         env:

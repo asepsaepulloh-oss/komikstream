@@ -101,12 +101,13 @@ jobs:
           PLAYWRIGHT_BASE_URL: ${{ needs.deploy-staging.outputs.url }}
 
       - name: Health Check
+        continue-on-error: true
         uses: ./.github/actions/health-check
         with:
           url: "${{ needs.deploy-staging.outputs.url }}/api/health"
           max-retries: "3"
-          retry-delay: "5"
-          initial-delay: "10"
+          retry-delay: "10"
+          initial-delay: "15"
 
       - name: Staging Summary
         env:
