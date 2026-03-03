@@ -80,13 +80,13 @@ model Anime {
 // ============= KOMIK CACHE TABLE =============
 
 model Komik {
-  id                  String   @id @default(dbgenerated("(gen_random_uuid())::text"))
-  mangaId             String   @unique
+  id                  String    @id @default(dbgenerated("(gen_random_uuid())::text"))
+  mangaId             String    @unique
   title               String
   alternativeTitle    String?
   coverImage          String
   coverPortrait       String?
-  synopsis            String?  @db.Text
+  synopsis            String?   @db.Text
   status              Int?
   type                String?
   releaseYear         String?
@@ -102,9 +102,9 @@ model Komik {
   latestChapterDate   DateTime?
   chapters            Json?
   sourceUrl           String?
-  lastScraped         DateTime @default(now())
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  lastScraped         DateTime  @default(now())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
   @@index([mangaId])
   @@index([title])
