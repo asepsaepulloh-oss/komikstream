@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.5] - 2026-03-03
+
+### 📦 Other Changes
+- improve: accessibility and code quality quick wins (Phase A) (081d2bd)
+
+
+
 ## [0.7.4] - 2026-03-03
 
 ### 🐛 Bug Fixes
