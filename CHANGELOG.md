@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.3] - 2026-03-03
+
+### 🐛 Bug Fixes
+- fix: resolve critical bugs and improve code quality (Phase 1 & 2) (8fe9cdf)
+
+
+
 ## [0.7.2] - 2026-02-10
 
 ### 📦 Other Changes
