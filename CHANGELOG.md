@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.12] - 2026-03-03
+
+### Bug Fixes
+- fix(ci): make health check non-blocking and increase retry delays (5001785)
+
+
+
 ## [0.7.11] - 2026-03-03
 
 ### Bug Fixes
