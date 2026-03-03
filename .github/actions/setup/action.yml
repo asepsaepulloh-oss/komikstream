@@ -1,0 +1,52 @@
+name: "Project Setup"
+description: "Setup Node.js, install dependencies, and optionally generate Prisma client / install Playwright"
+
+inputs:
+  node-version-file:
+    description: "Path to the node version file"
+    required: false
+    default: ".node-version"
+  prisma-generate:
+    description: "Run prisma generate after install"
+    required: false
+    default: "false"
+  playwright-browsers:
+    description: "Space-separated list of Playwright browsers to install (e.g. 'chromium firefox'). Leave empty to skip."
+    required: false
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      with:
+        node-version-file: ${{ inputs.node-version-file }}
+        cache: "npm"
+
+    - name: Install dependencies
+      shell: bash
+      run: npm ci
+
+    - name: Generate Prisma Client
+      if: inputs.prisma-generate == 'true'
+      shell: bash
+      run: npx prisma generate
+
+    - name: Cache Playwright browsers
+      if: inputs.playwright-browsers != ''
+      id: playwright-cache
+      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+      with:
+        path: ~/.cache/ms-playwright
+        key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ inputs.playwright-browsers }}
+
+    - name: Install Playwright Browsers
+      if: inputs.playwright-browsers != '' && steps.playwright-cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: npx playwright install --with-deps ${{ inputs.playwright-browsers }}
+
+    - name: Install Playwright system dependencies (cache hit)
+      if: inputs.playwright-browsers != '' && steps.playwright-cache.outputs.cache-hit == 'true'
+      shell: bash
+      run: npx playwright install-deps ${{ inputs.playwright-browsers }}

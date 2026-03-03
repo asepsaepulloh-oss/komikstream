@@ -5,6 +5,11 @@ on:
     branches: [main]
     types: [opened, synchronize, reopened]
 
+permissions:
+  contents: read
+  pull-requests: write
+  deployments: write
+
 concurrency:
   group: preview-${{ github.head_ref }}
   cancel-in-progress: true
@@ -18,6 +23,7 @@ jobs:
   deploy-preview:
     name: Deploy Preview
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     environment:
       name: preview
       url: ${{ steps.deploy.outputs.url }}
@@ -25,16 +31,16 @@ jobs:
       url: ${{ steps.deploy.outputs.url }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          node-version: "20"
+          node-version-file: ".node-version"
           cache: "npm"
 
       - name: Install Vercel CLI
-        run: npm install --global vercel@latest
+        run: npm install --global vercel@50
 
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
@@ -49,7 +55,7 @@ jobs:
           echo "url=$url" >> $GITHUB_OUTPUT
 
       - name: Comment PR with Preview URL
-        uses: actions/github-script@v7
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         env:
           HEAD_REF: ${{ github.head_ref }}
           DEPLOY_URL: ${{ steps.deploy.outputs.url }}
@@ -59,11 +65,11 @@ jobs:
             const url = process.env.DEPLOY_URL;
             const headRef = process.env.HEAD_REF;
             const commitSha = process.env.COMMIT_SHA;
-            const body = `## 🚀 Preview Deployment
+            const body = `## Preview Deployment
 
             | Status | URL |
             | ------ | --- |
-            | ✅ Deployed | [${url}](${url}) |
+            | Deployed | [${url}](${url}) |
 
             > Commit: \`${commitSha}\`
             > Branch: \`${headRef}\`

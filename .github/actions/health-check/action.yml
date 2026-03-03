@@ -1,0 +1,50 @@
+name: "Health Check"
+description: "Check deployment health with retry logic"
+
+inputs:
+  url:
+    description: "The URL to health-check (e.g. https://example.com/api/health)"
+    required: true
+  max-retries:
+    description: "Maximum number of retry attempts"
+    required: false
+    default: "3"
+  retry-delay:
+    description: "Seconds to wait between retries"
+    required: false
+    default: "5"
+  initial-delay:
+    description: "Seconds to wait before the first attempt"
+    required: false
+    default: "10"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Run health check
+      shell: bash
+      env:
+        HEALTH_URL: ${{ inputs.url }}
+        MAX_RETRIES: ${{ inputs.max-retries }}
+        RETRY_DELAY: ${{ inputs.retry-delay }}
+        INITIAL_DELAY: ${{ inputs.initial-delay }}
+      run: |
+        echo "Checking deployment health at ${HEALTH_URL}..."
+        sleep "${INITIAL_DELAY}"
+        RETRY_COUNT=0
+        while [ "$RETRY_COUNT" -lt "$MAX_RETRIES" ]; do
+          response=$(curl -s -o /dev/null -w "%{http_code}" "${HEALTH_URL}" || echo "000")
+          if [ "$response" = "200" ]; then
+            echo "Health check passed (HTTP $response)"
+            curl -s "${HEALTH_URL}" | head -c 500
+            echo ""
+            exit 0
+          fi
+          RETRY_COUNT=$((RETRY_COUNT + 1))
+          echo "Health check attempt ${RETRY_COUNT}/${MAX_RETRIES} failed (HTTP $response)"
+          if [ "$RETRY_COUNT" -lt "$MAX_RETRIES" ]; then
+            sleep "${RETRY_DELAY}"
+          fi
+        done
+        echo "Health check failed after ${MAX_RETRIES} attempts"
+        exit 1

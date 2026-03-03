@@ -11,6 +11,10 @@ on:
         default: "staging"
         type: string
 
+permissions:
+  contents: read
+  deployments: write
+
 concurrency:
   group: staging
   cancel-in-progress: true
@@ -29,6 +33,7 @@ jobs:
   deploy-staging:
     name: Deploy Staging
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: [ci]
     if: needs.ci.result == 'success'
     environment:
@@ -38,16 +43,16 @@ jobs:
       url: ${{ steps.deploy.outputs.url }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version-file: ".node-version"
           cache: "npm"
 
       - name: Install Vercel CLI
-        run: npm install --global vercel@latest
+        run: npm install --global vercel@50
 
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
@@ -66,35 +71,29 @@ jobs:
           vercel alias set ${{ steps.deploy.outputs.url }} staging-komikmanga.vercel.app --token=${{ secrets.VERCEL_TOKEN }} || true
 
       - name: Create Deployment Status
-        uses: actions/github-script@v7
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         env:
           DEPLOY_URL: ${{ steps.deploy.outputs.url }}
         with:
           script: |
             const url = process.env.DEPLOY_URL;
-            console.log(`✅ Deployed to staging: ${url}`);
+            console.log(`Deployed to staging: ${url}`);
 
   # ==================== POST-STAGING TESTS ====================
   post-staging-tests:
     name: Post-Staging Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     needs: [deploy-staging]
     if: success()
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup project
+        uses: ./.github/actions/setup
         with:
-          node-version-file: ".node-version"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps chromium
+          playwright-browsers: "chromium"
 
       - name: Run E2E tests against staging
         run: npx playwright test --project=chromium
@@ -102,29 +101,12 @@ jobs:
           PLAYWRIGHT_BASE_URL: ${{ needs.deploy-staging.outputs.url }}
 
       - name: Health Check
-        env:
-          DEPLOY_URL: ${{ needs.deploy-staging.outputs.url }}
-        run: |
-          echo "Checking staging deployment health..."
-          sleep 10
-          MAX_RETRIES=3
-          RETRY_COUNT=0
-          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-            response=$(curl -s -o /dev/null -w "%{http_code}" "${DEPLOY_URL}/api/health" || echo "000")
-            if [ "$response" = "200" ]; then
-              echo "✅ Health check passed (HTTP $response)"
-              curl -s "${DEPLOY_URL}/api/health" | head -c 500
-              echo ""
-              exit 0
-            fi
-            RETRY_COUNT=$((RETRY_COUNT + 1))
-            echo "⚠️ Health check attempt $RETRY_COUNT/$MAX_RETRIES failed (HTTP $response)"
-            if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
-              sleep 5
-            fi
-          done
-          echo "❌ Health check failed after $MAX_RETRIES attempts"
-          exit 1
+        uses: ./.github/actions/health-check
+        with:
+          url: "${{ needs.deploy-staging.outputs.url }}/api/health"
+          max-retries: "3"
+          retry-delay: "5"
+          initial-delay: "10"
 
       - name: Staging Summary
         env:
@@ -132,11 +114,11 @@ jobs:
           COMMIT_SHA: ${{ github.sha }}
           BRANCH_NAME: ${{ github.ref_name }}
         run: |
-          echo "## 🎭 Staging Deployment Complete" >> $GITHUB_STEP_SUMMARY
+          echo "## Staging Deployment Complete" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
           echo "| -------- | ----- |" >> $GITHUB_STEP_SUMMARY
           echo "| URL | ${DEPLOY_URL} |" >> $GITHUB_STEP_SUMMARY
           echo "| Commit | \`${COMMIT_SHA}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| Branch | \`${BRANCH_NAME}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| Status | ✅ Ready for testing |" >> $GITHUB_STEP_SUMMARY
+          echo "| Status | Ready for testing |" >> $GITHUB_STEP_SUMMARY

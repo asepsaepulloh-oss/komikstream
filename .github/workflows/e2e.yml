@@ -1,13 +1,19 @@
 name: E2E Tests
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - ".vscode/**"
+      - "LICENSE"
+
+permissions:
+  contents: read
 
 concurrency:
-  group: e2e-${{ github.ref }}
+  group: e2e-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -17,22 +23,13 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup project
+        uses: ./.github/actions/setup
         with:
-          node-version-file: ".node-version"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Generate Prisma Client
-        run: npx prisma generate
-
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps chromium firefox
+          prisma-generate: "true"
+          playwright-browsers: "chromium firefox"
 
       - name: Run Playwright tests
         run: npx playwright test --project=chromium --project=firefox
@@ -43,7 +40,7 @@ jobs:
           SKIP_DB_CONNECTION: "true"
 
       - name: Upload Playwright Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:
           name: playwright-report
@@ -51,7 +48,7 @@ jobs:
           retention-days: 7
 
       - name: Upload Playwright Screenshots
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: failure()
         with:
           name: playwright-screenshots
@@ -64,22 +61,13 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup project
+        uses: ./.github/actions/setup
         with:
-          node-version-file: ".node-version"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Generate Prisma Client
-        run: npx prisma generate
-
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps chromium webkit
+          prisma-generate: "true"
+          playwright-browsers: "chromium webkit"
 
       - name: Run Mobile Playwright tests
         run: npx playwright test --project="Mobile Chrome" --project="Mobile Safari"
@@ -90,9 +78,17 @@ jobs:
           SKIP_DB_CONNECTION: "true"
 
       - name: Upload Mobile Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:
           name: playwright-mobile-report
           path: playwright-report/
+          retention-days: 7
+
+      - name: Upload Mobile Screenshots
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: failure()
+        with:
+          name: playwright-mobile-screenshots
+          path: test-results/
           retention-days: 7
