@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.11] - 2026-03-03
+
+### Bug Fixes
+- fix(ci): accept 2xx-3xx in health check and add curl timeout (f8a780b)
+
+
+
 ## [0.7.10] - 2026-03-03
 
 ### Bug Fixes
