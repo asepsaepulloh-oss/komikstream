@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.4] - 2026-03-03
+
+### 🐛 Bug Fixes
+- fix(ci): update auth-config tests for secret key validation and add gitleaks allowlist (7a6a4bf)
+
+
+
 ## [0.7.3] - 2026-03-03
 
 ### 🐛 Bug Fixes
