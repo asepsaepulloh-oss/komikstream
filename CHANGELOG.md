@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.7] - 2026-03-03
+
+### 📦 Other Changes
+- refactor: remove dead code, extract shared components, improve accessibility (Phase C) (c079dc9)
+
+
+
 ## [0.7.6] - 2026-03-03
 
 ### 📦 Other Changes
