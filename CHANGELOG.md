@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.10] - 2026-03-03
+
+### Bug Fixes
+- fix(ci): follow redirects in health check curl requests (6defa78)
+
+### Other Changes
+- style: format Prisma schema to pass CI formatting check (59f0bbf)
+- ci: harden CI/CD pipeline with SHA pins, permissions, timeouts, and DRY refactors (f7125b0)
+
+
+
 ## [0.7.9] - 2026-03-03
 
 ### 📦 Other Changes
