@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.8] - 2026-03-03
+
+### 📦 Other Changes
+- chore: fix npm audit vulnerabilities and remove unused zod dependency (Phase E) (32235a0)
+
+
+
 ## [0.7.7] - 2026-03-03
 
 ### 📦 Other Changes
