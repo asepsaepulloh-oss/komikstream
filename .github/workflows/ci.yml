@@ -9,6 +9,11 @@ on:
       - ".vscode/**"
       - "LICENSE"
   workflow_call:
+    inputs:
+      skip-security:
+        description: "Skip security job (when caller has its own)"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -133,6 +138,7 @@ jobs:
   # ==================== SECURITY ====================
   security:
     name: Security Audit
+    if: ${{ !inputs.skip-security }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
