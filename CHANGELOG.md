@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.10.2] - 2026-03-04
+
+### Bug Fixes
+- fix(ci): add --token flag to Vercel CLI commands in deploy workflows (16f6b89)
+
+
 ## [0.10.1] - 2026-03-04
 
 ### Bug Fixes
