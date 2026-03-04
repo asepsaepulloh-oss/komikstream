@@ -98,7 +98,7 @@ jobs:
         run: npm install --global vercel@50
 
       - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=production
+        run: vercel pull --yes --environment=production --token=$VERCEL_TOKEN
 
       - name: Build Project Artifacts
         env:
@@ -107,12 +107,12 @@ jobs:
           CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
           CLERK_WEBHOOK_SECRET: ${{ secrets.CLERK_WEBHOOK_SECRET }}
           NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
-        run: vercel build --prod
+        run: vercel build --prod --token=$VERCEL_TOKEN
 
       - name: Deploy to Vercel (Production)
         id: deploy
         run: |
-          url=$(vercel deploy --prebuilt --prod)
+          url=$(vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN)
           echo "url=$url" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Deployment Status
