@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.0] - 2026-03-04
+
+### Other Changes
+- style: fix docker-compose.yml formatting (52f51ef)
+
+
+
 ## [0.8.0] - 2026-03-04
 
 ### Features
