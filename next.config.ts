@@ -22,18 +22,20 @@ if (process.env.NODE_ENV === "production" && !process.env.CI) {
 // Content Security Policy
 // - frame-src: allows video embeds from any HTTPS source (dynamic third-party player URLs)
 // - img-src: allows HTTPS images from any source (external manga/anime cover CDNs)
-// - script-src 'unsafe-eval' 'unsafe-inline': required by Next.js dev mode; production
-//   builds don't inject eval but Clerk and analytics scripts may need inline
-// - connect-src: allows API calls to the external data source
+// - script-src: 'unsafe-eval'/'unsafe-inline' needed for Next.js dev mode and Clerk;
+//   clerk.kuromanga.me is the production Clerk Frontend API (loads clerk-js SDK)
+// - connect-src: allows API calls to the external data source and Clerk auth endpoints
+// - worker-src: Clerk uses web workers for session token refresh
 const cspDirectives = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.clerk.accounts.dev https://challenges.cloudflare.com",
+  "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://clerk.kuromanga.me https://*.clerk.accounts.dev https://challenges.cloudflare.com",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' https: data: blob:",
   "font-src 'self' data:",
   "frame-src https: blob:",
-  "connect-src 'self' https://api.sansekai.my.id https://*.clerk.accounts.dev https://*.clerk.dev wss://*.clerk.dev",
+  "connect-src 'self' https://api.sansekai.my.id https://clerk.kuromanga.me https://*.clerk.accounts.dev https://*.clerk.dev wss://*.clerk.dev",
   "media-src 'self' https: blob:",
+  "worker-src 'self' blob:",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
