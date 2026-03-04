@@ -34,6 +34,7 @@ jobs:
         uses: ./.github/actions/setup
         with:
           prisma-generate: "true"
+          next-cache: "true"
 
       - name: Build application
         run: npm run build

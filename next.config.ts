@@ -104,6 +104,9 @@ const nextConfig: NextConfig = {
     serverActions: {
       bodySizeLimit: "2mb",
     },
+    // Enable persistent file-system cache for Turbopack builds.
+    // Only takes effect when building with `next build --turbopack`.
+    turbopackFileSystemCacheForBuild: true,
   },
 };
 

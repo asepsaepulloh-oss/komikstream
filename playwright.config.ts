@@ -68,18 +68,21 @@ export default defineConfig({
   ],
 
   // Run local dev server before starting the tests
-  webServer: {
-    command: "npm run dev",
-    url: "http://localhost:3000",
-    reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
-    env: {
-      DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy",
-      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "pk_test_dummy",
-      CLERK_SECRET_KEY: "sk_test_dummy",
-      SKIP_DB_CONNECTION: "true",
-    },
-  },
+  // Skip when PLAYWRIGHT_BASE_URL is set (testing against remote server like staging)
+  webServer: process.env.PLAYWRIGHT_BASE_URL
+    ? undefined
+    : {
+        command: "npm run dev",
+        url: "http://localhost:3000",
+        reuseExistingServer: !process.env.CI,
+        timeout: 120 * 1000,
+        env: {
+          DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy",
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "pk_test_dummy",
+          CLERK_SECRET_KEY: "sk_test_dummy",
+          SKIP_DB_CONNECTION: "true",
+        },
+      },
 
   // Timeout for each test
   timeout: 30 * 1000,

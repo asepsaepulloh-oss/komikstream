@@ -155,64 +155,114 @@ jobs:
           LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
 
           if [ -z "$LAST_TAG" ]; then
-            # No tags yet, get all commits (up to 50)
             COMMIT_COUNT=$(git rev-list --count HEAD 2>/dev/null || echo "1")
             if [ "$COMMIT_COUNT" -gt 50 ]; then
               COMMIT_COUNT=50
             fi
             COMMITS=$(git log --format="- %s (%h)" -n "$COMMIT_COUNT" 2>/dev/null || echo "- Initial release")
           else
-            COMMITS=$(git log --format="- %s (%h)" ${LAST_TAG}..HEAD)
+            COMMITS=$(git log --format="- %s (%h)" "${LAST_TAG}..HEAD")
           fi
 
-          # Categorize commits
-          FEATURES=$(echo "$COMMITS" | grep -E "^- feat" || true)
-          FIXES=$(echo "$COMMITS" | grep -E "^- fix" || true)
-          OTHERS=$(echo "$COMMITS" | grep -vE "^- (feat|fix)" || true)
+          # Filter out merge commits and [skip ci] commits
+          COMMITS=$(echo "$COMMITS" | grep -vE "^- (Merge (branch|pull request|remote)|chore\(release\):|\[skip ci\])" || true)
 
-          # Build changelog
-          CHANGELOG="## [${VERSION}] - ${DATE}\n\n"
+          # Categorize commits using conventional commit prefixes
+          FEATURES=$(echo "$COMMITS" | grep -E "^- feat(\(.+\))?:" || true)
+          FIXES=$(echo "$COMMITS" | grep -E "^- fix(\(.+\))?:" || true)
+          PERF=$(echo "$COMMITS" | grep -E "^- perf(\(.+\))?:" || true)
+          REFACTOR=$(echo "$COMMITS" | grep -E "^- refactor(\(.+\))?:" || true)
+          DOCS=$(echo "$COMMITS" | grep -E "^- docs(\(.+\))?:" || true)
+          CI_CHANGES=$(echo "$COMMITS" | grep -E "^- ci(\(.+\))?:" || true)
+          TESTS=$(echo "$COMMITS" | grep -E "^- test(\(.+\))?:" || true)
+          CHORES=$(echo "$COMMITS" | grep -E "^- chore(\(.+\))?:" || true)
+          OTHERS=$(echo "$COMMITS" | grep -vE "^- (feat|fix|perf|refactor|docs|ci|test|chore)(\(.+\))?:" || true)
 
-          if [ -n "$FEATURES" ]; then
-            CHANGELOG="${CHANGELOG}### Features\n${FEATURES}\n\n"
-          fi
+          # Build changelog using heredoc for safe multi-line handling
+          {
+            echo "## [${VERSION}] - ${DATE}"
+            echo ""
 
-          if [ -n "$FIXES" ]; then
-            CHANGELOG="${CHANGELOG}### Bug Fixes\n${FIXES}\n\n"
-          fi
+            if [ -n "$FEATURES" ]; then
+              echo "### Features"
+              echo "$FEATURES"
+              echo ""
+            fi
 
-          if [ -n "$OTHERS" ]; then
-            CHANGELOG="${CHANGELOG}### Other Changes\n${OTHERS}\n\n"
-          fi
+            if [ -n "$FIXES" ]; then
+              echo "### Bug Fixes"
+              echo "$FIXES"
+              echo ""
+            fi
 
-          echo "changelog<<EOF" >> $GITHUB_OUTPUT
-          echo -e "$CHANGELOG" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+            if [ -n "$PERF" ]; then
+              echo "### Performance"
+              echo "$PERF"
+              echo ""
+            fi
+
+            if [ -n "$REFACTOR" ]; then
+              echo "### Refactoring"
+              echo "$REFACTOR"
+              echo ""
+            fi
+
+            if [ -n "$DOCS" ]; then
+              echo "### Documentation"
+              echo "$DOCS"
+              echo ""
+            fi
+
+            if [ -n "$CI_CHANGES" ]; then
+              echo "### CI/CD"
+              echo "$CI_CHANGES"
+              echo ""
+            fi
+
+            if [ -n "$TESTS" ]; then
+              echo "### Tests"
+              echo "$TESTS"
+              echo ""
+            fi
+
+            if [ -n "$CHORES" ]; then
+              echo "### Chores"
+              echo "$CHORES"
+              echo ""
+            fi
+
+            if [ -n "$OTHERS" ]; then
+              echo "### Other Changes"
+              echo "$OTHERS"
+              echo ""
+            fi
+          } > /tmp/changelog_body.md
+
+          # Use delimiter-based output to avoid HEREDOC escaping issues
+          {
+            echo "changelog<<CHANGELOG_EOF"
+            cat /tmp/changelog_body.md
+            echo "CHANGELOG_EOF"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Update CHANGELOG.md
         env:
           RELEASE_VERSION: ${{ needs.check-release.outputs.version }}
-          CHANGELOG_CONTENT: ${{ steps.changelog.outputs.changelog }}
         run: |
-          VERSION="${RELEASE_VERSION}"
-          DATE=$(date +%Y-%m-%d)
-
           # Create CHANGELOG if not exists
           if [ ! -f CHANGELOG.md ]; then
-            echo "# Changelog" > CHANGELOG.md
-            echo "" >> CHANGELOG.md
-            echo "All notable changes to this project will be documented in this file." >> CHANGELOG.md
-            echo "" >> CHANGELOG.md
+            {
+              echo "# Changelog"
+              echo ""
+              echo "All notable changes to this project will be documented in this file."
+              echo ""
+            } > CHANGELOG.md
           fi
 
-          # Prepend new changelog entry
-          TEMP_FILE=$(mktemp)
-          echo "${CHANGELOG_CONTENT}" > "$TEMP_FILE"
-          echo "" >> "$TEMP_FILE"
-
-          # Insert after header
+          # Prepend new changelog entry (insert after header lines)
           head -n 4 CHANGELOG.md > CHANGELOG.new.md
-          cat "$TEMP_FILE" >> CHANGELOG.new.md
+          cat /tmp/changelog_body.md >> CHANGELOG.new.md
+          echo "" >> CHANGELOG.new.md
           tail -n +5 CHANGELOG.md >> CHANGELOG.new.md
           mv CHANGELOG.new.md CHANGELOG.md
 

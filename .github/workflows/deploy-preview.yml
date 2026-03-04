@@ -4,6 +4,11 @@ on:
   pull_request:
     branches: [main]
     types: [opened, synchronize, reopened]
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - ".vscode/**"
+      - "LICENSE"
 
 permissions:
   contents: read
@@ -17,6 +22,7 @@ concurrency:
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
 
 jobs:
   # ==================== DEPLOY PREVIEW ====================
@@ -39,19 +45,29 @@ jobs:
           node-version-file: ".node-version"
           cache: "npm"
 
+      - name: Cache Vercel CLI
+        id: vercel-cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: |
+            /usr/local/lib/node_modules/vercel
+            /usr/local/bin/vercel
+          key: vercel-cli-${{ runner.os }}-v50
+
       - name: Install Vercel CLI
+        if: steps.vercel-cache.outputs.cache-hit != 'true'
         run: npm install --global vercel@50
 
       - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel pull --yes --environment=preview
 
       - name: Build Project Artifacts
-        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel build
 
       - name: Deploy to Vercel (Preview)
         id: deploy
         run: |
-          url=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+          url=$(vercel deploy --prebuilt)
           echo "url=$url" >> $GITHUB_OUTPUT
 
       - name: Comment PR with Preview URL

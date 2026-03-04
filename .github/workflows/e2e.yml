@@ -18,9 +18,29 @@ concurrency:
 
 jobs:
   e2e:
-    name: Playwright E2E Tests
+    name: E2E — ${{ matrix.name }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Desktop Chrome
+            project: chromium
+            browsers: "chromium"
+            artifact: desktop-chromium
+          - name: Desktop Firefox
+            project: firefox
+            browsers: "firefox"
+            artifact: desktop-firefox
+          - name: Mobile Chrome
+            project: "Mobile Chrome"
+            browsers: "chromium"
+            artifact: mobile-chromium
+          - name: Mobile Safari
+            project: "Mobile Safari"
+            browsers: "webkit"
+            artifact: mobile-webkit
     steps:
       - name: Checkout code
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
@@ -29,10 +49,10 @@ jobs:
         uses: ./.github/actions/setup
         with:
           prisma-generate: "true"
-          playwright-browsers: "chromium firefox"
+          playwright-browsers: ${{ matrix.browsers }}
 
-      - name: Run Playwright tests
-        run: npx playwright test --project=chromium --project=firefox
+      - name: Run Playwright tests (${{ matrix.name }})
+        run: npx playwright test --project="${{ matrix.project }}"
         env:
           DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
           NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "pk_test_dummy"
@@ -43,52 +63,14 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:
-          name: playwright-report
+          name: playwright-report-${{ matrix.artifact }}
           path: playwright-report/
           retention-days: 7
 
-      - name: Upload Playwright Screenshots
+      - name: Upload Test Results
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: failure()
         with:
-          name: playwright-screenshots
-          path: test-results/
-          retention-days: 7
-
-  e2e-mobile:
-    name: Mobile E2E Tests
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
-
-      - name: Setup project
-        uses: ./.github/actions/setup
-        with:
-          prisma-generate: "true"
-          playwright-browsers: "chromium webkit"
-
-      - name: Run Mobile Playwright tests
-        run: npx playwright test --project="Mobile Chrome" --project="Mobile Safari"
-        env:
-          DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
-          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "pk_test_dummy"
-          CLERK_SECRET_KEY: "sk_test_dummy"
-          SKIP_DB_CONNECTION: "true"
-
-      - name: Upload Mobile Report
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        if: always()
-        with:
-          name: playwright-mobile-report
-          path: playwright-report/
-          retention-days: 7
-
-      - name: Upload Mobile Screenshots
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        if: failure()
-        with:
-          name: playwright-mobile-screenshots
+          name: playwright-results-${{ matrix.artifact }}
           path: test-results/
           retention-days: 7

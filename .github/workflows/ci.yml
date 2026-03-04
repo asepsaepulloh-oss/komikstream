@@ -18,27 +18,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # ==================== LINT & FORMAT ====================
-  lint:
-    name: Lint & Format
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
-
-      - name: Setup project
-        uses: ./.github/actions/setup
-
-      - name: Run ESLint
-        run: npm run lint
-
-      - name: Check Prettier formatting
-        run: npm run format:check
-
-  # ==================== TYPE CHECK ====================
-  typecheck:
-    name: TypeScript
+  # ==================== CHECKS (Lint, TypeCheck, Prisma) ====================
+  checks:
+    name: Lint, TypeCheck & Prisma
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -50,8 +32,27 @@ jobs:
         with:
           prisma-generate: "true"
 
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Check Prettier formatting
+        run: npm run format:check
+
       - name: Run TypeScript type check
         run: npm run typecheck
+
+      - name: Validate Prisma schema
+        run: npx prisma validate
+
+      - name: Check Prisma schema formatting
+        run: |
+          npx prisma format
+          if ! git diff --exit-code --quiet prisma/schema.prisma; then
+            echo "::error::Prisma schema is not formatted. Run 'npx prisma format' locally and commit."
+            git diff prisma/schema.prisma
+            exit 1
+          fi
+          echo "Prisma schema formatting is correct."
 
   # ==================== TESTS ====================
   test:
@@ -88,37 +89,12 @@ jobs:
           path: coverage/
           retention-days: 7
 
-  # ==================== PRISMA SCHEMA VALIDATION ====================
-  prisma:
-    name: Prisma Schema
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
-
-      - name: Setup project
-        uses: ./.github/actions/setup
-
-      - name: Validate Prisma schema
-        run: npx prisma validate
-
-      - name: Check Prisma schema formatting
-        run: |
-          npx prisma format
-          if ! git diff --exit-code --quiet prisma/schema.prisma; then
-            echo "::error::Prisma schema is not formatted. Run 'npx prisma format' locally and commit."
-            git diff prisma/schema.prisma
-            exit 1
-          fi
-          echo "Prisma schema formatting is correct."
-
   # ==================== BUILD ====================
   build:
     name: Build
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    needs: [lint, typecheck, test, prisma]
+    needs: [checks, test]
     steps:
       - name: Checkout code
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
@@ -127,6 +103,7 @@ jobs:
         uses: ./.github/actions/setup
         with:
           prisma-generate: "true"
+          next-cache: "true"
 
       - name: Build application
         run: npm run build
@@ -179,3 +156,19 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_ENABLE_COMMENTS: "false"
+
+  # ==================== DEPENDENCY REVIEW (PR only) ====================
+  dependency-review:
+    name: Dependency Review
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@2031cfc080254a8a887f58cffee85186f0e49e48 # v4.9.0
+        with:
+          fail-on-severity: critical
+          comment-summary-in-pr: always
