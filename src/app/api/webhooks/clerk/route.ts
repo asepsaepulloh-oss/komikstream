@@ -2,24 +2,18 @@ import { Webhook } from "svix";
 import { headers } from "next/headers";
 import { WebhookEvent } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-
-// Dynamic import for prisma
-async function getPrisma() {
-  try {
-    const { prisma } = await import("@/lib/prisma");
-    return prisma;
-  } catch {
-    return null;
-  }
-}
+import { createUser, upsertUser, deleteUserByClerkId, UniqueConstraintError } from "@/lib/db";
+import { handleApiError } from "@/lib/api-helpers";
+import { ValidationError, FeatureNotConfiguredError } from "@/lib/errors";
+import { logger } from "@/lib/logger";
 
 export async function POST(req: Request) {
   // Get the webhook secret from environment
   const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
 
   if (!WEBHOOK_SECRET) {
-    console.error("Missing CLERK_WEBHOOK_SECRET environment variable");
-    return NextResponse.json({ error: "Webhook secret not configured" }, { status: 500 });
+    logger.error("Missing CLERK_WEBHOOK_SECRET environment variable");
+    return new FeatureNotConfiguredError("Webhook secret").toResponse();
   }
 
   // Get the headers
@@ -28,21 +22,18 @@ export async function POST(req: Request) {
   const svix_timestamp = headerPayload.get("svix-timestamp");
   const svix_signature = headerPayload.get("svix-signature");
 
-  // If there are no headers, error out
   if (!svix_id || !svix_timestamp || !svix_signature) {
-    return NextResponse.json({ error: "Missing svix headers" }, { status: 400 });
+    return new ValidationError("Missing svix headers").toResponse();
   }
 
   // Get the body
   const payload = await req.json();
   const body = JSON.stringify(payload);
 
-  // Create a new Svix instance with your secret
+  // Verify the payload with the headers
   const wh = new Webhook(WEBHOOK_SECRET);
-
   let evt: WebhookEvent;
 
-  // Verify the payload with the headers
   try {
     evt = wh.verify(body, {
       "svix-id": svix_id,
@@ -50,18 +41,11 @@ export async function POST(req: Request) {
       "svix-signature": svix_signature,
     }) as WebhookEvent;
   } catch (err) {
-    console.error("Error verifying webhook:", err);
-    return NextResponse.json({ error: "Invalid webhook signature" }, { status: 400 });
+    logger.error("Webhook signature verification failed", err);
+    return new ValidationError("Invalid webhook signature").toResponse();
   }
 
-  // Get the event type
   const eventType = evt.type;
-
-  const prisma = await getPrisma();
-  if (!prisma) {
-    console.error("Database not configured");
-    return NextResponse.json({ error: "Database not configured" }, { status: 500 });
-  }
 
   try {
     switch (eventType) {
@@ -72,21 +56,22 @@ export async function POST(req: Request) {
         const name = [first_name, last_name].filter(Boolean).join(" ") || null;
 
         if (!email) {
-          console.error("No email found for user:", id);
-          return NextResponse.json({ error: "No email found" }, { status: 400 });
+          logger.warn("No email found for user in webhook", { clerkId: id });
+          return new ValidationError("No email found for user").toResponse();
         }
 
-        // Create user in database
-        await prisma.user.create({
-          data: {
-            clerkId: id,
-            email,
-            name,
-            imageUrl: image_url || null,
-          },
-        });
+        try {
+          await createUser({ clerkId: id, email, name, imageUrl: image_url || null });
+        } catch (error) {
+          // Handle race condition: user may already exist from getOrCreateUser()
+          if (error instanceof UniqueConstraintError) {
+            await upsertUser({ clerkId: id, email, name, imageUrl: image_url || null });
+          } else {
+            throw error;
+          }
+        }
 
-        console.log(`User created: ${id}`);
+        logger.info("User created via webhook", { clerkId: id });
         break;
       }
 
@@ -96,24 +81,14 @@ export async function POST(req: Request) {
         const email = email_addresses?.[0]?.email_address;
         const name = [first_name, last_name].filter(Boolean).join(" ") || null;
 
-        // Upsert user in database (handles case where updated event arrives before created)
-        await prisma.user.upsert({
-          where: { clerkId: id },
-          update: {
-            ...(email ? { email } : {}),
-            name,
-            imageUrl: image_url || null,
-            updatedAt: new Date(),
-          },
-          create: {
-            clerkId: id,
-            email: email || `${id}@placeholder.clerk`,
-            name,
-            imageUrl: image_url || null,
-          },
+        await upsertUser({
+          clerkId: id,
+          email: email || `${id}@placeholder.clerk`,
+          name,
+          imageUrl: image_url || null,
         });
 
-        console.log(`User updated: ${id}`);
+        logger.info("User updated via webhook", { clerkId: id });
         break;
       }
 
@@ -121,26 +96,21 @@ export async function POST(req: Request) {
         const { id } = evt.data;
 
         if (!id) {
-          console.error("No user ID found in delete event");
-          return NextResponse.json({ error: "No user ID found" }, { status: 400 });
+          logger.warn("No user ID found in delete webhook event");
+          return new ValidationError("No user ID found in delete event").toResponse();
         }
 
-        // Delete user from database (uses deleteMany to avoid crash if user doesn't exist)
-        await prisma.user.deleteMany({
-          where: { clerkId: id },
-        });
-
-        console.log(`User deleted: ${id}`);
+        await deleteUserByClerkId(id);
+        logger.info("User deleted via webhook", { clerkId: id });
         break;
       }
 
       default:
-        console.log(`Unhandled webhook event: ${eventType}`);
+        logger.debug("Unhandled webhook event", { eventType });
     }
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error(`Error processing webhook ${eventType}:`, error);
-    return NextResponse.json({ error: "Failed to process webhook" }, { status: 500 });
+    return handleApiError(error, `webhook/${eventType}`);
   }
 }

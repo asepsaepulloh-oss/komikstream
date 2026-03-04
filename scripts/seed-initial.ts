@@ -54,7 +54,7 @@ async function fetchAPI<T>(endpoint: string): Promise<T | null> {
   }
 }
 
-// ==================== ANIME SEEDING ====================
+// ==================== SHARED UPSERT HELPERS ====================
 
 interface RawAnimeList {
   url: string;
@@ -69,125 +69,45 @@ interface RawAnimeList {
   total_episode?: number;
 }
 
-async function seedAnime(): Promise<number> {
-  console.log("\n📺 SEEDING ANIME\n" + "=".repeat(50));
-  let count = 0;
-
-  // 1. Seed from recommended (3 pages = ~30 anime)
-  console.log("\n📌 Fetching recommended anime...");
-  for (let page = 1; page <= 3; page++) {
-    console.log(`\n  Page ${page}:`);
-    const data = await fetchAPI<RawAnimeList[]>(`/anime/recommended?page=${page}`);
-
-    if (data && Array.isArray(data)) {
-      for (const anime of data) {
-        try {
-          await prisma.anime.upsert({
-            where: { urlId: anime.url },
-            update: {
-              lastScraped: new Date(),
-            },
-            create: {
-              urlId: anime.url,
-              title: anime.judul,
-              cover: anime.cover,
-              synopsis: anime.sinopsis || null,
-              status: anime.status || null,
-              rating: anime.score ? parseFloat(anime.score) : null,
-              totalEpisodes: anime.total_episode || null,
-              genres: anime.genre || [],
-              episodes: [],
-              lastEpisode: anime.lastch || null,
-              lastUpdate: anime.lastup || null,
-            },
-          });
-          count++;
-          console.log(`    ✓ ${anime.judul}`);
-        } catch {
-          console.log(`    ✗ ${anime.judul}`);
-        }
-      }
-    }
-    await delay(REQUEST_DELAY);
+/**
+ * Upsert a single anime from raw API data.
+ * `updateOverrides` allows callers to set extra fields on update (e.g. type: "Movie").
+ */
+async function upsertAnimeFromRaw(
+  raw: RawAnimeList,
+  updateOverrides: Record<string, unknown> = {}
+): Promise<boolean> {
+  try {
+    await prisma.anime.upsert({
+      where: { urlId: raw.url },
+      update: {
+        lastEpisode: raw.lastch || null,
+        lastUpdate: raw.lastup || null,
+        lastScraped: new Date(),
+        ...updateOverrides,
+      },
+      create: {
+        urlId: raw.url,
+        title: raw.judul,
+        cover: raw.cover,
+        synopsis: raw.sinopsis || null,
+        status: raw.status || null,
+        rating: raw.score ? parseFloat(raw.score) : null,
+        totalEpisodes: raw.total_episode || null,
+        genres: raw.genre || [],
+        episodes: [],
+        lastEpisode: raw.lastch || null,
+        lastUpdate: raw.lastup || null,
+        ...updateOverrides,
+      },
+    });
+    console.log(`    ✓ ${raw.judul}`);
+    return true;
+  } catch {
+    console.log(`    ✗ ${raw.judul}`);
+    return false;
   }
-
-  // 2. Seed from latest (1 request = ~10-20 anime)
-  console.log("\n📌 Fetching latest anime...");
-  const latestData = await fetchAPI<RawAnimeList[]>("/anime/latest");
-
-  if (latestData && Array.isArray(latestData)) {
-    for (const anime of latestData) {
-      try {
-        await prisma.anime.upsert({
-          where: { urlId: anime.url },
-          update: {
-            lastEpisode: anime.lastch || null,
-            lastUpdate: anime.lastup || null,
-            lastScraped: new Date(),
-          },
-          create: {
-            urlId: anime.url,
-            title: anime.judul,
-            cover: anime.cover,
-            synopsis: anime.sinopsis || null,
-            status: anime.status || null,
-            rating: anime.score ? parseFloat(anime.score) : null,
-            totalEpisodes: anime.total_episode || null,
-            genres: anime.genre || [],
-            episodes: [],
-            lastEpisode: anime.lastch || null,
-            lastUpdate: anime.lastup || null,
-          },
-        });
-        count++;
-        console.log(`  ✓ ${anime.judul}`);
-      } catch {
-        console.log(`  ✗ ${anime.judul}`);
-      }
-    }
-  }
-  await delay(REQUEST_DELAY);
-
-  // 3. Seed from movies (1 request = ~10-20 anime)
-  console.log("\n📌 Fetching anime movies...");
-  const movieData = await fetchAPI<RawAnimeList[]>("/anime/movie");
-
-  if (movieData && Array.isArray(movieData)) {
-    for (const anime of movieData) {
-      try {
-        await prisma.anime.upsert({
-          where: { urlId: anime.url },
-          update: {
-            type: "Movie",
-            lastScraped: new Date(),
-          },
-          create: {
-            urlId: anime.url,
-            title: anime.judul,
-            cover: anime.cover,
-            synopsis: anime.sinopsis || null,
-            status: anime.status || null,
-            type: "Movie",
-            rating: anime.score ? parseFloat(anime.score) : null,
-            totalEpisodes: anime.total_episode || null,
-            genres: anime.genre || [],
-            episodes: [],
-            lastEpisode: anime.lastch || null,
-            lastUpdate: anime.lastup || null,
-          },
-        });
-        count++;
-        console.log(`  ✓ ${anime.judul}`);
-      } catch {
-        console.log(`  ✗ ${anime.judul}`);
-      }
-    }
-  }
-
-  return count;
 }
-
-// ==================== KOMIK SEEDING ====================
 
 interface RawKomikTaxonomy {
   Genre?: Array<{ name: string; slug: string }>;
@@ -220,6 +140,102 @@ interface KomikResponse {
   data: RawKomik[];
 }
 
+/**
+ * Upsert a single komik from raw API data.
+ */
+async function upsertKomikFromRaw(raw: RawKomik): Promise<boolean> {
+  const genres = raw.taxonomy?.Genre?.map((g) => g.name) || [];
+  const authors = raw.taxonomy?.Author || [];
+  const artists = raw.taxonomy?.Artist || [];
+  const format = raw.taxonomy?.Format?.[0]?.name || null;
+  const latestDate = raw.latest_chapter_time ? new Date(raw.latest_chapter_time) : null;
+
+  try {
+    await prisma.komik.upsert({
+      where: { mangaId: raw.manga_id },
+      update: {
+        latestChapterId: raw.latest_chapter_id || null,
+        latestChapterNumber: raw.latest_chapter_number || null,
+        latestChapterDate: latestDate,
+        lastScraped: new Date(),
+      },
+      create: {
+        mangaId: raw.manga_id,
+        title: raw.title,
+        alternativeTitle: raw.alternative_title || null,
+        coverImage: raw.cover_image_url || "",
+        coverPortrait: raw.cover_portrait_url || null,
+        synopsis: raw.description || null,
+        status: raw.status ?? null,
+        type: format,
+        releaseYear: raw.release_year || null,
+        country: raw.country_id || null,
+        rating: raw.user_rate || null,
+        viewCount: raw.view_count ? BigInt(raw.view_count) : null,
+        bookmarkCount: raw.bookmark_count || null,
+        genres,
+        authors,
+        artists,
+        latestChapterId: raw.latest_chapter_id || null,
+        latestChapterNumber: raw.latest_chapter_number || null,
+        latestChapterDate: latestDate,
+        chapters: [],
+      },
+    });
+    console.log(`    ✓ ${raw.title}`);
+    return true;
+  } catch {
+    console.log(`    ✗ ${raw.title}`);
+    return false;
+  }
+}
+
+// ==================== ANIME SEEDING ====================
+
+async function seedAnime(): Promise<number> {
+  console.log("\n📺 SEEDING ANIME\n" + "=".repeat(50));
+  let count = 0;
+
+  // 1. Seed from recommended (3 pages = ~30 anime)
+  console.log("\n📌 Fetching recommended anime...");
+  for (let page = 1; page <= 3; page++) {
+    console.log(`\n  Page ${page}:`);
+    const data = await fetchAPI<RawAnimeList[]>(`/anime/recommended?page=${page}`);
+
+    if (data && Array.isArray(data)) {
+      for (const anime of data) {
+        if (await upsertAnimeFromRaw(anime)) count++;
+      }
+    }
+    await delay(REQUEST_DELAY);
+  }
+
+  // 2. Seed from latest (1 request = ~10-20 anime)
+  console.log("\n📌 Fetching latest anime...");
+  const latestData = await fetchAPI<RawAnimeList[]>("/anime/latest");
+
+  if (latestData && Array.isArray(latestData)) {
+    for (const anime of latestData) {
+      if (await upsertAnimeFromRaw(anime)) count++;
+    }
+  }
+  await delay(REQUEST_DELAY);
+
+  // 3. Seed from movies (1 request = ~10-20 anime)
+  console.log("\n📌 Fetching anime movies...");
+  const movieData = await fetchAPI<RawAnimeList[]>("/anime/movie");
+
+  if (movieData && Array.isArray(movieData)) {
+    for (const anime of movieData) {
+      if (await upsertAnimeFromRaw(anime, { type: "Movie" })) count++;
+    }
+  }
+
+  return count;
+}
+
+// ==================== KOMIK SEEDING ====================
+
 async function seedKomik(): Promise<number> {
   console.log("\n\n📚 SEEDING KOMIK\n" + "=".repeat(50));
   let count = 0;
@@ -232,52 +248,7 @@ async function seedKomik(): Promise<number> {
 
     if (data?.data && Array.isArray(data.data)) {
       for (const komik of data.data) {
-        const genres = komik.taxonomy?.Genre?.map((g) => g.name) || [];
-        const authors = komik.taxonomy?.Author || [];
-        const artists = komik.taxonomy?.Artist || [];
-        const format = komik.taxonomy?.Format?.[0]?.name || null;
-
-        try {
-          await prisma.komik.upsert({
-            where: { mangaId: komik.manga_id },
-            update: {
-              latestChapterId: komik.latest_chapter_id || null,
-              latestChapterNumber: komik.latest_chapter_number || null,
-              latestChapterDate: komik.latest_chapter_time
-                ? new Date(komik.latest_chapter_time)
-                : null,
-              lastScraped: new Date(),
-            },
-            create: {
-              mangaId: komik.manga_id,
-              title: komik.title,
-              alternativeTitle: komik.alternative_title || null,
-              coverImage: komik.cover_image_url || "",
-              coverPortrait: komik.cover_portrait_url || null,
-              synopsis: komik.description || null,
-              status: komik.status ?? null,
-              type: format,
-              releaseYear: komik.release_year || null,
-              country: komik.country_id || null,
-              rating: komik.user_rate || null,
-              viewCount: komik.view_count ? BigInt(komik.view_count) : null,
-              bookmarkCount: komik.bookmark_count || null,
-              genres: genres,
-              authors: authors,
-              artists: artists,
-              latestChapterId: komik.latest_chapter_id || null,
-              latestChapterNumber: komik.latest_chapter_number || null,
-              latestChapterDate: komik.latest_chapter_time
-                ? new Date(komik.latest_chapter_time)
-                : null,
-              chapters: [],
-            },
-          });
-          count++;
-          console.log(`    ✓ ${komik.title}`);
-        } catch {
-          console.log(`    ✗ ${komik.title}`);
-        }
+        if (await upsertKomikFromRaw(komik)) count++;
       }
     }
     await delay(REQUEST_DELAY);
@@ -289,52 +260,7 @@ async function seedKomik(): Promise<number> {
 
   if (latestData?.data && Array.isArray(latestData.data)) {
     for (const komik of latestData.data) {
-      const genres = komik.taxonomy?.Genre?.map((g) => g.name) || [];
-      const authors = komik.taxonomy?.Author || [];
-      const artists = komik.taxonomy?.Artist || [];
-      const format = komik.taxonomy?.Format?.[0]?.name || null;
-
-      try {
-        await prisma.komik.upsert({
-          where: { mangaId: komik.manga_id },
-          update: {
-            latestChapterId: komik.latest_chapter_id || null,
-            latestChapterNumber: komik.latest_chapter_number || null,
-            latestChapterDate: komik.latest_chapter_time
-              ? new Date(komik.latest_chapter_time)
-              : null,
-            lastScraped: new Date(),
-          },
-          create: {
-            mangaId: komik.manga_id,
-            title: komik.title,
-            alternativeTitle: komik.alternative_title || null,
-            coverImage: komik.cover_image_url || "",
-            coverPortrait: komik.cover_portrait_url || null,
-            synopsis: komik.description || null,
-            status: komik.status ?? null,
-            type: format,
-            releaseYear: komik.release_year || null,
-            country: komik.country_id || null,
-            rating: komik.user_rate || null,
-            viewCount: komik.view_count ? BigInt(komik.view_count) : null,
-            bookmarkCount: komik.bookmark_count || null,
-            genres: genres,
-            authors: authors,
-            artists: artists,
-            latestChapterId: komik.latest_chapter_id || null,
-            latestChapterNumber: komik.latest_chapter_number || null,
-            latestChapterDate: komik.latest_chapter_time
-              ? new Date(komik.latest_chapter_time)
-              : null,
-            chapters: [],
-          },
-        });
-        count++;
-        console.log(`  ✓ ${komik.title}`);
-      } catch {
-        console.log(`  ✗ ${komik.title}`);
-      }
+      if (await upsertKomikFromRaw(komik)) count++;
     }
   }
 
@@ -345,7 +271,7 @@ async function seedKomik(): Promise<number> {
 
 async function main() {
   console.log("\n" + "=".repeat(60));
-  console.log("🌱 KOMIKMANGA DATABASE SEEDING");
+  console.log("🌱 KuroManga DATABASE SEEDING");
   console.log("=".repeat(60));
   console.log(`\nStarted at: ${new Date().toISOString()}`);
   console.log("Target: ~50 anime + ~100 komik");

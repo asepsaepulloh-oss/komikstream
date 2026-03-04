@@ -9,6 +9,7 @@ import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { Button } from "@/components/ui/Button";
 import { Sidebar } from "./Sidebar";
 import { AuthButtons } from "@/components/ui/AuthButtons";
+import { useSync } from "@/hooks/useSync";
 
 const navigation = [
   { name: "Beranda", href: "/", icon: Home },
@@ -24,6 +25,9 @@ interface NavbarProps {
 export function Navbar({ clerkEnabled = false }: NavbarProps) {
   const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // Sync local store with server when user is signed in
+  useSync();
 
   return (
     <>

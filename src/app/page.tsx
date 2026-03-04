@@ -1,18 +1,37 @@
-import { getHomepageData } from "@/lib/api-client";
-import { HomePageClient } from "@/components/home";
+import { Suspense } from "react";
+import {
+  HeroSection,
+  KomikLatestSection,
+  KomikPopularSection,
+  AnimeLatestSection,
+  AnimeRecommendedSection,
+} from "@/components/home";
+import { SectionSkeleton } from "@/components/ui";
 
-// Force dynamic rendering - data will be cached at fetch level via ISR
-export const dynamic = "force-dynamic";
+// No `force-dynamic` — each section component fetches data with ISR
+// revalidation times (via fetchWithCache), so the page shell is static
+// while section data streams in via Suspense and revalidates independently.
 
-export default async function HomePage() {
-  const { komikLatest, komikPopular, animeLatest, animeRecommended } = await getHomepageData();
-
+export default function HomePage() {
   return (
-    <HomePageClient
-      komikLatest={komikLatest}
-      komikPopular={komikPopular}
-      animeLatest={animeLatest}
-      animeRecommended={animeRecommended}
-    />
+    <div className="flex flex-col">
+      <HeroSection />
+
+      <Suspense fallback={<SectionSkeleton title="Komik Terbaru" />}>
+        <KomikLatestSection />
+      </Suspense>
+
+      <Suspense fallback={<SectionSkeleton title="Anime Terbaru" />}>
+        <AnimeLatestSection />
+      </Suspense>
+
+      <Suspense fallback={<SectionSkeleton title="Komik Populer" />}>
+        <KomikPopularSection />
+      </Suspense>
+
+      <Suspense fallback={<SectionSkeleton title="Anime Rekomendasi" />}>
+        <AnimeRecommendedSection />
+      </Suspense>
+    </div>
   );
 }

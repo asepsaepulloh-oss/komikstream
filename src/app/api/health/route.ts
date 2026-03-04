@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import packageJson from "../../../../package.json";
+import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -44,8 +45,11 @@ export async function GET() {
         health.checks.database = "disconnected";
       }
     }
-  } catch {
+  } catch (error) {
     health.checks.database = "disconnected";
+    logger.warn("Health check: database connection failed", {
+      error: error instanceof Error ? error.message : String(error),
+    });
     // Don't fail health check for DB issues in development
     if (process.env.NODE_ENV === "production") {
       health.status = "unhealthy";

@@ -7,6 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { useMounted } from "@/hooks/useMounted";
+import { SyncIndicator } from "@/components/ui/SyncIndicator";
 
 export default function HistoryPage() {
   const { history, removeFromHistory, clearHistory } = useAppStore();
@@ -43,6 +44,7 @@ export default function HistoryPage() {
             <div>
               <h1 className="text-3xl font-bold">History</h1>
               <p className="text-muted-foreground">Riwayat baca dan tonton kamu</p>
+              <SyncIndicator />
             </div>
           </div>
 

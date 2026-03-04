@@ -117,7 +117,7 @@ export function Sidebar({ isOpen, onClose, clerkEnabled = false }: SidebarProps)
         {/* Footer */}
         <div className="border-border absolute right-0 bottom-0 left-0 border-t p-4">
           <p className="text-muted-foreground text-center text-xs">
-            © {new Date().getFullYear()} KomikManga
+            © {new Date().getFullYear()} KuroManga
           </p>
         </div>
       </aside>

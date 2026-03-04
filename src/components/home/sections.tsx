@@ -4,7 +4,7 @@ import {
   getKomikPopular,
   getAnimeLatest,
   getAnimeRecommended,
-} from "@/lib/api-client";
+} from "@/lib/api-cached";
 import { ArrowRight, Film, Sparkles, TrendingUp } from "lucide-react";
 import Link from "next/link";
 

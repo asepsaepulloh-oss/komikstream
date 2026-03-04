@@ -76,7 +76,7 @@ export function Footer() {
         {/* Bottom */}
         <div className="border-border mt-8 flex flex-col items-center justify-between gap-4 border-t pt-8 md:flex-row">
           <p className="text-muted-foreground text-sm">
-            © {new Date().getFullYear()} KomikManga. All rights reserved.
+            © {new Date().getFullYear()} KuroManga. All rights reserved.
           </p>
           <p className="text-muted-foreground text-xs">
             Powered by{" "}

@@ -1,4 +1,4 @@
-# 📚 KomikManga
+# 📚 KuroManga
 
 Website untuk membaca komik (manhwa, manhua, manga) dan streaming anime dengan subtitle Indonesia.
 
@@ -112,7 +112,7 @@ docker-compose -f docker-compose.dev.yml up
 docker-compose up -d
 
 # Build image only
-docker build -t komikmanga .
+docker build -t KuroManga .
 ```
 
 ---
@@ -292,7 +292,7 @@ docker run -p 3000:3000 \
   -e DATABASE_URL="..." \
   -e NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="..." \
   -e CLERK_SECRET_KEY="..." \
-  komikmanga
+  KuroManga
 ```
 
 ### Manual

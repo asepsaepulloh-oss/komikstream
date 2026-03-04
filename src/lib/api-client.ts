@@ -198,6 +198,12 @@ export async function searchAnime(query: string): Promise<Anime[]> {
   return ensureArray(res).map(transformAnimeList);
 }
 
+/**
+ * Fetch anime video URL via the internal API proxy.
+ *
+ * **Client-only** — uses a relative URL (`/api/anime/video`) that requires
+ * a browser context. Do NOT call this from server components or server-side code.
+ */
 export async function getAnimeVideo(
   episodeId: string,
   resolution: string = "480p"

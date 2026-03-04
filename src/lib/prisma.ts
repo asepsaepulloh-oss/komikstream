@@ -13,37 +13,70 @@ const globalForPrisma = globalThis as unknown as {
 const connectionString = process.env.DATABASE_URL;
 const isProduction = process.env.NODE_ENV === "production";
 
-// Validate DATABASE_URL exists (fail fast)
-if (!connectionString) {
-  throw new Error("DATABASE_URL is not defined. Please set it in your environment variables.");
+/**
+ * Check if database is configured (DATABASE_URL exists).
+ * Used by getSafePrisma() to gracefully degrade when DB is unavailable.
+ */
+export function isDatabaseConfigured(): boolean {
+  return !!process.env.DATABASE_URL;
 }
 
-// Create connection pool optimized for Vercel serverless + Supabase
-const pool =
-  globalForPrisma.pool ??
-  new Pool({
-    connectionString,
-    ssl: { rejectUnauthorized: false },
-    // Serverless optimization: minimal connections
-    max: isProduction ? 1 : 5, // 1 connection per serverless function in prod
-    min: 0, // Allow scaling to zero
-    idleTimeoutMillis: 10000, // Close idle connections after 10s
-    connectionTimeoutMillis: 5000, // Fast fail for serverless cold starts
-  });
+// Only initialize pool/prisma if DATABASE_URL is present.
+// This prevents build errors when DB is not configured (e.g. CI without DB).
+function createPrismaClient(): PrismaClient {
+  if (!connectionString) {
+    throw new Error("DATABASE_URL is not defined. Please set it in your environment variables.");
+  }
 
-const adapter = new PrismaPg(pool);
+  const pool =
+    globalForPrisma.pool ??
+    new Pool({
+      connectionString,
+      // Supabase requires SSL; reject unauthorized certs in production
+      ssl: isProduction ? { rejectUnauthorized: true } : { rejectUnauthorized: false },
+      // Serverless optimization: minimal connections
+      max: isProduction ? 1 : 5,
+      min: 0,
+      idleTimeoutMillis: 10000,
+      connectionTimeoutMillis: 5000,
+    });
 
-const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
+  const adapter = new PrismaPg(pool);
+
+  const client = new PrismaClient({
     adapter,
     log: isProduction ? ["error"] : ["error", "warn"],
   });
 
-// ALWAYS cache globally (critical for serverless to prevent connection exhaustion!)
-if (!globalForPrisma.prisma) {
-  globalForPrisma.prisma = prisma;
-  globalForPrisma.pool = pool;
+  // Cache globally (critical for serverless to prevent connection exhaustion)
+  if (!globalForPrisma.prisma) {
+    globalForPrisma.prisma = client;
+    globalForPrisma.pool = pool;
+  }
+
+  return client;
+}
+
+/**
+ * Get the singleton PrismaClient instance.
+ * Throws if DATABASE_URL is not set.
+ */
+const prisma: PrismaClient = globalForPrisma.prisma ?? createPrismaClient();
+
+/**
+ * Safe Prisma accessor — returns PrismaClient or null.
+ * Use this in API routes to gracefully handle missing DB config
+ * instead of duplicating dynamic imports everywhere.
+ */
+export async function getSafePrisma(): Promise<PrismaClient | null> {
+  if (!isDatabaseConfigured()) {
+    return null;
+  }
+  try {
+    return globalForPrisma.prisma ?? createPrismaClient();
+  } catch {
+    return null;
+  }
 }
 
 export { prisma };

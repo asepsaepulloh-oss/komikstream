@@ -1,5 +1,5 @@
 # ================================
-# KomikManga Dockerfile
+# KuroManga Dockerfile
 # Multi-stage build for production
 # ================================
 

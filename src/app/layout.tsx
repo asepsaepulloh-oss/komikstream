@@ -19,12 +19,12 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://kuromanga.me"),
   title: {
-    default: "KomikManga - Baca Komik Manga, Manhwa, Manhua Sub Indo Gratis",
-    template: "%s | KomikManga",
+    default: "KuroManga - Baca Komik Manga, Manhwa, Manhua Sub Indo Gratis",
+    template: "%s | KuroManga",
   },
   description:
     "Baca komik manga, manhwa, manhua subtitle Indonesia secara gratis. Koleksi terlengkap dengan update terbaru setiap hari di kuromanga.me",
-  applicationName: "KomikManga",
+  applicationName: "KuroManga",
   keywords: [
     "baca komik online",
     "baca manga online",
@@ -38,11 +38,11 @@ export const metadata: Metadata = {
     "nonton anime sub indo",
     "anime subtitle indonesia",
     "kuromanga",
-    "komikmanga",
+    "KuroManga",
   ],
-  authors: [{ name: "KomikManga", url: "https://kuromanga.me" }],
-  creator: "KomikManga",
-  publisher: "KomikManga",
+  authors: [{ name: "KuroManga", url: "https://kuromanga.me" }],
+  creator: "KuroManga",
+  publisher: "KuroManga",
   formatDetection: {
     email: false,
     address: false,
@@ -52,8 +52,8 @@ export const metadata: Metadata = {
     type: "website",
     locale: "id_ID",
     url: "https://kuromanga.me",
-    siteName: "KomikManga",
-    title: "KomikManga - Baca Komik Manga, Manhwa, Manhua Sub Indo Gratis",
+    siteName: "KuroManga",
+    title: "KuroManga - Baca Komik Manga, Manhwa, Manhua Sub Indo Gratis",
     description:
       "Baca komik manga, manhwa, manhua subtitle Indonesia secara gratis. Koleksi terlengkap dengan update terbaru setiap hari.",
     images: [
@@ -61,13 +61,13 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "KomikManga - Baca Komik Online Gratis",
+        alt: "KuroManga - Baca Komik Online Gratis",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "KomikManga - Baca Komik Manga, Manhwa, Manhua Sub Indo Gratis",
+    title: "KuroManga - Baca Komik Manga, Manhwa, Manhua Sub Indo Gratis",
     description:
       "Baca komik manga, manhwa, manhua subtitle Indonesia secara gratis. Koleksi terlengkap dengan update terbaru setiap hari.",
     images: ["/og-image.png"],
@@ -97,7 +97,7 @@ const structuredData = JSON.stringify({
       "@type": "WebSite",
       "@id": "https://kuromanga.me/#website",
       url: "https://kuromanga.me",
-      name: "KomikManga",
+      name: "KuroManga",
       description: "Baca komik manga, manhwa, manhua subtitle Indonesia secara gratis",
       publisher: {
         "@id": "https://kuromanga.me/#organization",
@@ -115,7 +115,7 @@ const structuredData = JSON.stringify({
     {
       "@type": "Organization",
       "@id": "https://kuromanga.me/#organization",
-      name: "KomikManga",
+      name: "KuroManga",
       url: "https://kuromanga.me",
       logo: {
         "@type": "ImageObject",

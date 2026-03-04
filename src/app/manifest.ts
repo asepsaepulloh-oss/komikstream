@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "KomikManga - Baca Komik Manga, Manhwa, Manhua Sub Indo",
-    short_name: "KomikManga",
+    name: "KuroManga - Baca Komik Manga, Manhwa, Manhua Sub Indo",
+    short_name: "KuroManga",
     description:
       "Baca komik manga, manhwa, manhua subtitle Indonesia secara gratis di kuromanga.me",
     start_url: "/",

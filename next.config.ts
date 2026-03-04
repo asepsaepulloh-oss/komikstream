@@ -19,6 +19,27 @@ if (process.env.NODE_ENV === "production" && !process.env.CI) {
   }
 }
 
+// Content Security Policy
+// - frame-src: allows video embeds from any HTTPS source (dynamic third-party player URLs)
+// - img-src: allows HTTPS images from any source (external manga/anime cover CDNs)
+// - script-src 'unsafe-eval' 'unsafe-inline': required by Next.js dev mode; production
+//   builds don't inject eval but Clerk and analytics scripts may need inline
+// - connect-src: allows API calls to the external data source
+const cspDirectives = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.clerk.accounts.dev https://challenges.cloudflare.com",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' https: data: blob:",
+  "font-src 'self' data:",
+  "frame-src https: blob:",
+  "connect-src 'self' https://api.sansekai.my.id https://*.clerk.accounts.dev https://*.clerk.dev wss://*.clerk.dev",
+  "media-src 'self' https: blob:",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+].join("; ");
+
 const securityHeaders = [
   { key: "X-Frame-Options", value: "DENY" },
   { key: "X-Content-Type-Options", value: "nosniff" },
@@ -28,6 +49,10 @@ const securityHeaders = [
     value: "camera=(), microphone=(), geolocation=()",
   },
   { key: "X-DNS-Prefetch-Control", value: "on" },
+  {
+    key: "Content-Security-Policy",
+    value: cspDirectives,
+  },
 ];
 
 const nextConfig: NextConfig = {
@@ -48,10 +73,12 @@ const nextConfig: NextConfig = {
   },
 
   // Image optimization for performance
-  // NOTE: Wildcard hostname is intentional — images come from an external
-  // scraper API (api.sansekai.my.id) whose CDN hostnames are unpredictable.
-  // Restricting to HTTPS-only mitigates plaintext interception. If you move
-  // to a self-hosted image pipeline, replace "**" with explicit hostnames.
+  // NOTE: All images currently use `unoptimized` (bypass optimization), so
+  // remotePatterns only applies if `unoptimized` is removed in the future.
+  // The wildcard is necessary because the external API (api.sansekai.my.id)
+  // returns cover images from unpredictable CDN hostnames.
+  // Mitigations: HTTPS-only, CSP img-src restricts to https:/data:/blob:.
+  // TODO: Replace with an image proxy (e.g. /api/img?url=...) to remove wildcard.
   images: {
     remotePatterns: [
       {

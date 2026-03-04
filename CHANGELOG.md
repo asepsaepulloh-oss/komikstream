@@ -93,7 +93,7 @@ All notable changes to this project will be documented in this file.
 ## [0.7.0] - 2026-02-10
 
 ### 🐛 Bug Fixes
-- fix: update project name in package.json to 'komikmanga' (68f87fb)
+- fix: update project name in package.json to 'KuroManga' (68f87fb)
 
 
 

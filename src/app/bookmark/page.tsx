@@ -7,6 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { useMounted } from "@/hooks/useMounted";
+import { SyncIndicator } from "@/components/ui/SyncIndicator";
 
 export default function BookmarkPage() {
   const { bookmarks, removeBookmark } = useAppStore();
@@ -42,6 +43,7 @@ export default function BookmarkPage() {
           <div>
             <h1 className="text-3xl font-bold">Bookmark</h1>
             <p className="text-muted-foreground">Koleksi komik dan anime favorit kamu</p>
+            <SyncIndicator />
           </div>
         </div>
 

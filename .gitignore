@@ -69,3 +69,4 @@ Thumbs.db
 # Database files
 *.db
 *.sqlite
+.tmp-jest/

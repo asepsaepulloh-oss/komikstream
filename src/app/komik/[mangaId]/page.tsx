@@ -1,4 +1,4 @@
-import { getKomikChapterList, getKomikDetail } from "@/lib/api-client";
+import { getCachedKomikDetail, getKomikChapterList } from "@/lib/api-cached";
 import { getImageUrl, truncate } from "@/lib/utils";
 import { Book, BookOpen, Clock, Star, User, AlertTriangle } from "lucide-react";
 import type { Metadata } from "next";
@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: DetailPageProps): Promise<Met
   const { mangaId } = await params;
 
   try {
-    const komik = await getKomikDetail(mangaId);
+    const komik = await getCachedKomikDetail(mangaId);
 
     if (!komik) {
       return { title: "Komik tidak ditemukan" };
@@ -39,7 +39,10 @@ export default async function KomikDetailPage({ params }: DetailPageProps) {
   let chapters: Awaited<ReturnType<typeof getKomikChapterList>> = [];
 
   try {
-    [komik, chapters] = await Promise.all([getKomikDetail(mangaId), getKomikChapterList(mangaId)]);
+    [komik, chapters] = await Promise.all([
+      getCachedKomikDetail(mangaId),
+      getKomikChapterList(mangaId),
+    ]);
   } catch (error) {
     console.error("Error fetching komik detail:", error);
     return (

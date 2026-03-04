@@ -38,7 +38,7 @@ export function GridSkeleton({ count = 12 }: { count?: number }) {
   );
 }
 
-export function SectionSkeleton() {
+export function SectionSkeleton({ title }: { title?: string } = {}) {
   return (
     <section className="py-8 md:py-12">
       <div className="container mx-auto px-4">
@@ -46,7 +46,11 @@ export function SectionSkeleton() {
           <div className="flex items-center gap-4">
             <Skeleton className="h-6 w-6 rounded-lg" />
             <div>
-              <Skeleton className="h-7 w-40 rounded-md md:h-8 md:w-48" />
+              {title ? (
+                <h2 className="text-xl font-bold md:text-2xl">{title}</h2>
+              ) : (
+                <Skeleton className="h-7 w-40 rounded-md md:h-8 md:w-48" />
+              )}
               <Skeleton className="mt-2 h-4 w-56 rounded-md" />
             </div>
           </div>

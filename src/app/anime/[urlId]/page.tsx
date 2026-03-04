@@ -1,4 +1,4 @@
-import { getAnimeDetail } from "@/lib/api-client";
+import { getCachedAnimeDetail } from "@/lib/api-cached";
 import { getImageUrl, truncate } from "@/lib/utils";
 import { Calendar, Clock, Film, Play, Star, Tv, AlertTriangle } from "lucide-react";
 import type { Metadata } from "next";
@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: DetailPageProps): Promise<Met
   const { urlId } = await params;
 
   try {
-    const anime = await getAnimeDetail(urlId);
+    const anime = await getCachedAnimeDetail(urlId);
 
     if (!anime) {
       return { title: "Anime tidak ditemukan" };
@@ -40,7 +40,7 @@ export default async function AnimeDetailPage({ params }: DetailPageProps) {
 
   let anime;
   try {
-    anime = await getAnimeDetail(urlId);
+    anime = await getCachedAnimeDetail(urlId);
   } catch (error) {
     console.error("Error fetching anime detail:", error);
     return (

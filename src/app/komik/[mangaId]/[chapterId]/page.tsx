@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: ReaderPageProps): Promise<Met
 
     return {
       title: `Baca ${komik.title}`,
-      description: truncate(`Baca ${komik.title} secara gratis di KomikManga`, 160),
+      description: truncate(`Baca ${komik.title} secara gratis di KuroManga`, 160),
     };
   } catch {
     return { title: "Komik tidak ditemukan" };
