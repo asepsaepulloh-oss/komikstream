@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.10.5] - 2026-03-04
+
+### Bug Fixes
+- fix: add error handling to homepage sections for prerender resilience (62eba07)
+
+
 ## [0.10.4] - 2026-03-04
 
 ### Bug Fixes
