@@ -25,6 +25,8 @@ function ClerkProviderWithTheme({ children }: { children: ReactNode }) {
           colorPrimary: "hsl(263 70% 50%)",
         },
       }}
+      signInFallbackRedirectUrl="/"
+      signUpFallbackRedirectUrl="/"
     >
       {children}
     </ClerkProvider>

@@ -140,8 +140,8 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} flex min-h-screen flex-col antialiased`}
       >
-        <AuthProvider clerkEnabled={clerkEnabled}>
-          <ThemeProvider>
+        <ThemeProvider>
+          <AuthProvider clerkEnabled={clerkEnabled}>
             <QueryProvider>
               <a
                 href="#main-content"
@@ -155,8 +155,8 @@ export default function RootLayout({
               </main>
               <Footer />
             </QueryProvider>
-          </ThemeProvider>
-        </AuthProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
