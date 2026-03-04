@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.10.4] - 2026-03-04
+
+### Bug Fixes
+- fix: resolve useAuth outside ClerkProvider and fix provider ordering (c0c0523)
+
+
 ## [0.10.3] - 2026-03-04
 
 ### Bug Fixes
