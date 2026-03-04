@@ -5,6 +5,7 @@ import {
   getAnimeLatest,
   getAnimeRecommended,
 } from "@/lib/api-cached";
+import type { Komik, Anime } from "@/types";
 import { ArrowRight, Film, Sparkles, TrendingUp } from "lucide-react";
 import Link from "next/link";
 
@@ -51,7 +52,16 @@ function SectionWrapper({
 }
 
 export async function KomikLatestSection() {
-  const komikLatest = await getKomikLatest("mirror");
+  let komikLatest: Komik[];
+  try {
+    komikLatest = await getKomikLatest("mirror");
+  } catch {
+    // Graceful degradation: render empty so prerender/ISR succeeds
+    // even when external API is unreachable (e.g. 403 from build server IP)
+    komikLatest = [];
+  }
+
+  if (komikLatest.length === 0) return null;
 
   return (
     <SectionWrapper
@@ -71,7 +81,14 @@ export async function KomikLatestSection() {
 }
 
 export async function KomikPopularSection() {
-  const komikPopular = await getKomikPopular(1);
+  let komikPopular: Komik[];
+  try {
+    komikPopular = await getKomikPopular(1);
+  } catch {
+    komikPopular = [];
+  }
+
+  if (komikPopular.length === 0) return null;
 
   return (
     <SectionWrapper
@@ -91,7 +108,14 @@ export async function KomikPopularSection() {
 }
 
 export async function AnimeLatestSection() {
-  const animeLatest = await getAnimeLatest();
+  let animeLatest: Anime[];
+  try {
+    animeLatest = await getAnimeLatest();
+  } catch {
+    animeLatest = [];
+  }
+
+  if (animeLatest.length === 0) return null;
 
   return (
     <SectionWrapper
@@ -111,7 +135,14 @@ export async function AnimeLatestSection() {
 }
 
 export async function AnimeRecommendedSection() {
-  const animeRecommended = await getAnimeRecommended(1);
+  let animeRecommended: Anime[];
+  try {
+    animeRecommended = await getAnimeRecommended(1);
+  } catch {
+    animeRecommended = [];
+  }
+
+  if (animeRecommended.length === 0) return null;
 
   return (
     <SectionWrapper
