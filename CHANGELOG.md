@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.0] - 2026-03-04
+
+### Features
+- feat: implement WP1-WP7 comprehensive code quality improvements (c3ddb93)
+
+
+
 ## [0.7.12] - 2026-03-03
 
 ### Bug Fixes
