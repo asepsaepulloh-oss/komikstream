@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.10.1] - 2026-03-04
+
+### Bug Fixes
+- fix(ci): resolve Gitleaks artifact name conflict in deploy-production (883de9e)
+
+### CI/CD
+- ci: comprehensive CI/CD audit fixes (Critical→Low priority) (cca48d1)
+
+
 ## [0.10.0] - 2026-03-04
 
 ### Other Changes
