@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.10.3] - 2026-03-04
+
+### Bug Fixes
+- fix: add Clerk production domain to CSP script-src and connect-src (2277581)
+
+
 ## [0.10.2] - 2026-03-04
 
 ### Bug Fixes
