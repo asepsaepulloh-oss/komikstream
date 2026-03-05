@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.11.0] - 2026-03-05
+
+### Features
+- feat: rebrand to KuroManga, improve UI/UX and SEO (ff48c75)
+
+
 ## [0.10.9] - 2026-03-05
 
 ### Bug Fixes
