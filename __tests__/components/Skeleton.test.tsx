@@ -2,7 +2,7 @@
  * Tests for src/components/ui/Skeleton.tsx
  */
 
-import { render, screen } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import { Skeleton, CardSkeleton, GridSkeleton, SectionSkeleton } from "@/components/ui/Skeleton";
 
 describe("Skeleton", () => {
