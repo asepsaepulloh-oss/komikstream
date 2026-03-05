@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.10.6] - 2026-03-05
+
+### Bug Fixes
+- fix: use AuthContext bridge instead of direct Clerk useAuth import (d23aefd)
+
+
 ## [0.10.5] - 2026-03-04
 
 ### Bug Fixes
