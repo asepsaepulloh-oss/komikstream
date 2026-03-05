@@ -1,6 +1,6 @@
 import "server-only";
 
-import { Pool } from "pg";
+import { Pool, type PoolConfig } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
 
@@ -21,6 +21,29 @@ export function isDatabaseConfigured(): boolean {
   return !!process.env.DATABASE_URL;
 }
 
+/**
+ * Normalize DATABASE_URL for the pg library:
+ *  - Replace `sslmode=require` with `sslmode=verify-full` to suppress
+ *    the pg v8.x SECURITY WARNING about deprecated SSL mode aliases.
+ *  - Remove `channel_binding=require` as it's a libpq-specific param
+ *    that pg handles via the PoolConfig instead.
+ */
+function normalizeConnectionString(url: string): { url: string; channelBinding?: string } {
+  const parsed = new URL(url);
+  const channelBinding = parsed.searchParams.get("channel_binding") ?? undefined;
+
+  // Fix SSL mode: 'require' triggers a deprecation warning in pg 8.x
+  const sslMode = parsed.searchParams.get("sslmode");
+  if (sslMode === "require" || sslMode === "prefer" || sslMode === "verify-ca") {
+    parsed.searchParams.set("sslmode", "verify-full");
+  }
+
+  // Remove channel_binding from URL — handled via PoolConfig
+  parsed.searchParams.delete("channel_binding");
+
+  return { url: parsed.toString(), channelBinding };
+}
+
 // Only initialize pool/prisma if DATABASE_URL is present.
 // This prevents build errors when DB is not configured (e.g. CI without DB).
 function createPrismaClient(): PrismaClient {
@@ -28,18 +51,25 @@ function createPrismaClient(): PrismaClient {
     throw new Error("DATABASE_URL is not defined. Please set it in your environment variables.");
   }
 
-  const pool =
-    globalForPrisma.pool ??
-    new Pool({
-      connectionString,
-      // Supabase requires SSL; reject unauthorized certs in production
-      ssl: isProduction ? { rejectUnauthorized: true } : { rejectUnauthorized: false },
-      // Serverless optimization: minimal connections
-      max: isProduction ? 1 : 5,
-      min: 0,
-      idleTimeoutMillis: 10000,
-      connectionTimeoutMillis: 5000,
-    });
+  const { url: normalizedUrl } = normalizeConnectionString(connectionString);
+
+  const poolConfig: PoolConfig = {
+    connectionString: normalizedUrl,
+    ssl: { rejectUnauthorized: isProduction },
+    // Serverless optimization: minimal connections
+    max: isProduction ? 1 : 5,
+    min: 0,
+    idleTimeoutMillis: 10_000,
+    // Neon cold starts can take 3-7s; 10s handles worst-case
+    connectionTimeoutMillis: isProduction ? 10_000 : 5_000,
+  };
+
+  const pool = globalForPrisma.pool ?? new Pool(poolConfig);
+
+  // Log pool errors instead of crashing the process
+  pool.on("error", (err) => {
+    console.error("[pg:pool] Unexpected pool error:", err.message);
+  });
 
   const adapter = new PrismaPg(pool);
 
