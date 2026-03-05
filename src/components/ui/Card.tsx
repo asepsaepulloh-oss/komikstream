@@ -5,17 +5,17 @@ import type { Anime, Komik } from "@/types";
 import { BookOpen, Play, Star, ImageOff } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { useState } from "react";
 
 interface CardProps {
   item: Komik | Anime;
   type: "komik" | "anime";
   className?: string;
-  index?: number; // For stagger animation
+  index?: number;
+  priority?: boolean; // Mark above-fold images as priority for LCP
 }
 
-export function Card({ item, type, className, index = 0 }: CardProps) {
+export function Card({ item, type, className, index = 0, priority = false }: CardProps) {
   const [imageError, setImageError] = useState(false);
 
   const isKomik = type === "komik";
@@ -37,19 +37,13 @@ export function Card({ item, type, className, index = 0 }: CardProps) {
     ? "https://placehold.co/300x450/1a1a2e/ffffff?text=No+Image"
     : getImageUrl(thumbnail);
 
+  // Stagger delay via CSS custom property (capped at 0.5s)
+  const animDelay = `${Math.min(index * 0.05, 0.5)}s`;
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{
-        duration: 0.3,
-        delay: Math.min(index * 0.05, 0.5), // Cap delay at 0.5s
-        ease: "easeOut",
-      }}
-      whileHover={{
-        y: -4,
-        transition: { duration: 0.2 },
-      }}
+    <div
+      className="animate-fade-in transition-transform duration-200 hover:-translate-y-1"
+      style={{ animationDelay: animDelay, animationFillMode: "both" }}
     >
       <Link
         href={href}
@@ -73,7 +67,7 @@ export function Card({ item, type, className, index = 0 }: CardProps) {
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-105"
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-              unoptimized
+              priority={priority}
               onError={() => setImageError(true)}
             />
           )}
@@ -82,10 +76,7 @@ export function Card({ item, type, className, index = 0 }: CardProps) {
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
           {/* Play/Read icon on hover */}
-          <motion.div
-            className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-            whileHover={{ scale: 1.1 }}
-          >
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-all duration-300 group-hover:scale-110 group-hover:opacity-100">
             <div className="bg-primary text-primary-foreground shadow-primary/50 flex h-14 w-14 items-center justify-center rounded-full shadow-xl">
               {isKomik ? (
                 <BookOpen className="h-5 w-5" />
@@ -93,7 +84,7 @@ export function Card({ item, type, className, index = 0 }: CardProps) {
                 <Play className="h-5 w-5 fill-current" />
               )}
             </div>
-          </motion.div>
+          </div>
 
           {/* Type badge */}
           {itemType && (
@@ -125,6 +116,6 @@ export function Card({ item, type, className, index = 0 }: CardProps) {
           )}
         </div>
       </Link>
-    </motion.div>
+    </div>
   );
 }
