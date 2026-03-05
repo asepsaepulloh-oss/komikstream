@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.10.7] - 2026-03-05
+
+### Bug Fixes
+- fix: harden Neon DB connection — increase timeout to 10s, fix pg SSL warning (a63ddf6)
+
+
 ## [0.10.6] - 2026-03-05
 
 ### Bug Fixes
