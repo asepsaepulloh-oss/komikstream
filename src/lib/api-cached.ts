@@ -218,16 +218,21 @@ export async function getCachedAnimeDetail(urlId: string): Promise<Anime | null>
   }
 
   // Fallback to external API
-  const anime = await getAnimeDetail(urlId);
+  try {
+    const anime = await getAnimeDetail(urlId);
 
-  // Write back to cache (fire-and-forget)
-  if (anime && isDatabaseConfigured()) {
-    upsertCachedAnime(mapAppAnimeToDb(anime)).catch((err) => {
-      logger.debug("Failed to write anime cache", { urlId, error: String(err) });
-    });
+    // Write back to cache (fire-and-forget)
+    if (anime && isDatabaseConfigured()) {
+      upsertCachedAnime(mapAppAnimeToDb(anime)).catch((err) => {
+        logger.debug("Failed to write anime cache", { urlId, error: String(err) });
+      });
+    }
+
+    return anime;
+  } catch (err) {
+    logger.warn("Anime API fallback failed", { urlId, error: String(err) });
+    return null;
   }
-
-  return anime;
 }
 
 /**
@@ -252,16 +257,21 @@ export async function getCachedKomikDetail(mangaId: string): Promise<Komik | nul
   }
 
   // Fallback to external API
-  const komik = await getKomikDetail(mangaId);
+  try {
+    const komik = await getKomikDetail(mangaId);
 
-  // Write back to cache (fire-and-forget)
-  if (komik && isDatabaseConfigured()) {
-    upsertCachedKomik(mapAppKomikToDb(komik)).catch((err) => {
-      logger.debug("Failed to write komik cache", { mangaId, error: String(err) });
-    });
+    // Write back to cache (fire-and-forget)
+    if (komik && isDatabaseConfigured()) {
+      upsertCachedKomik(mapAppKomikToDb(komik)).catch((err) => {
+        logger.debug("Failed to write komik cache", { mangaId, error: String(err) });
+      });
+    }
+
+    return komik;
+  } catch (err) {
+    logger.warn("Komik API fallback failed", { mangaId, error: String(err) });
+    return null;
   }
-
-  return komik;
 }
 
 // ─── Cached List Endpoints (API-first + background cache warming) ───
