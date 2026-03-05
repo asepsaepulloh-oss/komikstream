@@ -1,4 +1,5 @@
 import { getCachedAnimeDetail } from "@/lib/api-cached";
+import { siteConfig } from "@/lib/site-config";
 import { getImageUrl, truncate } from "@/lib/utils";
 import { Calendar, Clock, Film, Play, Star, Tv, AlertTriangle } from "lucide-react";
 import type { Metadata } from "next";
@@ -28,6 +29,9 @@ export async function generateMetadata({ params }: DetailPageProps): Promise<Met
       ),
       openGraph: {
         images: anime.thumbnail || anime.poster ? [anime.thumbnail || anime.poster || ""] : [],
+      },
+      alternates: {
+        canonical: `/anime/${urlId}`,
       },
     };
   } catch {
@@ -71,8 +75,34 @@ export default async function AnimeDetailPage({ params }: DetailPageProps) {
       : [];
   const description = anime.description || anime.synopsis || "";
 
+  const breadcrumbJsonLd = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Beranda",
+        item: siteConfig.url,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Anime",
+        item: `${siteConfig.url}/anime`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: anime.title,
+        item: `${siteConfig.url}/anime/${urlId}`,
+      },
+    ],
+  });
+
   return (
     <div className="container mx-auto px-4 py-8">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: breadcrumbJsonLd }} />
       {/* Hero Section */}
       <div className="relative mb-8 overflow-hidden rounded-xl">
         {/* Background blur */}

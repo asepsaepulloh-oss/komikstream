@@ -1,5 +1,6 @@
 import { Book } from "lucide-react";
 import Link from "next/link";
+import { siteConfig } from "@/lib/site-config";
 
 export function Footer() {
   return (
@@ -13,8 +14,8 @@ export function Footer() {
                 <Book className="text-primary-foreground h-5 w-5" />
               </div>
               <span className="text-xl font-bold">
-                <span className="text-primary">Komik</span>
-                <span>Manga</span>
+                <span className="text-primary">{siteConfig.logoParts[0]}</span>
+                <span>{siteConfig.logoParts[1]}</span>
               </span>
             </Link>
             <p className="text-muted-foreground max-w-sm text-sm">
@@ -76,17 +77,17 @@ export function Footer() {
         {/* Bottom */}
         <div className="border-border mt-8 flex flex-col items-center justify-between gap-4 border-t pt-8 md:flex-row">
           <p className="text-muted-foreground text-sm">
-            © {new Date().getFullYear()} KuroManga. All rights reserved.
+            © {new Date().getFullYear()} {siteConfig.name}. All rights reserved.
           </p>
           <p className="text-muted-foreground text-xs">
             Powered by{" "}
             <a
-              href="https://xenzee.site"
+              href={siteConfig.team.url}
               target="_blank"
               rel="noopener noreferrer"
               className="text-primary hover:underline"
             >
-              XenZee Team
+              {siteConfig.team.name}
             </a>
           </p>
         </div>

@@ -1,4 +1,5 @@
 import { getCachedKomikDetail, getKomikChapterList } from "@/lib/api-cached";
+import { siteConfig } from "@/lib/site-config";
 import { getImageUrl, truncate } from "@/lib/utils";
 import { Book, BookOpen, Clock, Star, User, AlertTriangle } from "lucide-react";
 import type { Metadata } from "next";
@@ -25,6 +26,9 @@ export async function generateMetadata({ params }: DetailPageProps): Promise<Met
       description: truncate(komik.description || `Baca ${komik.title} secara gratis`, 160),
       openGraph: {
         images: komik.thumbnail ? [komik.thumbnail] : [],
+      },
+      alternates: {
+        canonical: `/komik/${mangaId}`,
       },
     };
   } catch {
@@ -67,8 +71,34 @@ export default async function KomikDetailPage({ params }: DetailPageProps) {
 
   const thumbnail = komik.thumbnail || komik.cover || "";
 
+  const breadcrumbJsonLd = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Beranda",
+        item: siteConfig.url,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Komik",
+        item: `${siteConfig.url}/komik`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: komik.title,
+        item: `${siteConfig.url}/komik/${mangaId}`,
+      },
+    ],
+  });
+
   return (
     <div className="container mx-auto px-4 py-8">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: breadcrumbJsonLd }} />
       {/* Hero Section */}
       <div className="relative mb-8 overflow-hidden rounded-xl">
         {/* Background blur */}

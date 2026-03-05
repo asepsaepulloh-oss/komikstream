@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { siteConfig } from "@/lib/site-config";
 import { Book, Bookmark, Film, History, Home, LogIn, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -67,8 +68,8 @@ export function Sidebar({ isOpen, onClose, clerkEnabled = false }: SidebarProps)
               <Book className="text-primary-foreground h-5 w-5" />
             </div>
             <span className="text-xl font-bold">
-              <span className="text-primary">Komik</span>
-              <span>Manga</span>
+              <span className="text-primary">{siteConfig.logoParts[0]}</span>
+              <span>{siteConfig.logoParts[1]}</span>
             </span>
           </Link>
           <button
@@ -117,7 +118,7 @@ export function Sidebar({ isOpen, onClose, clerkEnabled = false }: SidebarProps)
         {/* Footer */}
         <div className="border-border absolute right-0 bottom-0 left-0 border-t p-4">
           <p className="text-muted-foreground text-center text-xs">
-            © {new Date().getFullYear()} KuroManga
+            © {new Date().getFullYear()} {siteConfig.name}
           </p>
         </div>
       </aside>

@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { siteConfig } from "@/lib/site-config";
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -9,6 +10,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/api/", "/_next/", "/sign-in", "/sign-up"],
       },
     ],
-    sitemap: "https://kuromanga.me/sitemap.xml",
+    sitemap: `${siteConfig.url}/sitemap.xml`,
   };
 }

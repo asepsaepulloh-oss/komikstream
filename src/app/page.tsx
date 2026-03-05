@@ -7,6 +7,17 @@ import {
   AnimeRecommendedSection,
 } from "@/components/home";
 import { SectionSkeleton } from "@/components/ui";
+import type { Metadata } from "next";
+import { siteConfig } from "@/lib/site-config";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    url: siteConfig.url,
+  },
+};
 
 // No `force-dynamic` — each section component fetches data with ISR
 // revalidation times (via fetchWithCache), so the page shell is static

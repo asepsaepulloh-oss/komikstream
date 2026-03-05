@@ -5,6 +5,7 @@ import { ThemeProvider, QueryProvider, AuthProvider } from "@/components/provide
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { isClerkConfigured } from "@/lib/auth-config";
+import { siteConfig } from "@/lib/site-config";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,33 +17,21 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const defaultTitle = `${siteConfig.name} - Baca Komik Manga, Manhwa, Manhua Sub Indo Gratis`;
+const defaultDescription = siteConfig.description;
+
 export const metadata: Metadata = {
-  metadataBase: new URL("https://kuromanga.me"),
+  metadataBase: new URL(siteConfig.url),
   title: {
-    default: "KuroManga - Baca Komik Manga, Manhwa, Manhua Sub Indo Gratis",
-    template: "%s | KuroManga",
+    default: defaultTitle,
+    template: `%s | ${siteConfig.name}`,
   },
-  description:
-    "Baca komik manga, manhwa, manhua subtitle Indonesia secara gratis. Koleksi terlengkap dengan update terbaru setiap hari di kuromanga.me",
-  applicationName: "KuroManga",
-  keywords: [
-    "baca komik online",
-    "baca manga online",
-    "manhwa sub indo",
-    "manhua sub indo",
-    "komik gratis",
-    "manga indonesia",
-    "komik indonesia",
-    "baca manga gratis",
-    "manga online gratis",
-    "nonton anime sub indo",
-    "anime subtitle indonesia",
-    "kuromanga",
-    "KuroManga",
-  ],
-  authors: [{ name: "KuroManga", url: "https://kuromanga.me" }],
-  creator: "KuroManga",
-  publisher: "KuroManga",
+  description: defaultDescription,
+  applicationName: siteConfig.name,
+  keywords: [...siteConfig.keywords],
+  authors: [{ name: siteConfig.author, url: siteConfig.url }],
+  creator: siteConfig.author,
+  publisher: siteConfig.author,
   formatDetection: {
     email: false,
     address: false,
@@ -50,27 +39,25 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    locale: "id_ID",
-    url: "https://kuromanga.me",
-    siteName: "KuroManga",
-    title: "KuroManga - Baca Komik Manga, Manhwa, Manhua Sub Indo Gratis",
-    description:
-      "Baca komik manga, manhwa, manhua subtitle Indonesia secara gratis. Koleksi terlengkap dengan update terbaru setiap hari.",
+    locale: siteConfig.locale,
+    url: siteConfig.url,
+    siteName: siteConfig.name,
+    title: defaultTitle,
+    description: defaultDescription,
     images: [
       {
-        url: "/og-image.png",
+        url: siteConfig.ogImage,
         width: 1200,
         height: 630,
-        alt: "KuroManga - Baca Komik Online Gratis",
+        alt: `${siteConfig.name} - Baca Komik Online Gratis`,
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "KuroManga - Baca Komik Manga, Manhwa, Manhua Sub Indo Gratis",
-    description:
-      "Baca komik manga, manhwa, manhua subtitle Indonesia secara gratis. Koleksi terlengkap dengan update terbaru setiap hari.",
-    images: ["/og-image.png"],
+    title: defaultTitle,
+    description: defaultDescription,
+    images: [siteConfig.ogImage],
   },
   robots: {
     index: true,
@@ -87,6 +74,9 @@ export const metadata: Metadata = {
     icon: "/favicon.ico",
     apple: "/apple-touch-icon.png",
   },
+  alternates: {
+    canonical: siteConfig.url,
+  },
 };
 
 // Static structured data for SEO - safe to inline as it contains no user input
@@ -95,31 +85,41 @@ const structuredData = JSON.stringify({
   "@graph": [
     {
       "@type": "WebSite",
-      "@id": "https://kuromanga.me/#website",
-      url: "https://kuromanga.me",
-      name: "KuroManga",
-      description: "Baca komik manga, manhwa, manhua subtitle Indonesia secara gratis",
+      "@id": `${siteConfig.url}/#website`,
+      url: siteConfig.url,
+      name: siteConfig.name,
+      description: siteConfig.description,
       publisher: {
-        "@id": "https://kuromanga.me/#organization",
+        "@id": `${siteConfig.url}/#organization`,
       },
-      potentialAction: {
-        "@type": "SearchAction",
-        target: {
-          "@type": "EntryPoint",
-          urlTemplate: "https://kuromanga.me/komik/search?query={search_term_string}",
+      potentialAction: [
+        {
+          "@type": "SearchAction",
+          target: {
+            "@type": "EntryPoint",
+            urlTemplate: `${siteConfig.url}/komik/search?query={search_term_string}`,
+          },
+          "query-input": "required name=search_term_string",
         },
-        "query-input": "required name=search_term_string",
-      },
+        {
+          "@type": "SearchAction",
+          target: {
+            "@type": "EntryPoint",
+            urlTemplate: `${siteConfig.url}/anime/search?query={search_term_string}`,
+          },
+          "query-input": "required name=search_term_string",
+        },
+      ],
       inLanguage: "id-ID",
     },
     {
       "@type": "Organization",
-      "@id": "https://kuromanga.me/#organization",
-      name: "KuroManga",
-      url: "https://kuromanga.me",
+      "@id": `${siteConfig.url}/#organization`,
+      name: siteConfig.name,
+      url: siteConfig.url,
       logo: {
         "@type": "ImageObject",
-        url: "https://kuromanga.me/logo.svg",
+        url: `${siteConfig.url}/logo.svg`,
       },
     },
   ],

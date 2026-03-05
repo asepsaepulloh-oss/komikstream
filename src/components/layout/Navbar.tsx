@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { siteConfig } from "@/lib/site-config";
 import { Book, Film, Home, Menu, Search, Bookmark } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -39,8 +40,8 @@ export function Navbar({ clerkEnabled = false }: NavbarProps) {
               <Book className="text-primary-foreground h-5 w-5" />
             </div>
             <span className="text-xl font-bold">
-              <span className="text-primary">Komik</span>
-              <span>Manga</span>
+              <span className="text-primary">{siteConfig.logoParts[0]}</span>
+              <span>{siteConfig.logoParts[1]}</span>
             </span>
           </Link>
 
@@ -69,9 +70,9 @@ export function Navbar({ clerkEnabled = false }: NavbarProps) {
 
           {/* Right section */}
           <div className="flex items-center gap-2">
-            {/* Search button (mobile) */}
+            {/* Search button */}
             <Link href="/komik/search" aria-label="Cari komik">
-              <Button variant="ghost" size="icon" className="md:hidden">
+              <Button variant="ghost" size="icon">
                 <Search className="h-5 w-5" />
               </Button>
             </Link>

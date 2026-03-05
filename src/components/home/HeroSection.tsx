@@ -87,7 +87,7 @@ export function HeroSection() {
             </Link>
           </motion.div>
 
-          {/* Stats */}
+          {/* Features */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -95,16 +95,25 @@ export function HeroSection() {
             className="mt-16 grid grid-cols-3 gap-8"
           >
             <div className="text-center">
-              <div className="text-primary mb-1 text-3xl font-bold md:text-4xl">10K+</div>
-              <div className="text-muted-foreground text-sm">Komik</div>
+              <div className="bg-primary/10 mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl">
+                <Book className="text-primary h-5 w-5" />
+              </div>
+              <div className="mb-1 text-sm font-semibold">Manga & Manhwa</div>
+              <div className="text-muted-foreground text-xs">Koleksi terlengkap</div>
             </div>
             <div className="text-center">
-              <div className="text-primary mb-1 text-3xl font-bold md:text-4xl">5K+</div>
-              <div className="text-muted-foreground text-sm">Anime</div>
+              <div className="bg-primary/10 mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl">
+                <Film className="text-primary h-5 w-5" />
+              </div>
+              <div className="mb-1 text-sm font-semibold">Anime Sub Indo</div>
+              <div className="text-muted-foreground text-xs">Streaming gratis</div>
             </div>
             <div className="text-center">
-              <div className="text-primary mb-1 text-3xl font-bold md:text-4xl">Daily</div>
-              <div className="text-muted-foreground text-sm">Update</div>
+              <div className="bg-primary/10 mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl">
+                <Sparkles className="text-primary h-5 w-5" />
+              </div>
+              <div className="mb-1 text-sm font-semibold">Update Harian</div>
+              <div className="text-muted-foreground text-xs">Konten terbaru setiap hari</div>
             </div>
           </motion.div>
         </motion.div>

@@ -56,7 +56,7 @@ export function SectionSkeleton({ title }: { title?: string } = {}) {
           </div>
           <Skeleton className="h-4 w-24 rounded-md" />
         </div>
-        <GridSkeleton count={12} />
+        <GridSkeleton count={6} />
       </div>
     </section>
   );

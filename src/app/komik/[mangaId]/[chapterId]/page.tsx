@@ -1,4 +1,5 @@
 import { getKomikChapterList, getKomikDetail, getKomikImages } from "@/lib/api-client";
+import { siteConfig } from "@/lib/site-config";
 import { getImageUrl, truncate } from "@/lib/utils";
 import { ArrowLeft, ArrowRight, BookOpen, ChevronLeft, Home, List } from "lucide-react";
 import type { Metadata } from "next";
@@ -11,7 +12,7 @@ interface ReaderPageProps {
 }
 
 export async function generateMetadata({ params }: ReaderPageProps): Promise<Metadata> {
-  const { mangaId } = await params;
+  const { mangaId, chapterId } = await params;
 
   try {
     const komik = await getKomikDetail(mangaId);
@@ -22,7 +23,10 @@ export async function generateMetadata({ params }: ReaderPageProps): Promise<Met
 
     return {
       title: `Baca ${komik.title}`,
-      description: truncate(`Baca ${komik.title} secara gratis di KuroManga`, 160),
+      description: truncate(`Baca ${komik.title} secara gratis di ${siteConfig.name}`, 160),
+      alternates: {
+        canonical: `/komik/${mangaId}/${chapterId}`,
+      },
     };
   } catch {
     return { title: "Komik tidak ditemukan" };
@@ -65,8 +69,40 @@ export default async function KomikReaderPage({ params }: ReaderPageProps) {
     return img.url;
   });
 
+  const breadcrumbJsonLd = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Beranda",
+        item: siteConfig.url,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Komik",
+        item: `${siteConfig.url}/komik`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: komik.title,
+        item: `${siteConfig.url}/komik/${mangaId}`,
+      },
+      {
+        "@type": "ListItem",
+        position: 4,
+        name: currentChapter?.title || `Chapter ${chapterId}`,
+        item: `${siteConfig.url}/komik/${mangaId}/${chapterId}`,
+      },
+    ],
+  });
+
   return (
     <div className="min-h-screen bg-black">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: breadcrumbJsonLd }} />
       {/* Header */}
       <header className="bg-background/95 border-border sticky top-0 z-50 border-b backdrop-blur">
         <div className="container mx-auto px-4">

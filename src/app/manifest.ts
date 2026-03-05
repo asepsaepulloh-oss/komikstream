@@ -1,11 +1,11 @@
 import type { MetadataRoute } from "next";
+import { siteConfig } from "@/lib/site-config";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "KuroManga - Baca Komik Manga, Manhwa, Manhua Sub Indo",
-    short_name: "KuroManga",
-    description:
-      "Baca komik manga, manhwa, manhua subtitle Indonesia secara gratis di kuromanga.me",
+    name: `${siteConfig.name} - Baca Komik Manga, Manhwa, Manhua Sub Indo`,
+    short_name: siteConfig.shortName,
+    description: siteConfig.description,
     start_url: "/",
     display: "standalone",
     background_color: "#0a0a0f",
