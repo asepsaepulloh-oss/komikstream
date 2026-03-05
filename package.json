@@ -73,6 +73,19 @@
     "tsx": "^4.21.0",
     "typescript": "^5"
   },
+  "pnpm": {
+    "overrides": {
+      "hono": ">=4.12.4",
+      "@hono/node-server": ">=1.19.10",
+      "lodash": ">=4.17.23"
+    },
+    "onlyBuiltDependencies": [
+      "@prisma/engines",
+      "esbuild",
+      "prisma",
+      "sharp"
+    ]
+  },
   "lint-staged": {
     "*.{ts,tsx}": [
       "eslint --fix",
