@@ -2,34 +2,8 @@
 
 import { useEffect, useRef, useCallback } from "react";
 import { useAppStore } from "@/stores/useAppStore";
+import { useAuthState } from "@/components/providers/AuthProvider";
 import type { Bookmark, History } from "@/types";
-
-// Dynamically import useAuth to avoid hard dependency on Clerk.
-// When Clerk isn't configured, we use a no-op fallback that always
-// returns { isSignedIn: false, isLoaded: true } so the hook call
-// order stays consistent (satisfying React's rules-of-hooks).
-type AuthResult = { isSignedIn: boolean | undefined; isLoaded: boolean };
-
-const noopAuth = (): AuthResult => ({ isSignedIn: false, isLoaded: true });
-
-let useAuthHook: () => AuthResult = noopAuth;
-
-// Only use the real useAuth hook when Clerk is actually configured.
-// The package is always installed in node_modules, so `require` alone is
-// not enough — we must also verify that the publishable key exists.
-// Without this check useAuth() would throw "useAuth outside ClerkProvider"
-// whenever ClerkProvider is conditionally omitted from the tree.
-if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const clerk = require("@clerk/nextjs");
-    if (clerk.useAuth) {
-      useAuthHook = clerk.useAuth;
-    }
-  } catch {
-    // Clerk not available — sync disabled, noopAuth remains
-  }
-}
 
 /**
  * Fetch bookmarks from the server API.
@@ -252,8 +226,9 @@ export function useSync() {
   const replaceBookmarks = useAppStore((s) => s.replaceBookmarks);
   const replaceHistory = useAppStore((s) => s.replaceHistory);
 
-  // Always call the auth hook (noopAuth if Clerk is unavailable)
-  const { isSignedIn, isLoaded } = useAuthHook();
+  // Get auth state from our AuthContext (safe — never throws,
+  // works with or without Clerk configured)
+  const { isSignedIn, isLoaded } = useAuthState();
 
   const doSync = useCallback(async () => {
     if (hasSynced.current) return;
