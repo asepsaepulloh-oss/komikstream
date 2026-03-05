@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.12.0] - 2026-03-05
+
+### Bug Fixes
+- fix(security): patch 9 Dependabot vulnerabilities via pnpm overrides (6fb1570)
+
+
 ## [0.11.0] - 2026-03-05
 
 ### Features
