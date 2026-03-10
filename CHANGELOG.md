@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.13.1] - 2026-03-10
+
+### Bug Fixes
+- fix: reverse chapter navigation, image error handling, and CI/CD improvements (5cff1a7)
+
+
 ## [0.13.0] - 2026-03-05
 
 ### Performance
