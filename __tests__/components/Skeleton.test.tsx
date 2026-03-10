@@ -58,11 +58,12 @@ describe("SectionSkeleton", () => {
     expect(container.querySelector("section")).toBeInTheDocument();
   });
 
-  it("contains a GridSkeleton with 12 cards inside", () => {
+  it("contains a GridSkeleton with 6 cards inside", () => {
     const { container } = render(<SectionSkeleton />);
     // GridSkeleton renders inside the section — it's a grid div
+    // SectionSkeleton uses <GridSkeleton count={6} />
     const gridDiv = container.querySelector(".grid");
     expect(gridDiv).toBeInTheDocument();
-    expect(gridDiv!.children).toHaveLength(12);
+    expect(gridDiv!.children).toHaveLength(6);
   });
 });

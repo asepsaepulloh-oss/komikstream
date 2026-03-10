@@ -262,7 +262,17 @@ export async function getKomikChapterList(mangaId: string): Promise<KomikChapter
     CACHE_TIMES.DETAIL,
     [CACHE_TAGS.KOMIK_CHAPTERS, `komik-chapters-${mangaId}`]
   );
-  return ensureArray(res.data).map((item) => transformKomikChapter(item as RawKomikChapterItem));
+  const chapters = ensureArray(res.data).map((item) =>
+    transformKomikChapter(item as RawKomikChapterItem)
+  );
+
+  // Sort ascending by chapter number so chapters[0] = earliest, chapters[last] = latest.
+  // The external API returns chapters in descending order (newest first).
+  return chapters.sort((a, b) => {
+    const numA = typeof a.chapter === "number" ? a.chapter : parseFloat(String(a.chapter)) || 0;
+    const numB = typeof b.chapter === "number" ? b.chapter : parseFloat(String(b.chapter)) || 0;
+    return numA - numB;
+  });
 }
 
 export async function searchKomik(query: string): Promise<Komik[]> {
@@ -358,12 +368,18 @@ function transformKomik(raw: RawKomikItem): Komik {
     author: raw.author || raw.taxonomy?.Author?.[0]?.name,
     artist: raw.artist || raw.taxonomy?.Artist?.[0]?.name,
     genres: raw.genres || raw.taxonomy?.Genre?.map((g) => g.name) || [],
-    chapters: (raw.chapters || []).map((ch) => ({
-      chapter_id: ch.chapter_id || ch.id || "",
-      title: ch.title || `Chapter ${ch.chapter || ch.chapter_number}`,
-      chapter: ch.chapter || ch.chapter_number,
-      date: ch.date || ch.created_at,
-    })),
+    chapters: (raw.chapters || [])
+      .map((ch) => ({
+        chapter_id: ch.chapter_id || ch.id || "",
+        title: ch.title || `Chapter ${ch.chapter || ch.chapter_number}`,
+        chapter: ch.chapter || ch.chapter_number,
+        date: ch.date || ch.created_at,
+      }))
+      .sort((a, b) => {
+        const numA = typeof a.chapter === "number" ? a.chapter : parseFloat(String(a.chapter)) || 0;
+        const numB = typeof b.chapter === "number" ? b.chapter : parseFloat(String(b.chapter)) || 0;
+        return numA - numB;
+      }),
     latestChapter: raw.latest_chapter || raw.latestChapter,
     updatedAt: raw.updated_at || raw.updatedAt,
   };

@@ -1,6 +1,7 @@
 import { getKomikChapterList, getKomikDetail, getKomikImages } from "@/lib/api-client";
 import { siteConfig } from "@/lib/site-config";
 import { getImageUrl, truncate } from "@/lib/utils";
+import { MangaImage } from "@/components/ui/MangaImage";
 import { ArrowLeft, ArrowRight, BookOpen, ChevronLeft, Home, List } from "lucide-react";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -188,15 +189,7 @@ export default async function KomikReaderPage({ params }: ReaderPageProps) {
       <main className="flex flex-col items-center bg-black py-4">
         {imageUrls.map((url, index) => (
           <div key={index} className="relative w-full max-w-4xl">
-            <Image
-              src={getImageUrl(url)}
-              alt={`Page ${index + 1}`}
-              width={1000}
-              height={1500}
-              className="h-auto w-full"
-              priority={index < 3}
-              unoptimized
-            />
+            <MangaImage src={url} alt={`Page ${index + 1}`} priority={index < 3} />
           </div>
         ))}
       </main>

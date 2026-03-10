@@ -48,12 +48,13 @@ jobs:
             exit 0
           fi
 
-          # Check commit messages for conventional commits
-          COMMIT_COUNT=$(git rev-list --count HEAD 2>/dev/null || echo "1")
-          if [ "$COMMIT_COUNT" -gt 5 ]; then
-            COMMITS=$(git log --format="%s" -n 5)
+          # Check commit messages for conventional commits since last tag
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+
+          if [ -z "$LAST_TAG" ]; then
+            COMMITS=$(git log --format="%s" -n 50)
           else
-            COMMITS=$(git log --format="%s" -n "$COMMIT_COUNT")
+            COMMITS=$(git log --format="%s" "${LAST_TAG}..HEAD")
           fi
 
           # Look for feat:, fix:, BREAKING CHANGE:
@@ -78,12 +79,13 @@ jobs:
           BUMP_TYPE="${{ github.event.inputs.release_type }}"
 
           if [ -z "$BUMP_TYPE" ]; then
-            # Auto-detect from commits
-            COMMIT_COUNT=$(git rev-list --count HEAD 2>/dev/null || echo "1")
-            if [ "$COMMIT_COUNT" -gt 5 ]; then
-              COMMITS=$(git log --format="%s" -n 5)
+            # Auto-detect from commits since last tag
+            LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+
+            if [ -z "$LAST_TAG" ]; then
+              COMMITS=$(git log --format="%s" -n 50)
             else
-              COMMITS=$(git log --format="%s" -n "$COMMIT_COUNT")
+              COMMITS=$(git log --format="%s" "${LAST_TAG}..HEAD")
             fi
 
             if echo "$COMMITS" | grep -qE "BREAKING CHANGE:|^[a-z]+(\(.+\))?!:"; then

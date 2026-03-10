@@ -2,13 +2,19 @@ name: Deploy Staging
 
 on:
   push:
-    branches: [staging, develop]
+    branches: [staging, develop, main]
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - ".vscode/**"
+      - "LICENSE"
+      - "CHANGELOG.md"
   workflow_dispatch:
     inputs:
       branch:
         description: "Branch to deploy to staging"
         required: false
-        default: "staging"
+        default: "main"
         type: string
 
 permissions:
@@ -22,7 +28,6 @@ concurrency:
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
 
 jobs:
   # ==================== CI CHECKS ====================
@@ -66,20 +71,20 @@ jobs:
         run: npm install --global vercel@50
 
       - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=preview --token=$VERCEL_TOKEN
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Build Project Artifacts
-        run: vercel build --token=$VERCEL_TOKEN
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Deploy to Vercel (Staging)
         id: deploy
         run: |
-          url=$(vercel deploy --prebuilt --token=$VERCEL_TOKEN)
+          url=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
           echo "url=$url" >> $GITHUB_OUTPUT
 
       - name: Alias to staging subdomain
         run: |
-          vercel alias set ${{ steps.deploy.outputs.url }} staging-KuroManga.vercel.app --token=$VERCEL_TOKEN || true
+          vercel alias set ${{ steps.deploy.outputs.url }} staging-kuromanga.vercel.app --token=${{ secrets.VERCEL_TOKEN }} || true
 
       - name: Create Deployment Status
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1

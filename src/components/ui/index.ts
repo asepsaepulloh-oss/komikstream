@@ -4,6 +4,7 @@ export { BookmarkButton } from "./BookmarkButton";
 export { Button, buttonVariants } from "./Button";
 export { Card } from "./Card";
 export { ErrorDisplay } from "./ErrorDisplay";
+export { MangaImage } from "./MangaImage";
 export { Pagination, LoadMoreButton } from "./Pagination";
 export { RouteError } from "./RouteError";
 export { SearchBar } from "./SearchBar";

@@ -145,7 +145,7 @@ export default function RootLayout({
             <QueryProvider>
               <a
                 href="#main-content"
-                className="bg-primary text-primary-foreground fixed top-2 left-2 z-[100] -translate-y-full rounded-md px-4 py-2 text-sm font-medium transition-transform focus:translate-y-0"
+                className="bg-primary text-primary-foreground sr-only rounded-md px-4 py-2 text-sm font-medium focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100]"
               >
                 Langsung ke konten
               </a>
