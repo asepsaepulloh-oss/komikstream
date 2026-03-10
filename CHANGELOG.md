@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.13.3] - 2026-03-10
+
+### Bug Fixes
+- fix(deploy): remove pnpm-lock.yaml causing Vercel to use pnpm (d97c68a)
+
+
 ## [0.13.2] - 2026-03-10
 
 ### Bug Fixes
