@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.13.2] - 2026-03-10
+
+### Bug Fixes
+- fix(deps): regenerate package-lock.json for npm overrides (45da206)
+
+
 ## [0.13.1] - 2026-03-10
 
 ### Bug Fixes
