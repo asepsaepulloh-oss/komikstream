@@ -72,10 +72,10 @@ export default defineConfig({
   webServer: process.env.PLAYWRIGHT_BASE_URL
     ? undefined
     : {
-        command: "npm run dev",
+        command: "npm run build && npm start",
         url: "http://localhost:3000",
         reuseExistingServer: !process.env.CI,
-        timeout: 120 * 1000,
+        timeout: 180 * 1000,
         env: {
           DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy",
           NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "pk_test_dummy",

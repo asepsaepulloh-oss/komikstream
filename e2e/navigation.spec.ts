@@ -12,23 +12,28 @@ test.describe("Navigation", () => {
   test("should navigate between pages correctly", async ({ page }) => {
     // Start at home
     await page.goto("/");
+    await page.waitForLoadState("domcontentloaded");
     await expect(page).toHaveURL("/");
 
     // Navigate to komik
     await page.goto("/komik");
+    await page.waitForLoadState("domcontentloaded");
     await expect(page).toHaveURL(/\/komik/);
 
     // Navigate to anime
     await page.goto("/anime");
+    await page.waitForLoadState("domcontentloaded");
     await expect(page).toHaveURL(/\/anime/);
 
-    // Navigate to bookmark
+    // Navigate to bookmark (protected — may redirect to sign-in when Clerk is active)
     await page.goto("/bookmark");
-    await expect(page).toHaveURL(/\/bookmark/);
+    await page.waitForLoadState("domcontentloaded");
+    await expect(page).toHaveURL(/\/(bookmark|sign-in)/);
 
-    // Navigate to history
+    // Navigate to history (protected — may redirect to sign-in when Clerk is active)
     await page.goto("/history");
-    await expect(page).toHaveURL(/\/history/);
+    await page.waitForLoadState("domcontentloaded");
+    await expect(page).toHaveURL(/\/(history|sign-in)/);
   });
 
   test("should handle 404 pages gracefully", async ({ page }) => {

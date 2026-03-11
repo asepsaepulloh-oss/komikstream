@@ -3,6 +3,7 @@ import { test, expect } from "@playwright/test";
 test.describe("Anime Pages", () => {
   test("should load anime list page", async ({ page }) => {
     await page.goto("/anime");
+    await page.waitForLoadState("domcontentloaded");
 
     // Check page loads
     await expect(page).toHaveURL(/\/anime/);
