@@ -49,6 +49,7 @@ jobs:
         uses: ./.github/actions/setup
         with:
           prisma-generate: "true"
+          next-cache: "true"
           playwright-browsers: ${{ matrix.browsers }}
 
       - name: Run Playwright tests (${{ matrix.name }})

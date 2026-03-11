@@ -2,10 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Homepage", () => {
   test("should load homepage successfully", async ({ page }) => {
-    await page.goto("/");
-
-    // Wait for page to be ready
-    await page.waitForLoadState("domcontentloaded");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
 
     // Check that page loads - more flexible title check
     const title = await page.title();
@@ -17,8 +14,7 @@ test.describe("Homepage", () => {
   });
 
   test("should have working navigation links", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("domcontentloaded");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
 
     // Check that navigation area exists
     const navArea = page.locator("nav, header").first();
@@ -26,8 +22,7 @@ test.describe("Homepage", () => {
   });
 
   test("should toggle dark/light mode", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("domcontentloaded");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
 
     // Find theme toggle button
     const themeToggle = page.locator('[data-testid="theme-toggle"]').first();

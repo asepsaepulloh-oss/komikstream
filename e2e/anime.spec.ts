@@ -2,8 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Anime Pages", () => {
   test("should load anime list page", async ({ page }) => {
-    await page.goto("/anime");
-    await page.waitForLoadState("domcontentloaded");
+    await page.goto("/anime", { waitUntil: "domcontentloaded" });
 
     // Check page loads
     await expect(page).toHaveURL(/\/anime/);
@@ -13,7 +12,7 @@ test.describe("Anime Pages", () => {
   });
 
   test("should have anime cards or list items", async ({ page }) => {
-    await page.goto("/anime");
+    await page.goto("/anime", { waitUntil: "domcontentloaded" });
 
     // Wait for content to load
     await page.waitForLoadState("networkidle");
@@ -24,7 +23,7 @@ test.describe("Anime Pages", () => {
   });
 
   test("should navigate to anime detail when clicking an anime", async ({ page }) => {
-    await page.goto("/anime");
+    await page.goto("/anime", { waitUntil: "domcontentloaded" });
 
     // Wait for content
     await page.waitForLoadState("networkidle");
@@ -35,7 +34,7 @@ test.describe("Anime Pages", () => {
 
     if (exists > 0) {
       await firstAnimeLink.click();
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("domcontentloaded");
 
       // Should be on detail page
       await expect(page).toHaveURL(/\/anime\/.+/);
@@ -45,7 +44,7 @@ test.describe("Anime Pages", () => {
 
 test.describe("Anime Search", () => {
   test("should have search functionality", async ({ page }) => {
-    await page.goto("/anime");
+    await page.goto("/anime", { waitUntil: "domcontentloaded" });
 
     // Look for search input
     const searchInput = page

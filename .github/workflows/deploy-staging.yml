@@ -106,6 +106,25 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
+      - name: Health Check
+        uses: ./.github/actions/health-check
+        with:
+          url: "${{ needs.deploy-staging.outputs.url }}/api/health"
+          max-retries: "5"
+          retry-delay: "10"
+          initial-delay: "20"
+
+      - name: Warm up pages
+        run: |
+          echo "Warming up key pages before E2E tests..."
+          for path in "/" "/komik" "/anime"; do
+            url="${STAGING_URL}${path}"
+            status=$(curl -sL -o /dev/null -w "%{http_code}" --max-time 30 "$url" || echo "000")
+            echo "  ${path} -> HTTP ${status}"
+          done
+        env:
+          STAGING_URL: ${{ needs.deploy-staging.outputs.url }}
+
       - name: Setup project
         uses: ./.github/actions/setup
         with:
@@ -116,16 +135,8 @@ jobs:
         env:
           PLAYWRIGHT_BASE_URL: ${{ needs.deploy-staging.outputs.url }}
 
-      - name: Health Check
-        continue-on-error: true
-        uses: ./.github/actions/health-check
-        with:
-          url: "${{ needs.deploy-staging.outputs.url }}/api/health"
-          max-retries: "3"
-          retry-delay: "10"
-          initial-delay: "15"
-
       - name: Staging Summary
+        if: always()
         env:
           DEPLOY_URL: ${{ needs.deploy-staging.outputs.url }}
           COMMIT_SHA: ${{ github.sha }}

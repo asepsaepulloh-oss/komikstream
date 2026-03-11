@@ -2,8 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Bookmark Functionality", () => {
   test("should load bookmark page", async ({ page }) => {
-    await page.goto("/bookmark");
-    await page.waitForLoadState("domcontentloaded");
+    await page.goto("/bookmark", { waitUntil: "domcontentloaded" });
 
     // Protected route — may redirect to sign-in when Clerk is active
     await expect(page).toHaveURL(/\/(bookmark|sign-in)/);
@@ -11,8 +10,7 @@ test.describe("Bookmark Functionality", () => {
   });
 
   test("should show empty state or bookmarks list", async ({ page }) => {
-    await page.goto("/bookmark");
-    await page.waitForLoadState("domcontentloaded");
+    await page.goto("/bookmark", { waitUntil: "domcontentloaded" });
 
     // Wait for content
     await page.waitForLoadState("networkidle");
@@ -25,8 +23,7 @@ test.describe("Bookmark Functionality", () => {
 
 test.describe("History Functionality", () => {
   test("should load history page", async ({ page }) => {
-    await page.goto("/history");
-    await page.waitForLoadState("domcontentloaded");
+    await page.goto("/history", { waitUntil: "domcontentloaded" });
 
     // Protected route — may redirect to sign-in when Clerk is active
     await expect(page).toHaveURL(/\/(history|sign-in)/);
@@ -34,8 +31,7 @@ test.describe("History Functionality", () => {
   });
 
   test("should show empty state or history list", async ({ page }) => {
-    await page.goto("/history");
-    await page.waitForLoadState("domcontentloaded");
+    await page.goto("/history", { waitUntil: "domcontentloaded" });
 
     // Wait for content
     await page.waitForLoadState("networkidle");
@@ -48,7 +44,7 @@ test.describe("History Functionality", () => {
 
 test.describe("Local Storage", () => {
   test("should persist theme preference", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
 
     // Get initial theme
     const html = page.locator("html");

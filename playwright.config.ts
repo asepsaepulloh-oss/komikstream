@@ -32,6 +32,9 @@ export default defineConfig({
     // Base URL for navigation
     baseURL: process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000",
 
+    // Longer navigation timeout for CI (Vercel cold starts, server component SSR)
+    navigationTimeout: process.env.CI ? 30_000 : 15_000,
+
     // Collect trace when retrying failed test
     trace: "on-first-retry",
 

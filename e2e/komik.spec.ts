@@ -2,8 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Komik Pages", () => {
   test("should load komik list page", async ({ page }) => {
-    await page.goto("/komik");
-    await page.waitForLoadState("domcontentloaded");
+    await page.goto("/komik", { waitUntil: "domcontentloaded" });
 
     // Check page loads
     await expect(page).toHaveURL(/\/komik/);
@@ -14,8 +13,7 @@ test.describe("Komik Pages", () => {
   });
 
   test("should have komik cards or list items", async ({ page }) => {
-    await page.goto("/komik");
-    await page.waitForLoadState("domcontentloaded");
+    await page.goto("/komik", { waitUntil: "domcontentloaded" });
 
     // Check for komik content
     const content = page.locator("main, body").first();
@@ -23,11 +21,10 @@ test.describe("Komik Pages", () => {
   });
 
   test("should navigate to komik detail when clicking a komik", async ({ page }) => {
-    await page.goto("/komik");
-    await page.waitForLoadState("domcontentloaded");
+    await page.goto("/komik", { waitUntil: "domcontentloaded" });
 
     // Wait a bit for content to load
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState("networkidle");
 
     // Find komik links that are NOT navigation links
     const komikLinks = page.locator('a[href^="/komik/"]:not([href="/komik/search"])');
@@ -53,8 +50,7 @@ test.describe("Komik Pages", () => {
 
 test.describe("Komik Search", () => {
   test("should have search functionality", async ({ page }) => {
-    await page.goto("/komik");
-    await page.waitForLoadState("domcontentloaded");
+    await page.goto("/komik", { waitUntil: "domcontentloaded" });
 
     // Look for search input
     const searchInput = page
