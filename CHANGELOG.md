@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.13.4] - 2026-03-11
+
+### Bug Fixes
+- fix(anime): reverse episode order and video auto-download on desktop (d82b488)
+
+
 ## [0.13.3] - 2026-03-10
 
 ### Bug Fixes
