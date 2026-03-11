@@ -1,5 +1,7 @@
+import { Suspense } from "react";
 import { getAnimeLatest, getAnimeMovie, getAnimeRecommended } from "@/lib/api-client";
 import { Card, SearchBar, Pagination } from "@/components/ui";
+import { GridSkeleton } from "@/components/ui/Skeleton";
 import { Film, Sparkles, Clapperboard } from "lucide-react";
 import type { Metadata } from "next";
 import type { Anime } from "@/types";
@@ -14,11 +16,59 @@ interface AnimePageProps {
   searchParams: Promise<{ sort?: string; page?: string }>;
 }
 
-export default async function AnimePage({ searchParams }: AnimePageProps) {
-  const params = await searchParams;
-  const sort = params.sort || "latest";
-  const page = parseInt(params.page || "1", 10) || 1;
+// ─── Static Shell (renders immediately) ─────────────────────────────
 
+function AnimeHeader({ sort }: { sort: string }) {
+  const filters = [
+    { label: "Terbaru", value: "latest", href: "/anime", icon: Sparkles },
+    { label: "Rekomendasi", value: "recommended", href: "/anime?sort=recommended", icon: Sparkles },
+    { label: "Movie", value: "movie", href: "/anime?sort=movie", icon: Clapperboard },
+  ];
+
+  return (
+    <div className="mb-8 flex flex-col gap-6">
+      <div className="flex items-center gap-3">
+        <Film className="text-primary h-8 w-8" />
+        <div>
+          <h1 className="text-3xl font-bold">Anime</h1>
+          <p className="text-muted-foreground">Nonton anime subtitle Indonesia terlengkap</p>
+        </div>
+      </div>
+
+      {/* Search */}
+      <SearchBar
+        placeholder="Cari judul anime..."
+        searchPath="/anime/search"
+        className="max-w-xl"
+      />
+
+      {/* Filters */}
+      <div className="flex flex-wrap items-center gap-2">
+        {filters.map((f) => {
+          const Icon = f.icon;
+          return (
+            <Link
+              key={f.value}
+              href={f.href}
+              className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                sort === f.value
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+              }`}
+            >
+              <Icon className="h-4 w-4" />
+              {f.label}
+            </Link>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─── Async Data Section (streams via Suspense) ──────────────────────
+
+async function AnimeMainGrid({ sort, page }: { sort: string; page: number }) {
   const [latestAnime, recommendedAnime, movieAnime] = await Promise.all([
     getAnimeLatest().catch(() => []),
     getAnimeRecommended(page).catch(() => []),
@@ -28,12 +78,6 @@ export default async function AnimePage({ searchParams }: AnimePageProps) {
   const displayAnime =
     sort === "recommended" ? recommendedAnime : sort === "movie" ? movieAnime : latestAnime;
 
-  const filters = [
-    { label: "Terbaru", value: "latest", href: "/anime", icon: Sparkles },
-    { label: "Rekomendasi", value: "recommended", href: "/anime?sort=recommended", icon: Sparkles },
-    { label: "Movie", value: "movie", href: "/anime?sort=movie", icon: Clapperboard },
-  ];
-
   // Build current URL for pagination
   const buildPaginationUrl = () => {
     const urlParams = new URLSearchParams();
@@ -41,50 +85,10 @@ export default async function AnimePage({ searchParams }: AnimePageProps) {
     return `/anime?${urlParams.toString()}`;
   };
 
-  // Estimated total pages for recommended
   const estimatedTotalPages = sort === "recommended" ? 10 : 1;
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Header */}
-      <div className="mb-8 flex flex-col gap-6">
-        <div className="flex items-center gap-3">
-          <Film className="text-primary h-8 w-8" />
-          <div>
-            <h1 className="text-3xl font-bold">Anime</h1>
-            <p className="text-muted-foreground">Nonton anime subtitle Indonesia terlengkap</p>
-          </div>
-        </div>
-
-        {/* Search */}
-        <SearchBar
-          placeholder="Cari judul anime..."
-          searchPath="/anime/search"
-          className="max-w-xl"
-        />
-
-        {/* Filters */}
-        <div className="flex flex-wrap items-center gap-2">
-          {filters.map((f) => {
-            const Icon = f.icon;
-            return (
-              <Link
-                key={f.value}
-                href={f.href}
-                className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-                  sort === f.value
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-                }`}
-              >
-                <Icon className="h-4 w-4" />
-                {f.label}
-              </Link>
-            );
-          })}
-        </div>
-      </div>
-
+    <>
       {/* Main Grid */}
       <section className="mb-12">
         <div className="mb-6 flex items-center gap-2">
@@ -171,6 +175,42 @@ export default async function AnimePage({ searchParams }: AnimePageProps) {
           </div>
         </section>
       )}
+    </>
+  );
+}
+
+// ─── Loading Skeleton for Suspense fallback ─────────────────────────
+
+function AnimeGridSkeleton() {
+  return (
+    <div className="space-y-8">
+      <section className="mb-12">
+        <div className="mb-6 flex items-center gap-2">
+          <div className="bg-muted h-5 w-5 animate-pulse rounded" />
+          <div className="bg-muted h-7 w-40 animate-pulse rounded" />
+        </div>
+        <GridSkeleton count={12} />
+      </section>
+    </div>
+  );
+}
+
+// ─── Page Component ─────────────────────────────────────────────────
+
+export default async function AnimePage({ searchParams }: AnimePageProps) {
+  const params = await searchParams;
+  const sort = params.sort || "latest";
+  const page = parseInt(params.page || "1", 10) || 1;
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      {/* Static header renders instantly */}
+      <AnimeHeader sort={sort} />
+
+      {/* Data grid streams via Suspense — page shell is visible immediately */}
+      <Suspense fallback={<AnimeGridSkeleton />}>
+        <AnimeMainGrid sort={sort} page={page} />
+      </Suspense>
     </div>
   );
 }

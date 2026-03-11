@@ -1,5 +1,7 @@
+import { Suspense } from "react";
 import { getKomikLatest, getKomikPopular, getKomikRecommended } from "@/lib/api-client";
 import { Card, SearchBar, Pagination } from "@/components/ui";
+import { GridSkeleton } from "@/components/ui/Skeleton";
 import { Book, TrendingUp, Sparkles, Filter } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -13,12 +15,97 @@ interface KomikPageProps {
   searchParams: Promise<{ type?: string; sort?: string; page?: string }>;
 }
 
-export default async function KomikPage({ searchParams }: KomikPageProps) {
-  const params = await searchParams;
-  const type = params.type as "manhwa" | "manhua" | "manga" | undefined;
-  const sort = params.sort || "latest";
-  const page = parseInt(params.page || "1", 10) || 1;
+// ─── Static Shell (renders immediately) ─────────────────────────────
 
+function KomikHeader({ type, sort }: { type?: string; sort: string }) {
+  const types = [
+    { label: "Semua", value: undefined, href: "/komik" },
+    { label: "Manhwa", value: "manhwa", href: "/komik?type=manhwa" },
+    { label: "Manhua", value: "manhua", href: "/komik?type=manhua" },
+    { label: "Manga", value: "manga", href: "/komik?type=manga" },
+  ];
+
+  return (
+    <div className="mb-8 flex flex-col gap-6">
+      <div className="flex items-center gap-3">
+        <Book className="text-primary h-8 w-8" />
+        <div>
+          <h1 className="text-3xl font-bold">Komik</h1>
+          <p className="text-muted-foreground">Baca koleksi manhwa, manhua, dan manga terlengkap</p>
+        </div>
+      </div>
+
+      {/* Search */}
+      <SearchBar
+        placeholder="Cari judul komik..."
+        searchPath="/komik/search"
+        className="max-w-xl"
+      />
+
+      {/* Type Filter */}
+      <div className="flex flex-wrap items-center gap-2">
+        <Filter className="text-muted-foreground h-4 w-4" />
+        {types.map((t) => (
+          <Link
+            key={t.label}
+            href={t.href}
+            className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+              type === t.value || (!type && t.value === undefined)
+                ? "bg-primary text-primary-foreground"
+                : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+            }`}
+          >
+            {t.label}
+          </Link>
+        ))}
+      </div>
+
+      {/* Sort Tabs */}
+      {!type && (
+        <div className="border-border flex items-center gap-2 border-b pb-2">
+          <Link
+            href="/komik"
+            className={`-mb-[9px] border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
+              sort === "latest"
+                ? "border-primary text-primary"
+                : "text-muted-foreground hover:text-foreground border-transparent"
+            }`}
+          >
+            <span className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4" />
+              Terbaru
+            </span>
+          </Link>
+          <Link
+            href="/komik?sort=popular"
+            className={`-mb-[9px] border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
+              sort === "popular"
+                ? "border-primary text-primary"
+                : "text-muted-foreground hover:text-foreground border-transparent"
+            }`}
+          >
+            <span className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" />
+              Populer
+            </span>
+          </Link>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Async Data Section (streams via Suspense) ──────────────────────
+
+async function KomikMainGrid({
+  type,
+  sort,
+  page,
+}: {
+  type?: "manhwa" | "manhua" | "manga";
+  sort: string;
+  page: number;
+}) {
   // Fetch data based on filters
   const [latestKomik, popularKomik, recommendedManhwa, recommendedManhua, recommendedManga] =
     await Promise.all([
@@ -32,7 +119,6 @@ export default async function KomikPage({ searchParams }: KomikPageProps) {
   // Determine display data based on filters
   let displayKomik = sort === "popular" ? popularKomik : latestKomik;
 
-  // If type is specified, show recommended for that type
   if (type === "manhwa") {
     displayKomik = recommendedManhwa;
   } else if (type === "manhua") {
@@ -40,13 +126,6 @@ export default async function KomikPage({ searchParams }: KomikPageProps) {
   } else if (type === "manga") {
     displayKomik = recommendedManga;
   }
-
-  const types = [
-    { label: "Semua", value: undefined, href: "/komik" },
-    { label: "Manhwa", value: "manhwa", href: "/komik?type=manhwa" },
-    { label: "Manhua", value: "manhua", href: "/komik?type=manhua" },
-    { label: "Manga", value: "manga", href: "/komik?type=manga" },
-  ];
 
   // Build current URL for pagination
   const buildPaginationUrl = () => {
@@ -56,81 +135,10 @@ export default async function KomikPage({ searchParams }: KomikPageProps) {
     return `/komik?${urlParams.toString()}`;
   };
 
-  // Estimate total pages (API doesn't provide this, so we estimate based on popular results)
   const estimatedTotalPages = sort === "popular" ? 10 : 1;
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Header */}
-      <div className="mb-8 flex flex-col gap-6">
-        <div className="flex items-center gap-3">
-          <Book className="text-primary h-8 w-8" />
-          <div>
-            <h1 className="text-3xl font-bold">Komik</h1>
-            <p className="text-muted-foreground">
-              Baca koleksi manhwa, manhua, dan manga terlengkap
-            </p>
-          </div>
-        </div>
-
-        {/* Search */}
-        <SearchBar
-          placeholder="Cari judul komik..."
-          searchPath="/komik/search"
-          className="max-w-xl"
-        />
-
-        {/* Type Filter */}
-        <div className="flex flex-wrap items-center gap-2">
-          <Filter className="text-muted-foreground h-4 w-4" />
-          {types.map((t) => (
-            <Link
-              key={t.label}
-              href={t.href}
-              className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-                type === t.value || (!type && t.value === undefined)
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-              }`}
-            >
-              {t.label}
-            </Link>
-          ))}
-        </div>
-
-        {/* Sort Tabs */}
-        {!type && (
-          <div className="border-border flex items-center gap-2 border-b pb-2">
-            <Link
-              href="/komik"
-              className={`-mb-[9px] border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
-                sort === "latest"
-                  ? "border-primary text-primary"
-                  : "text-muted-foreground hover:text-foreground border-transparent"
-              }`}
-            >
-              <span className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4" />
-                Terbaru
-              </span>
-            </Link>
-            <Link
-              href="/komik?sort=popular"
-              className={`-mb-[9px] border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
-                sort === "popular"
-                  ? "border-primary text-primary"
-                  : "text-muted-foreground hover:text-foreground border-transparent"
-              }`}
-            >
-              <span className="flex items-center gap-2">
-                <TrendingUp className="h-4 w-4" />
-                Populer
-              </span>
-            </Link>
-          </div>
-        )}
-      </div>
-
+    <>
       {/* Main Grid */}
       <section className="mb-12">
         <div className="mb-6 flex items-center gap-2">
@@ -197,6 +205,43 @@ export default async function KomikPage({ searchParams }: KomikPageProps) {
           </div>
         </section>
       )}
+    </>
+  );
+}
+
+// ─── Loading Skeleton for Suspense fallback ─────────────────────────
+
+function KomikGridSkeleton() {
+  return (
+    <div className="space-y-8">
+      <section className="mb-12">
+        <div className="mb-6 flex items-center gap-2">
+          <div className="bg-muted h-5 w-5 animate-pulse rounded" />
+          <div className="bg-muted h-7 w-40 animate-pulse rounded" />
+        </div>
+        <GridSkeleton count={12} />
+      </section>
+    </div>
+  );
+}
+
+// ─── Page Component ─────────────────────────────────────────────────
+
+export default async function KomikPage({ searchParams }: KomikPageProps) {
+  const params = await searchParams;
+  const type = params.type as "manhwa" | "manhua" | "manga" | undefined;
+  const sort = params.sort || "latest";
+  const page = parseInt(params.page || "1", 10) || 1;
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      {/* Static header renders instantly */}
+      <KomikHeader type={type} sort={sort} />
+
+      {/* Data grid streams via Suspense — page shell is visible immediately */}
+      <Suspense fallback={<KomikGridSkeleton />}>
+        <KomikMainGrid type={type} sort={sort} page={page} />
+      </Suspense>
     </div>
   );
 }

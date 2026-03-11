@@ -103,15 +103,25 @@ interface KomikImageResponse {
 
 // ==================== HELPER FUNCTIONS ====================
 
+/** Per-request timeout in milliseconds. Prevents server-side fetches from
+ *  hanging indefinitely when the external API is unreachable from the
+ *  Vercel network, which would otherwise block RSC rendering and cause
+ *  navigation to appear frozen. */
+const FETCH_TIMEOUT_MS = 8_000;
+
 async function fetchWithCache<T>(
   url: string,
   revalidate: number,
   tags?: string[],
-  retries = 2
+  retries = 1
 ): Promise<T> {
   for (let i = 0; i <= retries; i++) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+
     try {
       const res = await fetch(url, {
+        signal: controller.signal,
         next: {
           revalidate: revalidate,
           tags: tags,
@@ -121,8 +131,10 @@ async function fetchWithCache<T>(
         },
       } as RequestInit);
 
+      clearTimeout(timeoutId);
+
       if (res.status === 429) {
-        const waitTime = Math.min(1000 * Math.pow(2, i), 10000);
+        const waitTime = Math.min(500 * Math.pow(2, i), 3000);
         if (i < retries) {
           await new Promise((resolve) => setTimeout(resolve, waitTime));
           continue;
@@ -136,10 +148,12 @@ async function fetchWithCache<T>(
 
       return res.json();
     } catch (error) {
+      clearTimeout(timeoutId);
       if (i === retries) {
         throw error;
       }
-      await new Promise((resolve) => setTimeout(resolve, 1000 * (i + 1)));
+      // Short delay before retry — keep total time under Vercel function timeout
+      await new Promise((resolve) => setTimeout(resolve, 500 * (i + 1)));
     }
   }
   throw new Error("Failed to fetch");
