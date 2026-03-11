@@ -4,7 +4,6 @@ import { getImageUrl, truncate } from "@/lib/utils";
 import { MangaImage } from "@/components/ui/MangaImage";
 import { ArrowLeft, ArrowRight, BookOpen, ChevronLeft, Home, List } from "lucide-react";
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
