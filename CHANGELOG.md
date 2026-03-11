@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.16.0] - 2026-03-11
+
+### Features
+- feat(middleware): add health check route to public API routes (efa33a1)
+
+### Bug Fixes
+- fix(release): improve changelog entry insertion logic (2b84180)
+
+
 ## [0.15.0] - 2026-03-11
 
 ### Features
