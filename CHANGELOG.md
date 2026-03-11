@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.14.0] - 2026-03-11
+
+### Features
+- feat(anime): update episode navigation and video player components for improved user experience (4ae0587)
+
+
 ## [0.13.4] - 2026-03-11
 
 ### Bug Fixes
