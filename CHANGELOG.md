@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.16.1] - 2026-03-11
+
+### Bug Fixes
+- fix(Card): enable unoptimized image loading for better performance (0acbe5d)
+
+
 ## [0.16.0] - 2026-03-11
 
 ### Features
