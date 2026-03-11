@@ -261,11 +261,21 @@ jobs:
             } > CHANGELOG.md
           fi
 
-          # Prepend new changelog entry (insert after header lines)
-          head -n 4 CHANGELOG.md > CHANGELOG.new.md
-          cat /tmp/changelog_body.md >> CHANGELOG.new.md
-          echo "" >> CHANGELOG.new.md
-          tail -n +5 CHANGELOG.md >> CHANGELOG.new.md
+          # Prepend new changelog entry after the header block
+          # Find the first "## [" section marker or end of header, insert before it
+          if grep -qn "^## \[" CHANGELOG.md; then
+            # Insert new entry before the first existing version section
+            FIRST_SECTION=$(grep -n "^## \[" CHANGELOG.md | head -1 | cut -d: -f1)
+            head -n $((FIRST_SECTION - 1)) CHANGELOG.md > CHANGELOG.new.md
+            cat /tmp/changelog_body.md >> CHANGELOG.new.md
+            echo "" >> CHANGELOG.new.md
+            tail -n +"${FIRST_SECTION}" CHANGELOG.md >> CHANGELOG.new.md
+          else
+            # No existing sections — append after entire file
+            cat CHANGELOG.md > CHANGELOG.new.md
+            echo "" >> CHANGELOG.new.md
+            cat /tmp/changelog_body.md >> CHANGELOG.new.md
+          fi
           mv CHANGELOG.new.md CHANGELOG.md
 
       - name: Commit changes
