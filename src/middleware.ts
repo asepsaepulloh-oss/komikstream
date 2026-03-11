@@ -13,7 +13,7 @@ const isProtectedRoute = createRouteMatcher([
 ]);
 
 // Define public routes that should skip Clerk middleware entirely
-const isPublicApiRoute = createRouteMatcher(["/api/webhooks(.*)"]);
+const isPublicApiRoute = createRouteMatcher(["/api/webhooks(.*)", "/api/health"]);
 
 // Routes that should be rate-limited
 const isApiRoute = createRouteMatcher(["/api/(.*)"]);
