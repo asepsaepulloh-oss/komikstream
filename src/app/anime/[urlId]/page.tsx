@@ -210,7 +210,7 @@ export default async function AnimeDetailPage({ params }: DetailPageProps) {
             {episodes.length > 0 && (
               <div className="mt-6 flex flex-wrap justify-center gap-3 md:justify-start">
                 <Link
-                  href={`/anime/watch/${episodes[0].url || episodes[0].episodeId}`}
+                  href={`/anime/watch/${urlId}/${episodes[0].url || episodes[0].episodeId}`}
                   className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-medium transition-colors"
                 >
                   <Play className="h-4 w-4 fill-current" />
@@ -218,7 +218,7 @@ export default async function AnimeDetailPage({ params }: DetailPageProps) {
                 </Link>
                 {episodes.length > 1 && (
                   <Link
-                    href={`/anime/watch/${episodes[episodes.length - 1].url || episodes[episodes.length - 1].episodeId}`}
+                    href={`/anime/watch/${urlId}/${episodes[episodes.length - 1].url || episodes[episodes.length - 1].episodeId}`}
                     className="bg-secondary text-secondary-foreground hover:bg-secondary/80 inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-medium transition-colors"
                   >
                     <Film className="h-4 w-4" />
@@ -244,7 +244,7 @@ export default async function AnimeDetailPage({ params }: DetailPageProps) {
             {episodes.map((episode, index) => (
               <Link
                 key={episode.url || episode.episodeId || index}
-                href={`/anime/watch/${episode.url || episode.episodeId}`}
+                href={`/anime/watch/${urlId}/${episode.url || episode.episodeId}`}
                 className="border-border bg-card hover:border-primary/50 hover:bg-accent group flex items-center justify-between rounded-lg border p-4 transition-colors"
               >
                 <div className="flex items-center gap-3">
