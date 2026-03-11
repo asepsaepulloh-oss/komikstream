@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.15.0] - 2026-03-11
+
+### Features
+- feat(e2e): enhance page navigation handling and add health check in workflows (45eaf80)
+
+### Tests
+- test: enhance page load handling in e2e tests for improved reliability (d05e18a)
+
+
 ## [0.14.0] - 2026-03-11
 
 ### Features
