@@ -36,11 +36,19 @@ type DbKomik = NonNullable<Awaited<ReturnType<typeof findCachedKomik>>>;
 function mapDbAnimeToApp(db: DbAnime): Anime {
   const genres = Array.isArray(db.genres) ? (db.genres as string[]) : [];
   const episodes = Array.isArray(db.episodes)
-    ? (db.episodes as Array<{ title?: string; url?: string; date?: string }>).map((ep) => ({
-        title: ep.title || "",
-        url: ep.url,
-        date: ep.date,
-      }))
+    ? (db.episodes as Array<{ title?: string; url?: string; date?: string }>)
+        .map((ep) => ({
+          title: ep.title || "",
+          url: ep.url,
+          date: ep.date,
+        }))
+        // Sort ascending by episode number so episodes[0] = first, episodes[last] = latest.
+        // DB cache stores episodes in the same descending order as the external API.
+        .sort((a, b) => {
+          const numA = parseFloat(a.title.match(/(\d+(?:\.\d+)?)/)?.[1] || "0");
+          const numB = parseFloat(b.title.match(/(\d+(?:\.\d+)?)/)?.[1] || "0");
+          return numA - numB;
+        })
     : [];
 
   return {

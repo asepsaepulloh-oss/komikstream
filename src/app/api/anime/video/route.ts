@@ -5,6 +5,20 @@ import { animeVideoParamsSchema } from "@/lib/validations/anime-video";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.sansekai.my.id/api";
 
+interface StreamEntry {
+  reso: string;
+  link: string;
+  provide?: number;
+}
+
+/**
+ * Determine whether a URL points to a direct video file (.mp4, .mkv, .webm, .m3u8)
+ * rather than an embeddable player page.
+ */
+function isDirectVideoUrl(url: string): boolean {
+  return /\.(mp4|mkv|webm|m3u8|mpd)([?#]|$)/i.test(url);
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { chapterUrlId, reso: resolution } = validateSearchParams(
@@ -37,10 +51,33 @@ export async function GET(request: NextRequest) {
       throw new NotFoundError("Video");
     }
 
-    const stream = episodeData.stream?.find((s: { reso: string }) => s.reso === resolution);
-    const videoUrl = stream?.link || episodeData.stream?.[0]?.link || null;
+    const allStreams: StreamEntry[] = episodeData.stream || [];
 
-    return NextResponse.json({ url: videoUrl });
+    // Filter out URLs that force downloads (e.g. pixeldrain ?download links)
+    // and prefer streams from higher-numbered providers (more reliable).
+    const usableStreams = allStreams
+      .filter((s: StreamEntry) => !s.link.includes("?download"))
+      .sort((a: StreamEntry, b: StreamEntry) => (b.provide ?? 0) - (a.provide ?? 0));
+
+    // Find the stream matching the requested resolution
+    const matchingStream = usableStreams.find((s: StreamEntry) => s.reso === resolution);
+    const videoUrl = matchingStream?.link || usableStreams[0]?.link || null;
+
+    // Determine which resolutions are available.
+    // The upstream `reso` field lists all possible resolutions for the episode.
+    // Note: the upstream only returns streams for the *requested* resolution,
+    // so we rely on the declared list. If a declared resolution has no streams
+    // when requested, the watch page will show an appropriate error.
+    const availableResolutions: string[] = episodeData.reso || [];
+
+    // Detect whether the URL is a direct video file or an embeddable player
+    const urlType = videoUrl && isDirectVideoUrl(videoUrl) ? "direct" : "embed";
+
+    return NextResponse.json({
+      url: videoUrl,
+      type: urlType,
+      availableResolutions,
+    });
   } catch (error) {
     return handleApiError(error, "GET /api/anime/video");
   }

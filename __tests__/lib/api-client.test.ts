@@ -195,19 +195,28 @@ describe("api-client", () => {
 
   // ---- getAnimeVideo ----
   describe("getAnimeVideo", () => {
-    it("returns video URL on success", async () => {
+    it("returns video result on success", async () => {
       fetchMock.mockReturnValueOnce(
         Promise.resolve({
           ok: true,
-          json: () => Promise.resolve({ url: "https://video.url/stream.mp4" }),
+          json: () =>
+            Promise.resolve({
+              url: "https://video.url/stream.mp4",
+              type: "direct",
+              availableResolutions: ["360p", "480p", "720p"],
+            }),
         })
       );
       const result = await api.getAnimeVideo("ep-1", "720p");
       expect(fetchMock).toHaveBeenCalledWith("/api/anime/video?chapterUrlId=ep-1&reso=720p");
-      expect(result).toBe("https://video.url/stream.mp4");
+      expect(result).toEqual({
+        url: "https://video.url/stream.mp4",
+        type: "direct",
+        availableResolutions: ["360p", "480p", "720p"],
+      });
     });
 
-    it("returns null when url field is missing", async () => {
+    it("returns null url when url field is missing", async () => {
       fetchMock.mockReturnValueOnce(
         Promise.resolve({
           ok: true,
@@ -215,24 +224,28 @@ describe("api-client", () => {
         })
       );
       const result = await api.getAnimeVideo("ep-1");
-      expect(result).toBeNull();
+      expect(result.url).toBeNull();
     });
 
-    it("returns null on fetch error", async () => {
+    it("returns null url on fetch error", async () => {
       fetchMock.mockRejectedValueOnce(new Error("Network error"));
       const result = await api.getAnimeVideo("ep-1");
-      expect(result).toBeNull();
+      expect(result.url).toBeNull();
     });
 
-    it("returns null on non-ok response", async () => {
+    it("returns null url on non-ok response", async () => {
       fetchMock.mockReturnValueOnce(Promise.resolve({ ok: false, status: 500 }));
       const result = await api.getAnimeVideo("ep-1");
-      expect(result).toBeNull();
+      expect(result.url).toBeNull();
     });
 
     it("defaults resolution to 480p", async () => {
       fetchMock.mockReturnValueOnce(
-        Promise.resolve({ ok: true, json: () => Promise.resolve({ url: "url" }) })
+        Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve({ url: "url", type: "direct", availableResolutions: ["480p"] }),
+        })
       );
       await api.getAnimeVideo("ep-1");
       expect(fetchMock).toHaveBeenCalledWith("/api/anime/video?chapterUrlId=ep-1&reso=480p");

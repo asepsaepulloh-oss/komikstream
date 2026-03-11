@@ -151,6 +151,19 @@ function ensureArray<T>(data: T | T[] | null | undefined): T[] {
   return [];
 }
 
+// ==================== ANIME HELPERS ====================
+
+/**
+ * Extract episode number from a title/ch string.
+ * Handles formats like "10", "Episode 10", "Ep. 10.5", "OVA 2", etc.
+ * Returns 0 when no number is found (e.g. "OVA Special") so those
+ * items sort to the beginning, which is acceptable.
+ */
+function extractEpisodeNumber(text: string): number {
+  const match = text.match(/(\d+(?:\.\d+)?)/);
+  return match ? parseFloat(match[1]) : 0;
+}
+
 // ==================== ANIME API ====================
 
 export async function getAnimeLatest(): Promise<Anime[]> {
@@ -199,6 +212,15 @@ export async function searchAnime(query: string): Promise<Anime[]> {
 }
 
 /**
+ * Response from the internal anime video API proxy.
+ */
+export interface AnimeVideoResult {
+  url: string | null;
+  type: "direct" | "embed";
+  availableResolutions: string[];
+}
+
+/**
  * Fetch anime video URL via the internal API proxy.
  *
  * **Client-only** — uses a relative URL (`/api/anime/video`) that requires
@@ -207,14 +229,18 @@ export async function searchAnime(query: string): Promise<Anime[]> {
 export async function getAnimeVideo(
   episodeId: string,
   resolution: string = "480p"
-): Promise<string | null> {
+): Promise<AnimeVideoResult> {
   try {
     const res = await fetch(`/api/anime/video?chapterUrlId=${episodeId}&reso=${resolution}`);
-    if (!res.ok) return null;
+    if (!res.ok) return { url: null, type: "direct", availableResolutions: [] };
     const data = await res.json();
-    return data.url || null;
+    return {
+      url: data.url || null,
+      type: data.type || "direct",
+      availableResolutions: data.availableResolutions || [],
+    };
   } catch {
-    return null;
+    return { url: null, type: "direct", availableResolutions: [] };
   }
 }
 
@@ -326,11 +352,15 @@ function transformAnimeList(raw: RawAnimeListItem): Anime {
     type: raw.type,
     status: raw.status,
     genres: raw.genres || raw.genre || [],
-    episodes: (raw.episodes || raw.chapter || []).map((ep) => ({
-      title: ep.title || ep.ch || "",
-      url: ep.url,
-      date: ep.date,
-    })),
+    // Sort ascending by episode number so episodes[0] = first, episodes[last] = latest.
+    // The external API returns episodes in descending order (newest first).
+    episodes: (raw.episodes || raw.chapter || [])
+      .map((ep) => ({
+        title: ep.title || ep.ch || "",
+        url: ep.url,
+        date: ep.date,
+      }))
+      .sort((a, b) => extractEpisodeNumber(a.title) - extractEpisodeNumber(b.title)),
   };
 }
 
@@ -345,11 +375,15 @@ function transformAnimeDetail(raw: RawAnimeListItem): Anime {
     type: raw.type,
     status: raw.status,
     genres: raw.genres || raw.genre || [],
-    episodes: (raw.episodes || raw.chapter || []).map((ep) => ({
-      title: ep.title || ep.ch || "",
-      url: ep.url,
-      date: ep.date,
-    })),
+    // Sort ascending by episode number so episodes[0] = first, episodes[last] = latest.
+    // The external API returns episodes in descending order (newest first).
+    episodes: (raw.episodes || raw.chapter || [])
+      .map((ep) => ({
+        title: ep.title || ep.ch || "",
+        url: ep.url,
+        date: ep.date,
+      }))
+      .sort((a, b) => extractEpisodeNumber(a.title) - extractEpisodeNumber(b.title)),
     totalEpisodes: raw.total_episodes || raw.totalEpisodes,
   };
 }

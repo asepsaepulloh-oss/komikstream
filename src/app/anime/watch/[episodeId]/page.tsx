@@ -3,22 +3,26 @@
 import { getAnimeVideo } from "@/lib/api-client";
 import { ArrowLeft, Film, Home, Settings } from "lucide-react";
 import Link from "next/link";
-import { use, useCallback, useEffect, useState } from "react";
+import { use, useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 interface WatchPageProps {
   params: Promise<{ episodeId: string }>;
 }
 
+const DEFAULT_RESOLUTIONS = ["360p", "480p", "720p", "1080p"];
+
 export default function AnimeWatchPage({ params }: WatchPageProps) {
   const searchParams = useSearchParams();
   const { episodeId } = use(params);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [videoType, setVideoType] = useState<"direct" | "embed">("direct");
+  const [availableResolutions, setAvailableResolutions] = useState<string[]>(DEFAULT_RESOLUTIONS);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const reso = searchParams.get("reso") || "480p";
-  const resolutions = ["360p", "480p", "720p", "1080p"];
 
   const loadVideo = useCallback(async () => {
     if (!episodeId) return;
@@ -27,8 +31,12 @@ export default function AnimeWatchPage({ params }: WatchPageProps) {
     setError(null);
 
     try {
-      const url = await getAnimeVideo(episodeId, reso);
-      setVideoUrl(url);
+      const result = await getAnimeVideo(episodeId, reso);
+      setVideoUrl(result.url);
+      setVideoType(result.type);
+      if (result.availableResolutions.length > 0) {
+        setAvailableResolutions(result.availableResolutions);
+      }
     } catch {
       setError("Gagal memuat video. Silakan coba lagi.");
     } finally {
@@ -39,6 +47,11 @@ export default function AnimeWatchPage({ params }: WatchPageProps) {
   useEffect(() => {
     loadVideo();
   }, [loadVideo]);
+
+  // Handle video element errors with a user-friendly message
+  const handleVideoError = useCallback(() => {
+    setError("Video gagal diputar. Coba resolusi lain atau refresh halaman.");
+  }, []);
 
   return (
     <div className="min-h-screen bg-black">
@@ -83,7 +96,7 @@ export default function AnimeWatchPage({ params }: WatchPageProps) {
               <span>Resolusi:</span>
             </div>
             <div className="flex items-center gap-2">
-              {resolutions.map((r) => (
+              {availableResolutions.map((r) => (
                 <Link
                   key={r}
                   href={`/anime/watch/${episodeId}?reso=${r}`}
@@ -118,13 +131,28 @@ export default function AnimeWatchPage({ params }: WatchPageProps) {
           </div>
         ) : videoUrl ? (
           <div className="aspect-video w-full max-w-5xl">
-            <iframe
-              src={videoUrl}
-              className="h-full w-full"
-              title="Video player"
-              allowFullScreen
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            />
+            {videoType === "direct" ? (
+              <video
+                ref={videoRef}
+                src={videoUrl}
+                controls
+                autoPlay
+                playsInline
+                controlsList="nodownload"
+                className="h-full w-full rounded-lg"
+                onError={handleVideoError}
+              >
+                Browser Anda tidak mendukung pemutaran video.
+              </video>
+            ) : (
+              <iframe
+                src={videoUrl}
+                className="h-full w-full"
+                title="Video player"
+                allowFullScreen
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              />
+            )}
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center p-8 text-center">
