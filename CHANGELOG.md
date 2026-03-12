@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.18.0] - 2026-03-12
+
+### Features
+- feat: implement Suspense for async content loading and add skeleton components in Anime and Komik detail pages (a5c64e0)
+
+
 ## [0.17.0] - 2026-03-12
 
 ### Features
