@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.17.0] - 2026-03-12
+
+### Features
+- feat: implement loading skeletons and improve search functionality in Komik pages (b30cffa)
+
+
 ## [0.16.1] - 2026-03-11
 
 ### Bug Fixes
