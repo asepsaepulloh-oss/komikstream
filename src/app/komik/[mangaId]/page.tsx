@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { getCachedKomikDetail, getKomikChapterList } from "@/lib/api-cached";
 import { siteConfig } from "@/lib/site-config";
 import { getImageUrl, truncate } from "@/lib/utils";
@@ -36,9 +37,9 @@ export async function generateMetadata({ params }: DetailPageProps): Promise<Met
   }
 }
 
-export default async function KomikDetailPage({ params }: DetailPageProps) {
-  const { mangaId } = await params;
+// ─── Async Detail Content (streams via Suspense) ────────────────────
 
+async function KomikDetailContent({ mangaId }: { mangaId: string }) {
   let komik;
   let chapters: Awaited<ReturnType<typeof getKomikChapterList>> = [];
 
@@ -50,17 +51,15 @@ export default async function KomikDetailPage({ params }: DetailPageProps) {
   } catch (error) {
     console.error("Error fetching komik detail:", error);
     return (
-      <div className="container mx-auto px-4 py-16">
-        <div className="flex flex-col items-center justify-center text-center">
-          <AlertTriangle className="mb-4 h-16 w-16 text-yellow-500" />
-          <h1 className="mb-2 text-2xl font-bold">Gagal Memuat Data</h1>
-          <p className="text-muted-foreground mb-6">
-            Terjadi kesalahan saat memuat detail komik. Silakan coba lagi nanti.
-          </p>
-          <Link href="/komik" className="text-primary hover:underline">
-            Kembali ke Daftar Komik
-          </Link>
-        </div>
+      <div className="flex flex-col items-center justify-center py-16 text-center">
+        <AlertTriangle className="mb-4 h-16 w-16 text-yellow-500" />
+        <h1 className="mb-2 text-2xl font-bold">Gagal Memuat Data</h1>
+        <p className="text-muted-foreground mb-6">
+          Terjadi kesalahan saat memuat detail komik. Silakan coba lagi nanti.
+        </p>
+        <Link href="/komik" className="text-primary hover:underline">
+          Kembali ke Daftar Komik
+        </Link>
       </div>
     );
   }
@@ -97,7 +96,7 @@ export default async function KomikDetailPage({ params }: DetailPageProps) {
   });
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: breadcrumbJsonLd }} />
       {/* Hero Section */}
       <div className="relative mb-8 overflow-hidden rounded-xl">
@@ -244,6 +243,74 @@ export default async function KomikDetailPage({ params }: DetailPageProps) {
           </div>
         )}
       </section>
+    </>
+  );
+}
+
+// ─── Detail Skeleton ────────────────────────────────────────────────
+
+function KomikDetailSkeleton() {
+  return (
+    <>
+      {/* Hero skeleton */}
+      <div className="bg-muted/50 relative mb-8 overflow-hidden rounded-xl">
+        <div className="flex flex-col gap-6 p-6 md:flex-row md:p-8">
+          <div className="mx-auto flex-shrink-0 md:mx-0">
+            <div className="bg-muted aspect-[2/3] w-48 animate-pulse rounded-lg md:w-56" />
+          </div>
+          <div className="flex flex-1 flex-col justify-end gap-3">
+            <div className="bg-muted mx-auto h-6 w-20 animate-pulse rounded md:mx-0" />
+            <div className="bg-muted mx-auto h-10 w-72 animate-pulse rounded md:mx-0" />
+            <div className="mx-auto flex gap-4 md:mx-0">
+              <div className="bg-muted h-5 w-24 animate-pulse rounded" />
+              <div className="bg-muted h-5 w-20 animate-pulse rounded" />
+              <div className="bg-muted h-5 w-16 animate-pulse rounded" />
+            </div>
+            <div className="mx-auto flex gap-2 md:mx-0">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="bg-muted h-7 w-16 animate-pulse rounded-full" />
+              ))}
+            </div>
+            <div className="bg-muted mx-auto h-16 w-full max-w-2xl animate-pulse rounded md:mx-0" />
+          </div>
+        </div>
+      </div>
+
+      {/* Chapter list skeleton */}
+      <section>
+        <div className="mb-6 flex items-center gap-2">
+          <div className="bg-muted h-5 w-5 animate-pulse rounded" />
+          <div className="bg-muted h-7 w-40 animate-pulse rounded" />
+        </div>
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 12 }).map((_, i) => (
+            <div
+              key={i}
+              className="border-border bg-card flex items-center gap-3 rounded-lg border p-4"
+            >
+              <div className="bg-muted h-10 w-10 animate-pulse rounded-lg" />
+              <div className="flex flex-col gap-1">
+                <div className="bg-muted h-5 w-32 animate-pulse rounded" />
+                <div className="bg-muted h-3 w-20 animate-pulse rounded" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    </>
+  );
+}
+
+// ─── Page Component ─────────────────────────────────────────────────
+
+export default async function KomikDetailPage({ params }: DetailPageProps) {
+  const { mangaId } = await params;
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <Suspense fallback={<KomikDetailSkeleton />}>
+        <KomikDetailContent mangaId={mangaId} />
+      </Suspense>
     </div>
   );
 }
