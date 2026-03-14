@@ -1,13 +1,13 @@
+"use client";
+
 import { Card } from "@/components/ui";
-import {
-  getKomikLatest,
-  getKomikPopular,
-  getAnimeLatest,
-  getAnimeRecommended,
-} from "@/lib/api-cached";
-import type { Komik, Anime } from "@/types";
-import { ArrowRight, Book, Film, RefreshCw, Sparkles, TrendingUp } from "lucide-react";
+import { SectionSkeleton } from "@/components/ui/Skeleton";
+import { useKomikLatest, useKomikPopular } from "@/hooks/useKomik";
+import { useAnimeLatest, useAnimeRecommended } from "@/hooks/useAnime";
+import { ArrowRight, Book, Film, Sparkles, TrendingUp } from "lucide-react";
 import Link from "next/link";
+
+// ─── Shared Section Wrapper ─────────────────────────────────────────
 
 interface SectionWrapperProps {
   title: string;
@@ -51,6 +51,8 @@ function SectionWrapper({
   );
 }
 
+// ─── Empty State ────────────────────────────────────────────────────
+
 interface EmptyStateProps {
   icon: React.ReactNode;
   message: string;
@@ -77,15 +79,12 @@ function EmptyState({ icon, message, href, linkText }: EmptyStateProps) {
   );
 }
 
-export async function KomikLatestSection() {
-  let komikLatest: Komik[];
-  try {
-    komikLatest = await getKomikLatest("mirror");
-  } catch {
-    // Graceful degradation: render empty so prerender/ISR succeeds
-    // even when external API is unreachable (e.g. 403 from build server IP)
-    komikLatest = [];
-  }
+// ─── Client Sections (fetch via TanStack Query hooks) ───────────────
+
+export function KomikLatestSection() {
+  const { data: komikLatest, isLoading } = useKomikLatest();
+
+  if (isLoading) return <SectionSkeleton title="Komik Terbaru" />;
 
   return (
     <SectionWrapper
@@ -95,7 +94,7 @@ export async function KomikLatestSection() {
       href="/komik"
       linkText="Lihat Semua"
     >
-      {komikLatest.length === 0 ? (
+      {!komikLatest || komikLatest.length === 0 ? (
         <EmptyState
           icon={<Book className="text-muted-foreground h-6 w-6" />}
           message="Komik terbaru sedang dimuat atau belum tersedia saat ini."
@@ -119,13 +118,10 @@ export async function KomikLatestSection() {
   );
 }
 
-export async function KomikPopularSection() {
-  let komikPopular: Komik[];
-  try {
-    komikPopular = await getKomikPopular(1);
-  } catch {
-    komikPopular = [];
-  }
+export function KomikPopularSection() {
+  const { data: komikPopular, isLoading } = useKomikPopular();
+
+  if (isLoading) return <SectionSkeleton title="Komik Populer" />;
 
   return (
     <SectionWrapper
@@ -135,7 +131,7 @@ export async function KomikPopularSection() {
       href="/komik?sort=popular"
       linkText="Lihat Semua"
     >
-      {komikPopular.length === 0 ? (
+      {!komikPopular || komikPopular.length === 0 ? (
         <EmptyState
           icon={<TrendingUp className="text-muted-foreground h-6 w-6" />}
           message="Data komik populer sedang dimuat atau belum tersedia saat ini."
@@ -153,13 +149,10 @@ export async function KomikPopularSection() {
   );
 }
 
-export async function AnimeLatestSection() {
-  let animeLatest: Anime[];
-  try {
-    animeLatest = await getAnimeLatest();
-  } catch {
-    animeLatest = [];
-  }
+export function AnimeLatestSection() {
+  const { data: animeLatest, isLoading } = useAnimeLatest();
+
+  if (isLoading) return <SectionSkeleton title="Anime Terbaru" />;
 
   return (
     <SectionWrapper
@@ -169,7 +162,7 @@ export async function AnimeLatestSection() {
       href="/anime"
       linkText="Lihat Semua"
     >
-      {animeLatest.length === 0 ? (
+      {!animeLatest || animeLatest.length === 0 ? (
         <EmptyState
           icon={<Film className="text-muted-foreground h-6 w-6" />}
           message="Anime terbaru sedang dimuat atau belum tersedia saat ini."
@@ -187,13 +180,10 @@ export async function AnimeLatestSection() {
   );
 }
 
-export async function AnimeRecommendedSection() {
-  let animeRecommended: Anime[];
-  try {
-    animeRecommended = await getAnimeRecommended(1);
-  } catch {
-    animeRecommended = [];
-  }
+export function AnimeRecommendedSection() {
+  const { data: animeRecommended, isLoading } = useAnimeRecommended();
+
+  if (isLoading) return <SectionSkeleton title="Anime Rekomendasi" />;
 
   return (
     <SectionWrapper
@@ -203,7 +193,7 @@ export async function AnimeRecommendedSection() {
       href="/anime?sort=recommended"
       linkText="Lihat Semua"
     >
-      {animeRecommended.length === 0 ? (
+      {!animeRecommended || animeRecommended.length === 0 ? (
         <EmptyState
           icon={<Sparkles className="text-muted-foreground h-6 w-6" />}
           message="Rekomendasi anime sedang dimuat atau belum tersedia saat ini."

@@ -8,6 +8,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+// ISR: regenerate detail pages every 30 minutes.
+// Keeps Worker CPU low (serves cached HTML) while staying reasonably fresh.
+export const revalidate = 1800;
+
 interface DetailPageProps {
   params: Promise<{ mangaId: string }>;
 }

@@ -58,8 +58,10 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-  // Standalone output for Docker deployment
-  output: "standalone",
+  // NOTE: output "standalone" is only for Docker deployment.
+  // For Cloudflare Workers (via OpenNext), do NOT set output.
+  // Uncomment the line below if switching back to Docker/Vercel:
+  // output: "standalone",
 
   // Remove X-Powered-By header (information disclosure)
   poweredByHeader: false,
@@ -74,6 +76,16 @@ const nextConfig: NextConfig = {
     ];
   },
 
+  // Rewrites (migrated from vercel.json)
+  async rewrites() {
+    return [
+      {
+        source: "/healthz",
+        destination: "/api/health",
+      },
+    ];
+  },
+
   // Image optimization for performance
   // NOTE: All images currently use `unoptimized` (bypass optimization), so
   // remotePatterns only applies if `unoptimized` is removed in the future.
@@ -82,20 +94,16 @@ const nextConfig: NextConfig = {
   // Mitigations: HTTPS-only, CSP img-src restricts to https:/data:/blob:.
   // TODO: Replace with an image proxy (e.g. /api/img?url=...) to remove wildcard.
   images: {
+    // Bypass Next.js image optimization — too CPU-heavy for Cloudflare Workers.
+    // Images are served directly from external CDNs.
+    // Cloudflare's automatic Polish/Mirage handles optimization at CDN level.
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",
         hostname: "**",
       },
     ],
-    // Enable modern formats for 60-80% size reduction
-    formats: ["image/avif", "image/webp"],
-    // Cache optimized images for 7 days
-    minimumCacheTTL: 604800,
-    // Device sizes for responsive images
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
-    // Image sizes for thumbnails
-    imageSizes: [16, 32, 48, 64, 96, 128, 256],
   },
 
   // Mark server-only packages
@@ -106,9 +114,6 @@ const nextConfig: NextConfig = {
     serverActions: {
       bodySizeLimit: "2mb",
     },
-    // Enable persistent file-system cache for Turbopack builds.
-    // Only takes effect when building with `next build --turbopack`.
-    turbopackFileSystemCacheForBuild: true,
   },
 };
 

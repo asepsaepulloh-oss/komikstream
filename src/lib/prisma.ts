@@ -4,11 +4,11 @@ import { Pool, type PoolConfig } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
 
-// Global singleton pattern for Vercel serverless
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
-  pool: Pool | undefined;
-};
+// Module-level singleton — works in both Vercel serverless and Cloudflare Workers.
+// In Cloudflare Workers, each isolate may have its own instance, but within
+// a single request lifecycle the same instance is reused.
+let _prisma: PrismaClient | undefined;
+let _pool: Pool | undefined;
 
 const connectionString = process.env.DATABASE_URL;
 const isProduction = process.env.NODE_ENV === "production";
@@ -51,38 +51,45 @@ function createPrismaClient(): PrismaClient {
     throw new Error("DATABASE_URL is not defined. Please set it in your environment variables.");
   }
 
+  // Reuse existing instance within the same isolate
+  if (_prisma) return _prisma;
+
   const { url: normalizedUrl } = normalizeConnectionString(connectionString);
 
   const poolConfig: PoolConfig = {
     connectionString: normalizedUrl,
-    ssl: { rejectUnauthorized: isProduction },
-    // Serverless optimization: minimal connections
-    max: isProduction ? 1 : 5,
+    // Cloudflare Workers handles SSL at the connect() level via pg-cloudflare.
+    // rejectUnauthorized: false avoids cert issues in Workers runtime.
+    ssl: { rejectUnauthorized: false },
+    // Workers/serverless: always minimal connections.
+    // Each Worker isolate is ephemeral — keep pool tiny.
+    max: 1,
     min: 0,
-    idleTimeoutMillis: 10_000,
-    // Neon cold starts can take 3-7s; 10s handles worst-case
-    connectionTimeoutMillis: isProduction ? 10_000 : 5_000,
+    idleTimeoutMillis: 5_000,
+    // Connection timeout: Neon/Supabase cold starts can take 3-7s
+    connectionTimeoutMillis: 10_000,
   };
 
-  const pool = globalForPrisma.pool ?? new Pool(poolConfig);
+  const pool = _pool ?? new Pool(poolConfig);
 
   // Log pool errors instead of crashing the process
   pool.on("error", (err) => {
     console.error("[pg:pool] Unexpected pool error:", err.message);
   });
 
-  const adapter = new PrismaPg(pool);
+  // Cast needed: pg's Pool type and @prisma/adapter-pg's expected Pool
+  // type can drift between versions; the runtime API is identical.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const adapter = new PrismaPg(pool as any);
 
   const client = new PrismaClient({
     adapter,
     log: isProduction ? ["error"] : ["error", "warn"],
   });
 
-  // Cache globally (critical for serverless to prevent connection exhaustion)
-  if (!globalForPrisma.prisma) {
-    globalForPrisma.prisma = client;
-    globalForPrisma.pool = pool;
-  }
+  // Cache at module level for reuse within the same isolate
+  _prisma = client;
+  _pool = pool;
 
   return client;
 }
@@ -91,7 +98,7 @@ function createPrismaClient(): PrismaClient {
  * Get the singleton PrismaClient instance.
  * Throws if DATABASE_URL is not set.
  */
-const prisma: PrismaClient = globalForPrisma.prisma ?? createPrismaClient();
+const prisma: PrismaClient = _prisma ?? createPrismaClient();
 
 /**
  * Safe Prisma accessor — returns PrismaClient or null.
@@ -103,7 +110,7 @@ export async function getSafePrisma(): Promise<PrismaClient | null> {
     return null;
   }
   try {
-    return globalForPrisma.prisma ?? createPrismaClient();
+    return _prisma ?? createPrismaClient();
   } catch {
     return null;
   }
