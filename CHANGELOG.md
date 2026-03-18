@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.19.0] - 2026-03-18
+
+### Features
+- feat: migrate CI/CD workflows from Vercel to Cloudflare Workers and optimize Prisma for edge deployment (e349767)
+- feat: implement middleware for Clerk authentication and define route matchers (3e2644c)
+- feat: migrate from Vercel to Cloudflare Workers via OpenNext (3486afb)
+
+### Bug Fixes
+- fix: add @testing-library/dom as explicit devDependency (7669e0b)
+
+
 ## [0.18.0] - 2026-03-12
 
 ### Features
