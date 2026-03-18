@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.19.7] - 2026-03-18
+
+### Bug Fixes
+- fix(api-client): remove server-only logger import that broke client bundling (6e1d02e)
+
+
 ## [0.19.6] - 2026-03-18
 
 ### Bug Fixes
