@@ -5,7 +5,7 @@
  * all public API functions, and all transformers.
  */
 
-import { CACHE_TIMES, CACHE_TAGS } from "@/lib/cache-config";
+import { CACHE_TIMES } from "@/lib/cache-config";
 
 // ---- helpers ----
 const BASE_URL = "https://api.sansekai.my.id/api";
@@ -76,7 +76,7 @@ describe("api-client", () => {
       expect(fetchMock).toHaveBeenCalledWith(
         `${BASE_URL}/anime/latest`,
         expect.objectContaining({
-          next: { revalidate: CACHE_TIMES.LATEST, tags: [CACHE_TAGS.ANIME_LATEST] },
+          next: { revalidate: CACHE_TIMES.LATEST },
         })
       );
       expect(result).toHaveLength(1);
@@ -429,6 +429,15 @@ describe("api-client", () => {
       const result = await api.getKomikChapterList("manga-1");
       expect(result[0].chapter).toBe(0);
     });
+
+    it("returns empty array instead of throwing on fetch failure", async () => {
+      // Both attempts fail (retries = 1 → 2 total)
+      fetchMock
+        .mockRejectedValueOnce(new Error("Network error"))
+        .mockRejectedValueOnce(new Error("Network error"));
+      const result = await api.getKomikChapterList("manga-fail");
+      expect(result).toEqual([]);
+    }, 15000);
   });
 
   // ---- searchKomik ----
