@@ -13,7 +13,7 @@ if (process.env.NODE_ENV === "production" && !process.env.CI) {
     if (!process.env[envVar]) {
       console.warn(
         `⚠️ Missing environment variable: ${envVar}\n` +
-          `Please set it in your Vercel dashboard or .env file.`
+          `Please set it in your Cloudflare Workers Variables or .env file.`
       );
     }
   }

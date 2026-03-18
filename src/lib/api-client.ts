@@ -3,10 +3,16 @@
  *
  * Optimized for performance with Incremental Static Regeneration.
  * Safe to use in both client and server components.
+ *
+ * NOTE: fetch() uses `next: { revalidate }` (route-level ISR via Next.js/OpenNext)
+ * but does NOT pass `tags` — tag-based revalidation via `revalidateTag()` requires
+ * a KV binding in Cloudflare Workers which is not configured. Tags are dead code
+ * since `revalidateTag` is never called anywhere in this codebase.
  */
 
 import type { Anime, Komik, KomikChapter, KomikImage } from "@/types";
-import { CACHE_TIMES, CACHE_TAGS } from "./cache-config";
+import { CACHE_TIMES } from "./cache-config";
+import { logger } from "./logger";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.sansekai.my.id/api";
 
@@ -104,17 +110,17 @@ interface KomikImageResponse {
 // ==================== HELPER FUNCTIONS ====================
 
 /** Per-request timeout in milliseconds. Prevents server-side fetches from
- *  hanging indefinitely when the external API is unreachable from the
- *  Vercel network, which would otherwise block RSC rendering and cause
- *  navigation to appear frozen. */
+ *  hanging indefinitely when the external API is unreachable. */
 const FETCH_TIMEOUT_MS = 8_000;
 
-async function fetchWithCache<T>(
-  url: string,
-  revalidate: number,
-  tags?: string[],
-  retries = 1
-): Promise<T> {
+/**
+ * Fetch with Next.js ISR revalidation.
+ *
+ * Does NOT pass `tags` to fetch() — tag-based revalidation requires a KV
+ * binding in Cloudflare Workers that is not configured. Route-level ISR
+ * (export const revalidate = N in pages) is used instead.
+ */
+async function fetchWithCache<T>(url: string, revalidate: number, retries = 1): Promise<T> {
   for (let i = 0; i <= retries; i++) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
@@ -124,7 +130,6 @@ async function fetchWithCache<T>(
         signal: controller.signal,
         next: {
           revalidate: revalidate,
-          tags: tags,
         },
         headers: {
           Accept: "application/json",
@@ -152,7 +157,7 @@ async function fetchWithCache<T>(
       if (i === retries) {
         throw error;
       }
-      // Short delay before retry — keep total time under Vercel function timeout
+      // Short delay before retry
       await new Promise((resolve) => setTimeout(resolve, 500 * (i + 1)));
     }
   }
@@ -183,8 +188,7 @@ function extractEpisodeNumber(text: string): number {
 export async function getAnimeLatest(): Promise<Anime[]> {
   const res = await fetchWithCache<RawAnimeListItem[]>(
     `${BASE_URL}/anime/latest`,
-    CACHE_TIMES.LATEST,
-    [CACHE_TAGS.ANIME_LATEST]
+    CACHE_TIMES.LATEST
   );
   return ensureArray(res).map(transformAnimeList);
 }
@@ -192,8 +196,7 @@ export async function getAnimeLatest(): Promise<Anime[]> {
 export async function getAnimeRecommended(page: number = 1): Promise<Anime[]> {
   const res = await fetchWithCache<RawAnimeListItem[]>(
     `${BASE_URL}/anime/recommended?page=${page}`,
-    CACHE_TIMES.POPULAR,
-    [CACHE_TAGS.ANIME_RECOMMENDED]
+    CACHE_TIMES.POPULAR
   );
   return ensureArray(res).map(transformAnimeList);
 }
@@ -201,8 +204,7 @@ export async function getAnimeRecommended(page: number = 1): Promise<Anime[]> {
 export async function getAnimeMovie(): Promise<Anime[]> {
   const res = await fetchWithCache<RawAnimeListItem[]>(
     `${BASE_URL}/anime/movie`,
-    CACHE_TIMES.POPULAR,
-    [CACHE_TAGS.ANIME_MOVIE]
+    CACHE_TIMES.POPULAR
   );
   return ensureArray(res).map(transformAnimeList);
 }
@@ -210,8 +212,7 @@ export async function getAnimeMovie(): Promise<Anime[]> {
 export async function getAnimeDetail(urlId: string): Promise<Anime | null> {
   const res = await fetchWithCache<AnimeDetailResponse>(
     `${BASE_URL}/anime/detail?urlId=${urlId}`,
-    CACHE_TIMES.DETAIL,
-    [CACHE_TAGS.ANIME_DETAIL, `anime-${urlId}`]
+    CACHE_TIMES.DETAIL
   );
   const detail = res.data?.[0];
   return detail ? transformAnimeDetail(detail) : null;
@@ -263,8 +264,7 @@ export async function getAnimeVideo(
 export async function getKomikLatest(type: "project" | "mirror"): Promise<Komik[]> {
   const res = await fetchWithCache<KomikListResponse>(
     `${BASE_URL}/komik/latest?type=${type}`,
-    CACHE_TIMES.LATEST,
-    [CACHE_TAGS.KOMIK_LATEST, `komik-latest-${type}`]
+    CACHE_TIMES.LATEST
   );
   return ensureArray(res.data).map(transformKomik);
 }
@@ -272,8 +272,7 @@ export async function getKomikLatest(type: "project" | "mirror"): Promise<Komik[
 export async function getKomikPopular(page: number = 1): Promise<Komik[]> {
   const res = await fetchWithCache<KomikListResponse>(
     `${BASE_URL}/komik/popular?page=${page}`,
-    CACHE_TIMES.POPULAR,
-    [CACHE_TAGS.KOMIK_POPULAR]
+    CACHE_TIMES.POPULAR
   );
   return ensureArray(res.data).map(transformKomik);
 }
@@ -281,8 +280,7 @@ export async function getKomikPopular(page: number = 1): Promise<Komik[]> {
 export async function getKomikRecommended(type: "manhwa" | "manhua" | "manga"): Promise<Komik[]> {
   const res = await fetchWithCache<KomikListResponse>(
     `${BASE_URL}/komik/recommended?type=${type}`,
-    CACHE_TIMES.POPULAR,
-    [CACHE_TAGS.KOMIK_RECOMMENDED, `komik-recommended-${type}`]
+    CACHE_TIMES.POPULAR
   );
   return ensureArray(res.data).map(transformKomik);
 }
@@ -290,29 +288,42 @@ export async function getKomikRecommended(type: "manhwa" | "manhua" | "manga"): 
 export async function getKomikDetail(mangaId: string): Promise<Komik | null> {
   const res = await fetchWithCache<KomikDetailResponse>(
     `${BASE_URL}/komik/detail?manga_id=${mangaId}`,
-    CACHE_TIMES.DETAIL,
-    [CACHE_TAGS.KOMIK_DETAIL, `komik-${mangaId}`]
+    CACHE_TIMES.DETAIL
   );
   return res.data ? transformKomik(res.data) : null;
 }
 
+/**
+ * Fetch the chapter list for a manga.
+ *
+ * Returns an empty array on failure instead of throwing, so that the detail
+ * page can still render (with a "no chapters" state) even if this endpoint
+ * is temporarily unavailable.
+ */
 export async function getKomikChapterList(mangaId: string): Promise<KomikChapter[]> {
-  const res = await fetchWithCache<KomikListResponse>(
-    `${BASE_URL}/komik/chapterlist?manga_id=${mangaId}`,
-    CACHE_TIMES.DETAIL,
-    [CACHE_TAGS.KOMIK_CHAPTERS, `komik-chapters-${mangaId}`]
-  );
-  const chapters = ensureArray(res.data).map((item) =>
-    transformKomikChapter(item as RawKomikChapterItem)
-  );
+  try {
+    const res = await fetchWithCache<KomikListResponse>(
+      `${BASE_URL}/komik/chapterlist?manga_id=${mangaId}`,
+      CACHE_TIMES.DETAIL
+    );
+    const chapters = ensureArray(res.data).map((item) =>
+      transformKomikChapter(item as RawKomikChapterItem)
+    );
 
-  // Sort ascending by chapter number so chapters[0] = earliest, chapters[last] = latest.
-  // The external API returns chapters in descending order (newest first).
-  return chapters.sort((a, b) => {
-    const numA = typeof a.chapter === "number" ? a.chapter : parseFloat(String(a.chapter)) || 0;
-    const numB = typeof b.chapter === "number" ? b.chapter : parseFloat(String(b.chapter)) || 0;
-    return numA - numB;
-  });
+    // Sort ascending by chapter number so chapters[0] = earliest, chapters[last] = latest.
+    // The external API returns chapters in descending order (newest first).
+    return chapters.sort((a, b) => {
+      const numA = typeof a.chapter === "number" ? a.chapter : parseFloat(String(a.chapter)) || 0;
+      const numB = typeof b.chapter === "number" ? b.chapter : parseFloat(String(b.chapter)) || 0;
+      return numA - numB;
+    });
+  } catch (err) {
+    logger.warn("Failed to fetch chapter list, returning empty array", {
+      mangaId,
+      error: String(err),
+    });
+    return [];
+  }
 }
 
 export async function searchKomik(query: string): Promise<Komik[]> {
@@ -326,8 +337,7 @@ export async function searchKomik(query: string): Promise<Komik[]> {
 export async function getKomikImages(chapterId: string): Promise<KomikImage[]> {
   const res = await fetchWithCache<KomikImageResponse>(
     `${BASE_URL}/komik/getimage?chapter_id=${chapterId}`,
-    CACHE_TIMES.IMAGES,
-    [CACHE_TAGS.KOMIK_IMAGES, `chapter-${chapterId}`]
+    CACHE_TIMES.IMAGES
   );
   const imageUrls = res.data?.chapter?.data || [];
   return imageUrls.map((url: string, index: number) => ({
