@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.19.6] - 2026-03-18
+
+### Bug Fixes
+- fix: remove unused CACHE_TAGS import and handle fetch failure in getKomikChapterList test (6cc7b28)
+- fix: remove fetch tags to fix detail pages on Cloudflare Workers (82487b0)
+
+
 ## [0.19.5] - 2026-03-18
 
 ### Bug Fixes
