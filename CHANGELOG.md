@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.19.4] - 2026-03-18
+
+### Bug Fixes
+- fix: promote Worker version after setting runtime secrets (ccf8af5)
+
+
 ## [0.19.3] - 2026-03-18
 
 ### Bug Fixes
