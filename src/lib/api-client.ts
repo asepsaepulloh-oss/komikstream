@@ -12,7 +12,8 @@
 
 import type { Anime, Komik, KomikChapter, KomikImage } from "@/types";
 import { CACHE_TIMES } from "./cache-config";
-import { logger } from "./logger";
+// NOTE: logger is NOT imported here because api-client is used in client components too.
+// logger.ts has `import "server-only"` which would break client-side bundling.
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.sansekai.my.id/api";
 
@@ -318,10 +319,9 @@ export async function getKomikChapterList(mangaId: string): Promise<KomikChapter
       return numA - numB;
     });
   } catch (err) {
-    logger.warn("Failed to fetch chapter list, returning empty array", {
-      mangaId,
-      error: String(err),
-    });
+    // Use console.warn — logger.ts has `import "server-only"` which would
+    // break client-side bundling if imported at the module level.
+    console.warn(`[api-client] getKomikChapterList failed for ${mangaId}:`, err);
     return [];
   }
 }
