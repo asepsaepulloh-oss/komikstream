@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.19.3] - 2026-03-18
+
+### Bug Fixes
+- fix: use wrangler versions secret put for Worker Versions API (4e40f03)
+
+
 ## [0.19.2] - 2026-03-18
 
 ### Bug Fixes
