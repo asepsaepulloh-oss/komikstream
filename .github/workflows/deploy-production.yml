@@ -116,6 +116,8 @@ jobs:
           if [ -n "$CLERK_WEBHOOK_SECRET" ]; then
             echo "$CLERK_WEBHOOK_SECRET" | npx wrangler versions secret put CLERK_WEBHOOK_SECRET
           fi
+          # Promote the latest version (with secrets) to 100% of production traffic
+          npx wrangler versions deploy --yes
 
       - name: Create GitHub Deployment Status
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
