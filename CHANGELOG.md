@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.19.5] - 2026-03-18
+
+### Bug Fixes
+- fix: set Worker runtime secrets via Cloudflare API instead of wrangler versions (c691958)
+
+
 ## [0.19.4] - 2026-03-18
 
 ### Bug Fixes
