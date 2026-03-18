@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.19.2] - 2026-03-18
+
+### Bug Fixes
+- fix: push runtime secrets to Cloudflare Worker after deploy (6bd8bd4)
+
+
 ## [0.19.1] - 2026-03-18
 
 ### Bug Fixes
