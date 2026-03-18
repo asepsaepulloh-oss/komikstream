@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.19.1] - 2026-03-18
+
+### Bug Fixes
+- fix: rename proxy.ts back to middleware.ts for OpenNext compatibility (a68eed9)
+
+
 ## [0.19.0] - 2026-03-18
 
 ### Features
