@@ -2,10 +2,13 @@ import "server-only";
 
 import { Pool, type PoolConfig } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "@prisma/client";
+// Use the edge import to get static WASM imports instead of base64 decoding.
+// CF Workers blocks dynamic `new WebAssembly.Module()` but supports static
+// `import('./xxx.wasm')` which the edge build uses.
+import { PrismaClient } from "@prisma/client/edge";
 
-// Module-level singleton — works in both Vercel serverless and Cloudflare Workers.
-// In Cloudflare Workers, each isolate may have its own instance, but within
+// Module-level singleton — optimized for Cloudflare Workers.
+// Each Worker isolate may have its own instance, but within
 // a single request lifecycle the same instance is reused.
 let _prisma: PrismaClient | undefined;
 let _pool: Pool | undefined;
@@ -95,15 +98,12 @@ function createPrismaClient(): PrismaClient {
 }
 
 /**
- * Get the singleton PrismaClient instance.
- * Throws if DATABASE_URL is not set.
- */
-const prisma: PrismaClient = _prisma ?? createPrismaClient();
-
-/**
  * Safe Prisma accessor — returns PrismaClient or null.
- * Use this in API routes to gracefully handle missing DB config
- * instead of duplicating dynamic imports everywhere.
+ *
+ * Always use this (never import `createPrismaClient` directly) so that:
+ *  - Module load is safe even when DATABASE_URL is not set (e.g. at build time)
+ *  - Routes that don't use the DB degrade gracefully without crashing
+ *  - Only one PrismaClient instance is created per Worker isolate
  */
 export async function getSafePrisma(): Promise<PrismaClient | null> {
   if (!isDatabaseConfigured()) {
@@ -115,5 +115,3 @@ export async function getSafePrisma(): Promise<PrismaClient | null> {
     return null;
   }
 }
-
-export { prisma };

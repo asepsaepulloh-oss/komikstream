@@ -1,6 +1,6 @@
 import "server-only";
 
-import { Prisma, PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client/edge";
 import { getSafePrisma } from "@/lib/prisma";
 
 // ─── Prisma Error Codes ─────────────────────────────────────────────

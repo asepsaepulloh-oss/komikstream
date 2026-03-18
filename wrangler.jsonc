@@ -6,6 +6,12 @@
   "main": ".open-next/worker.js",
   "assets": {
     "directory": ".open-next/assets",
-    "binding": "ASSETS"
-  }
+    "binding": "ASSETS",
+  },
+  // Stub out @vercel/og to eliminate resvg.wasm (1.4MB) + yoga.wasm (87KB)
+  // We don't use OG image generation in this project
+  "alias": {
+    "next/dist/compiled/@vercel/og/index.edge.js": "./stubs/og-stub.js",
+    "next/dist/compiled/@vercel/og/index.node.js": "./stubs/og-stub.js",
+  },
 }

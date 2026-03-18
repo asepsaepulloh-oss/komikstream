@@ -3,7 +3,6 @@ import packageJson from "../../../../package.json";
 import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
 
 interface HealthStatus {
   status: "healthy" | "unhealthy";
@@ -32,11 +31,11 @@ export async function GET() {
 
   // Check database connection if available
   try {
-    const skipDB = process.env.SKIP_DB_CONNECTION === "true";
     const dbUrl = process.env.DATABASE_URL;
 
-    if (!skipDB && dbUrl && !dbUrl.includes("dummy")) {
-      const { prisma } = await import("@/lib/prisma");
+    if (dbUrl && !dbUrl.includes("dummy")) {
+      const { getSafePrisma } = await import("@/lib/prisma");
+      const prisma = await getSafePrisma();
 
       if (prisma) {
         await prisma.$queryRaw`SELECT 1`;

@@ -111,14 +111,15 @@ jobs:
           next-cache: "true"
 
       - name: Build application
+        # Verify that `next build` compiles without errors.
+        # DATABASE_URL uses a dummy value so Prisma doesn't throw during
+        # module load; no actual DB connection is made at build time.
+        # Real values are injected only in the production deploy workflow.
         run: npm run build
         env:
-          # Dummy env vars for build (actual values set in Vercel)
           DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
           NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "pk_test_dummy"
           CLERK_SECRET_KEY: "sk_test_dummy"
-          # Skip database connection during build
-          SKIP_DB_CONNECTION: "true"
 
       - name: Check build output
         run: |
