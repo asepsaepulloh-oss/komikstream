@@ -1,0 +1,42 @@
+# ===========================================
+# KuroManga Environment Variables
+# ===========================================
+
+# Database (Supabase PostgreSQL)
+# Get from: https://supabase.com -> Project Settings -> Database -> Connection string
+DATABASE_URL="postgresql://postgres:[YOUR-PASSWORD]@db.[YOUR-PROJECT-REF].supabase.co:5432/postgres"
+
+# Clerk Authentication
+# Get from: https://clerk.com -> Dashboard -> API Keys
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_..."
+CLERK_SECRET_KEY="sk_test_..."
+
+# Clerk Webhook Secret
+# Get from: https://clerk.com -> Dashboard -> Webhooks -> Your Webhook -> Signing Secret
+CLERK_WEBHOOK_SECRET="whsec_..."
+
+# Clerk URLs (optional, defaults work for most cases)
+NEXT_PUBLIC_CLERK_SIGN_IN_URL="/sign-in"
+NEXT_PUBLIC_CLERK_SIGN_UP_URL="/sign-up"
+
+# Sansekai API Base URL (optional, defaults to https://api.sansekai.my.id/api)
+# SANSEKAI_BASE_URL="https://api.sansekai.my.id/api"
+
+# API Proxy URL (server-side only) — routes API calls through CF Worker
+# to bypass Plana AI Detector IP blocking on Azure.
+# Set to https://kuromanga.me/api-proxy in production.
+# Leave empty in dev/CI to call the API directly.
+API_PROXY_URL=""
+API_PROXY_TOKEN=""
+
+# Worker-to-Origin shared secret (structural security control)
+# Set the same value in CF Worker secret (wrangler secret put WORKER_TOKEN)
+# and Azure App Settings. Requests without valid token are rejected with 403.
+# Leave empty in dev/CI to skip verification.
+WORKER_TOKEN=""
+
+# Azure Application Insights (optional, Azure only)
+# Get from: Azure Portal -> Application Insights -> Connection String
+# Enables server-side telemetry (request tracing, errors, dependencies).
+# Leave empty in dev/CI or on CF Workers (automatically skipped).
+APPLICATIONINSIGHTS_CONNECTION_STRING=""
