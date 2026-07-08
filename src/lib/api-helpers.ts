@@ -43,7 +43,17 @@ export function withAuth(
         throw new FeatureNotConfiguredError("Authentication");
       }
 
-      const user = await getOrCreateUser();
+      let user;
+      try {
+        user = await getOrCreateUser();
+      } catch (err) {
+        // If getOrCreateUser throws an unexpected error (e.g. auth library
+        // runtime error), treat it as an authentication failure so we
+        // return a safe 401 instead of an internal 500. DatabaseUnavailable
+        // is handled inside getOrCreateUser and will result in `null`.
+        throw new AuthError();
+      }
+
       if (!user) {
         throw new AuthError();
       }
