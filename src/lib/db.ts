@@ -28,6 +28,15 @@ import {
 
 function mapPrismaError(error: unknown): never {
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    // Handle pool exhaustion / session errors from hosted providers (e.g. Supabase)
+    // which surface as known request errors with messages like
+    // "max clients reached in session mode - max clients are limited to pool_size: 15"
+    // or contain the token `EMAXCONNSESSION`. Treat these as temporary
+    // service unavailability (503) rather than internal 500 errors.
+    const msg = String(error.message || "").toLowerCase();
+    if (msg.includes("max clients") || msg.includes("emaxconnsession")) {
+      throw new DatabaseUnavailableError();
+    }
     switch (error.code) {
       case PRISMA_ERROR.UNIQUE_CONSTRAINT: {
         const target = error.meta?.target;
