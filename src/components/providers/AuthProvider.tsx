@@ -92,6 +92,8 @@ function ClerkProviderWithTheme({ children }: { children: ReactNode }) {
       publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
       proxyUrl={process.env.NEXT_PUBLIC_CLERK_PROXY_URL}
       appearance={appearance}
+      signInUrl="/sign-in"
+      signUpUrl="/sign-up"
       signInFallbackRedirectUrl="/"
       signUpFallbackRedirectUrl="/"
     >

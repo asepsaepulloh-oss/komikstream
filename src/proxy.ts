@@ -102,10 +102,17 @@ function handleUrlRedirects(req: NextRequest): NextResponse | null {
 const clerkHandler = clerkMiddleware(
   async (auth, req) => {
     if (isProtectedRoute(req)) {
-      await auth.protect();
+      const { userId } = await auth();
+      if (!userId) {
+        const signInUrl = new URL("/sign-in", req.url);
+        signInUrl.searchParams.set("redirect_url", req.url);
+        return NextResponse.redirect(signInUrl);
+      }
     }
   },
   {
+    signInUrl: "/sign-in",
+    signUpUrl: "/sign-up",
     get secretKey() {
       return process.env.CLERK_SECRET_KEY;
     },

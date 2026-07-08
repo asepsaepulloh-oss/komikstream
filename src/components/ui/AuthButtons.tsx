@@ -1,6 +1,6 @@
 "use client";
 
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 import { LogIn } from "lucide-react";
@@ -34,16 +34,16 @@ export function AuthButtons({ clerkEnabled }: AuthButtonsProps) {
   return (
     <>
       <SignedOut>
-        <SignInButton mode="modal">
-          <Button variant="ghost" size="icon" className="flex md:hidden" aria-label="Masuk">
+        <Link href="/sign-in" className="flex md:hidden">
+          <Button variant="ghost" size="icon" aria-label="Masuk">
             <LogIn className="h-5 w-5" />
           </Button>
-        </SignInButton>
-        <SignInButton mode="modal">
-          <Button variant="default" size="sm" className="hidden md:flex">
+        </Link>
+        <Link href="/sign-in" className="hidden md:flex">
+          <Button variant="default" size="sm">
             Masuk
           </Button>
-        </SignInButton>
+        </Link>
       </SignedOut>
       <SignedIn>
         <UserButton
