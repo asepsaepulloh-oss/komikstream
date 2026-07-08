@@ -64,6 +64,10 @@ export function getImageUrl(url: string): string {
         // Proxy through our domain: /cdn/hostname/path?query
         return `/cdn/${parsed.hostname}${parsed.pathname}${search}`;
       }
+
+      // Proxy remote images through our own route to avoid direct browser requests
+      // that can result in 403s from upstream CDNs and providers.
+      return `/image?url=${encodeURIComponent(url)}`;
     } catch {
       // Invalid URL — return as-is
     }

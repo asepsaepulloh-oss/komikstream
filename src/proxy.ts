@@ -16,6 +16,7 @@ const isPublicApiRoute = createRouteMatcher([
   "/api/webhooks(.*)",
   "/api/health",
   "/api/internal(.*)",
+  "/api/proxy(.*)",
   "/api/sitemap-index",
   "/sitemap(.*)",
 ]);

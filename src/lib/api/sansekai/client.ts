@@ -17,7 +17,7 @@ const isServer = typeof window === "undefined";
 
 function buildFetchOptions(revalidate: number): RequestInit {
   const opts: RequestInit = {
-    headers: { Accept: "application/json" },
+    headers: { Accept: "application/json", "User-Agent": "Mozilla/5.0" },
   };
 
   // next: { revalidate } is a Next.js server-side extension.
@@ -31,8 +31,8 @@ function buildFetchOptions(revalidate: number): RequestInit {
 }
 
 export async function fetchSansekai<T>(path: string, revalidate: number): Promise<T> {
-  const url = `${SANSEKAI_BASE}${path}`;
   const opts = buildFetchOptions(revalidate);
+  const url = isServer ? `${SANSEKAI_BASE}${path}` : `/api/proxy/sansekai${path}`;
   const res = await fetch(url, opts);
 
   if (res.status === 429) {
