@@ -163,7 +163,7 @@ const nextConfig: NextConfig = {
     // Bypass Next.js image optimization — too CPU-heavy for Cloudflare Workers.
     // Images are served directly from external CDNs.
     // Cloudflare's automatic Polish/Mirage handles optimization at CDN level.
-    unoptimized: true,
+    unoptimized: false,
     remotePatterns: [
       {
         protocol: "https",
