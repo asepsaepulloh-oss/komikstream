@@ -22,6 +22,9 @@
   --input: 240 5.9% 90%;
   --ring: 217 91% 60%;
   --radius: 0.75rem;
+  /* Fallback font variables used by the app when external fonts are unavailable */
+  --font-geist-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  --font-geist-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Segoe UI Mono";
 }
 
 /* Dark Navy Theme (MihariNovel-inspired) */

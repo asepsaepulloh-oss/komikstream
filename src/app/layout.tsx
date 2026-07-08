@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider, QueryProvider, AuthProvider } from "@/components/providers";
 import { Navbar } from "@/components/layout/Navbar";
@@ -7,15 +6,8 @@ import { Footer } from "@/components/layout/Footer";
 import { isClerkConfigured } from "@/lib/auth-config";
 import { siteConfig } from "@/lib/site-config";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+// Using system font fallbacks instead of `next/font/google` to avoid
+// Turbopack internal font resolution issues during builds.
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -155,7 +147,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} flex min-h-screen flex-col antialiased`}
+        className="flex min-h-screen flex-col antialiased"
       >
         <ThemeProvider>
           <AuthProvider clerkEnabled={clerkEnabled}>
