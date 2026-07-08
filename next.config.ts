@@ -30,14 +30,12 @@ if (process.env.NODE_ENV === "production" && !process.env.CI) {
 // - worker-src: Clerk uses web workers for session token refresh
 const cspDirectives = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://clerk.kuromanga.me https://*.clerk.accounts.dev https://challenges.cloudflare.com https://static.cloudflareinsights.com",
+  "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://clerk.kuromanga.me https://clerk.louiv.me https://*.clerk.accounts.dev https://challenges.cloudflare.com https://static.cloudflareinsights.com",
   "style-src 'self' 'unsafe-inline'",
-  // TAMBAHKAN https://placehold.co DI SINI
-  "img-src 'self' https: data: blob: https://placehold.co", 
+  "img-src 'self' https: data: blob: https://placehold.co https://cdn.otakudesu.blog", 
   "font-src 'self' data:",
   "frame-src 'self' https: https://challenges.cloudflare.com",
-  // TAMBAHKAN https://placehold.co DI SINI JUGA (untuk fetch API)
-  "connect-src 'self' https://api.sansekai.my.id https://placehold.co https://clerk.kuromanga.me https://*.clerk.accounts.dev https://*.clerk.dev https://clerk-telemetry.com https://*.clerk-telemetry.com https://assets.shngm.id https://cdn.myanimelist.net https://assets.animekita.org https://*.shngm.id https://*.myanimelist.net https://*.animekita.org wss://*.clerk.dev",
+  "connect-src 'self' https://api.sansekai.my.id https://placehold.co https://clerk.kuromanga.me https://*.clerk.accounts.dev https://*.clerk.dev https://clerk-telemetry.com https://*.clerk-telemetry.com https://assets.shngm.id https://cdn.myanimelist.net https://assets.animekita.org https://*.shngm.id https://*.myanimelist.net https://*.animekita.org https://cdn.otakudesu.blog wss://*.clerk.dev",
   "media-src 'self' https: blob:",
   "worker-src 'self' blob:",
   "object-src 'none'",
