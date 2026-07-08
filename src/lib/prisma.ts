@@ -72,7 +72,9 @@ function getNodeSingleton(): PrismaClient | null {
       {
         connectionString,
         min: 1,
-        max: 5,
+        // Reduce max connections per Node instance for serverless/Vercel
+        // to avoid exhausting the upstream DB pool when many instances spin up.
+        max: 2,
         connectionTimeoutMillis: 10_000,
         idleTimeoutMillis: 30_000,
         ssl: { rejectUnauthorized: false },
