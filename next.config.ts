@@ -32,10 +32,12 @@ const cspDirectives = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://clerk.kuromanga.me https://*.clerk.accounts.dev https://challenges.cloudflare.com https://static.cloudflareinsights.com",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' https: data: blob:",
+  // TAMBAHKAN https://placehold.co DI SINI
+  "img-src 'self' https: data: blob: https://placehold.co", 
   "font-src 'self' data:",
   "frame-src 'self' https: https://challenges.cloudflare.com",
-  "connect-src 'self' https://api.sansekai.my.id https://clerk.kuromanga.me https://*.clerk.accounts.dev https://*.clerk.dev wss://*.clerk.dev",
+  // TAMBAHKAN https://placehold.co DI SINI JUGA (untuk fetch API)
+  "connect-src 'self' https://api.sansekai.my.id https://placehold.co https://clerk.kuromanga.me https://*.clerk.accounts.dev https://*.clerk.dev wss://*.clerk.dev",
   "media-src 'self' https: blob:",
   "worker-src 'self' blob:",
   "object-src 'none'",
