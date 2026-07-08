@@ -37,7 +37,7 @@ const cspDirectives = [
   "font-src 'self' data:",
   "frame-src 'self' https: https://challenges.cloudflare.com",
   // TAMBAHKAN https://placehold.co DI SINI JUGA (untuk fetch API)
-  "connect-src 'self' https://api.sansekai.my.id https://placehold.co https://clerk.kuromanga.me https://*.clerk.accounts.dev https://*.clerk.dev wss://*.clerk.dev",
+  "connect-src 'self' https://api.sansekai.my.id https://placehold.co https://clerk.kuromanga.me https://*.clerk.accounts.dev https://*.clerk.dev https://assets.shngm.id https://cdn.myanimelist.net https://assets.animekita.org https://*.shngm.id https://*.myanimelist.net https://*.animekita.org wss://*.clerk.dev",
   "media-src 'self' https: blob:",
   "worker-src 'self' blob:",
   "object-src 'none'",

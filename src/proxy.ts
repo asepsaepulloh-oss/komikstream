@@ -131,7 +131,11 @@ const clerkHandler = clerkMiddleware(
  */
 function verifyWorkerToken(req: NextRequest): NextResponse | null {
   const expectedToken = process.env.WORKER_TOKEN;
-  if (!expectedToken) return null; // Not configured — skip check (dev/CI)
+  const isVercelDeployment = process.env.VERCEL === "1";
+
+  // Skip the worker-token gate on Vercel deployments so normal public traffic
+  // is not blocked by the Cloudflare Worker protection layer.
+  if (!expectedToken || isVercelDeployment) return null;
 
   const requestToken = req.headers.get("x-worker-token");
   if (requestToken === expectedToken) return null;
