@@ -43,7 +43,9 @@ const PROXIED_IMAGE_HOSTS = [
   "thumbnail.komiku.org",
   "img.komiku.org",
   "cdn.komiku.org",
-  "otakudesu.blog",
+  // Note: otakudesu.blog previously proxied via /cdn/ (Cloudflare Worker).
+  // Some upstream hosts block worker-based fetches. Route otakudesu.blog
+  // through the app-level `/image?url=` proxy instead to avoid 403s.
 ];
 
 export function getImageUrl(url: string): string {
