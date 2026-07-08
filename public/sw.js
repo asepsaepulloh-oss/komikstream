@@ -30,6 +30,7 @@ self.addEventListener("fetch", (event) => {
   // Skip API routes, auth routes, and external origins
   if (url.pathname.startsWith("/api/")) return;
   if (url.pathname.startsWith("/sign-in") || url.pathname.startsWith("/sign-up")) return;
+  if (url.hostname === "img.clerk.com") return;
   if (url.origin !== self.location.origin && request.destination !== "image") return;
 
   // Images: stale-while-revalidate (manga covers from CDN are mostly immutable)
