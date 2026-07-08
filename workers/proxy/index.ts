@@ -53,6 +53,7 @@ const CDN_ALLOWED_HOSTS = new Set([
   // Legacy domains (keep for old thumbnail URLs in DB)
   "otakudesu.cloud",
   "cdn.otakudesu.cloud",
+  "otakudesu.blog",
   "komikcast03.com",
   "cdn.komikcast03.com",
   "komikcast.com",
