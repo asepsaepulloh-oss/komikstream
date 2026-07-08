@@ -51,6 +51,23 @@ type DbAnime = NonNullable<Awaited<ReturnType<typeof findCachedAnime>>>;
 type DbKomik = NonNullable<Awaited<ReturnType<typeof findCachedKomik>>>;
 type DbChapter = NonNullable<Awaited<ReturnType<typeof findCachedChapter>>>;
 
+function logExternalApiFallback(
+  contentType: "anime" | "komik",
+  contentId: string,
+  err: unknown,
+  extraMeta: Record<string, unknown> = {}
+): void {
+  const message = err instanceof Error ? err.message : String(err);
+  const isExpectedUpstreamIssue = /Sansekai (4\d\d|429)/i.test(message);
+  const logEntry = isExpectedUpstreamIssue ? logger.debug : logger.warn;
+
+  logEntry(`${contentType === "anime" ? "Anime" : "Komik"} API fallback failed`, {
+    [contentType === "anime" ? "urlId" : "mangaId"]: contentId,
+    error: message,
+    ...extraMeta,
+  });
+}
+
 function mapDbAnimeToApp(db: DbAnime): Anime {
   const genres = Array.isArray(db.genres) ? (db.genres as string[]) : [];
   const episodes = Array.isArray(db.episodes)
@@ -308,11 +325,7 @@ export async function getCachedAnimeDetail(urlId: string): Promise<Anime | null>
     return anime;
   } catch (err) {
     const apiDuration = Date.now() - apiStart;
-    logger.warn("Anime API fallback failed", {
-      urlId,
-      error: String(err),
-      durationMs: apiDuration,
-    });
+    logExternalApiFallback("anime", urlId, err, { durationMs: apiDuration });
 
     // Track API error
     trackEvent({
@@ -429,11 +442,7 @@ export async function getCachedKomikDetail(mangaId: string): Promise<Komik | nul
     return komik;
   } catch (err) {
     const apiDuration = Date.now() - apiStart;
-    logger.warn("Komik API fallback failed", {
-      mangaId,
-      error: String(err),
-      durationMs: apiDuration,
-    });
+    logExternalApiFallback("komik", mangaId, err, { durationMs: apiDuration });
 
     // Track API error
     trackEvent({
