@@ -361,11 +361,14 @@ async function handleRequest(
         const originUrl = `https://${host}${path}${search}`;
         const imgResp = await fetch(originUrl, {
           headers: {
-            Accept: request.headers.get("Accept") ?? "image/*",
-            "User-Agent": request.headers.get("User-Agent") ||
+            Accept:
+              request.headers.get("Accept") ||
+              "image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
+            "User-Agent":
+              request.headers.get("User-Agent") ||
               "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
-            Referer: "https://baca.louiv.me/",
-            Origin: "https://baca.louiv.me",
+            // Use the upstream hostname as the Referer to bypass simple hotlink protections
+            Referer: `https://${host}/`,
           },
           cf: { cacheTtl: 86400, cacheEverything: true },
         });
