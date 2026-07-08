@@ -360,7 +360,13 @@ async function handleRequest(
       if (CDN_ALLOWED_HOSTS.has(host)) {
         const originUrl = `https://${host}${path}${search}`;
         const imgResp = await fetch(originUrl, {
-          headers: { Accept: request.headers.get("Accept") ?? "image/*" },
+          headers: {
+            Accept: request.headers.get("Accept") ?? "image/*",
+            "User-Agent": request.headers.get("User-Agent") ||
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+            Referer: "https://baca.louiv.me/",
+            Origin: "https://baca.louiv.me",
+          },
           cf: { cacheTtl: 86400, cacheEverything: true },
         });
 
