@@ -28,10 +28,11 @@ export async function GET(request: Request) {
     });
 
     if (!response.ok) {
-      const fallback = getFallbackPayload(path);
-      return NextResponse.json(fallback, {
-        status: 200,
+      const body = await response.text();
+      return new NextResponse(body, {
+        status: response.status,
         headers: {
+          "content-type": response.headers.get("content-type") ?? "application/json",
           "cache-control": "no-store",
         },
       });
@@ -46,14 +47,17 @@ export async function GET(request: Request) {
         "cache-control": "public, s-maxage=300, stale-while-revalidate=600",
       },
     });
-  } catch {
-    const fallback = getFallbackPayload(path);
-    return NextResponse.json(fallback, {
-      status: 200,
-      headers: {
-        "cache-control": "no-store",
-      },
-    });
+  } catch (error) {
+    return new NextResponse(
+      JSON.stringify({ error: "Sansekai upstream unreachable", details: String(error) }),
+      {
+        status: 502,
+        headers: {
+          "content-type": "application/json",
+          "cache-control": "no-store",
+        },
+      }
+    );
   }
 }
 
