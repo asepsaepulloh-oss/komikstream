@@ -254,7 +254,7 @@ export default worker;
 async function runSeed(env: Env): Promise<void> {
   if (!env.CRON_SECRET) return;
 
-  const API = "https://api2.louiv.me";
+  const API = "https://api.sansekai.my.id/api";
 
   // Fetch 4 endpoints in parallel (well under Worker 50 subrequest limit)
   const [latestRes, recRes, komikLatestRes, komikPopRes] = await Promise.allSettled([
