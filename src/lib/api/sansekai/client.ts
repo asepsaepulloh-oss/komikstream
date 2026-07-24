@@ -8,10 +8,7 @@
  * Client-side: plain fetch (TanStack Query handles caching).
  */
 
-const SANSEKAI_BASE = (process.env.SANSEKAI_BASE_URL ?? "https://api.sansekai.my.id/api").replace(
-  /\/$/,
-  ""
-);
+const SANSEKAI_BASE = (process.env.SANSEKAI_BASE_URL ?? "https://api2.louiv.me").replace(/\/$/, "");
 
 const isServer = typeof window === "undefined";
 
