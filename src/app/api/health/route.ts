@@ -88,7 +88,7 @@ export async function GET(request: NextRequest) {
   if (fullCheck) {
     health.checks.externalApi = "skipped";
     try {
-      const apiUrl = process.env.SANSEKAI_BASE_URL ?? "https://api.sansekai.my.id/api";
+      const apiUrl = process.env.SANSEKAI_BASE_URL ?? "https://api2.louiv.me";
       const resp = await fetch(`${apiUrl}/anime/latest`, {
         signal: AbortSignal.timeout(5000),
         headers: { Accept: "application/json" },

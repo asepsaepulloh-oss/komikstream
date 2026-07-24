@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-const SANSEKAI_BASE = (process.env.SANSEKAI_BASE_URL ?? "https://api.sansekai.my.id/api").replace(/\/$/, "");
+const SANSEKAI_BASE = (process.env.SANSEKAI_BASE_URL ?? "https://api2.louiv.me").replace(/\/$/, "");
 
 // Simple in-memory cache used to reduce repeated upstream requests
 // for identical proxy paths. TTL is in milliseconds.
@@ -16,7 +16,9 @@ function getFallbackPayload(path: string) {
     return [];
   }
 
-  if (/^\/komik\/(latest|popular|recommended|berwarna|pustaka|search|genre|scroll|genres)/.test(path)) {
+  if (
+    /^\/komik\/(latest|popular|recommended|berwarna|pustaka|search|genre|scroll|genres)/.test(path)
+  ) {
     return [];
   }
 
@@ -60,7 +62,12 @@ export async function GET(request: Request) {
 
       // On success, cache and return
       if (response.ok) {
-        cache.set(cacheKey, { ts: Date.now(), status: response.status, body, contentType: response.headers.get("content-type") ?? undefined });
+        cache.set(cacheKey, {
+          ts: Date.now(),
+          status: response.status,
+          body,
+          contentType: response.headers.get("content-type") ?? undefined,
+        });
         return new NextResponse(body, {
           status: response.status,
           headers: {
@@ -96,21 +103,30 @@ export async function GET(request: Request) {
 
   // Retries exhausted — cache a short-lived error response to avoid hammering
   const fallback = getFallbackPayload(path);
-    // If we have a safe fallback payload for this path, return it as a 200
-    if (fallback !== null) {
-      const body = JSON.stringify(fallback);
-      console.error("Sansekai proxy: upstream unavailable, returning fallback for", path, lastError);
-      const status = 200;
-      cache.set(cacheKey, { ts: Date.now(), status, body, contentType: "application/json" });
-      return new NextResponse(body, { status, headers: { "content-type": "application/json", "cache-control": "public, s-maxage=30" } });
-    }
-
-    // No fallback available — return a 502 and log the error
-    const status = 502;
-    const body = JSON.stringify({ error: "Sansekai upstream unavailable", details: String(lastError) });
-    console.error("Sansekai proxy: retries exhausted for", target, lastError);
+  // If we have a safe fallback payload for this path, return it as a 200
+  if (fallback !== null) {
+    const body = JSON.stringify(fallback);
+    console.error("Sansekai proxy: upstream unavailable, returning fallback for", path, lastError);
+    const status = 200;
     cache.set(cacheKey, { ts: Date.now(), status, body, contentType: "application/json" });
-    return new NextResponse(body, { status, headers: { "content-type": "application/json", "cache-control": "public, s-maxage=30" } });
+    return new NextResponse(body, {
+      status,
+      headers: { "content-type": "application/json", "cache-control": "public, s-maxage=30" },
+    });
+  }
+
+  // No fallback available — return a 502 and log the error
+  const status = 502;
+  const body = JSON.stringify({
+    error: "Sansekai upstream unavailable",
+    details: String(lastError),
+  });
+  console.error("Sansekai proxy: retries exhausted for", target, lastError);
+  cache.set(cacheKey, { ts: Date.now(), status, body, contentType: "application/json" });
+  return new NextResponse(body, {
+    status,
+    headers: { "content-type": "application/json", "cache-control": "public, s-maxage=30" },
+  });
 }
 
 export async function POST(request: Request) {
