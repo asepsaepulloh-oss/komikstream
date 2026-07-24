@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-const SANSEKAI_BASE = (process.env.SANSEKAI_BASE_URL ?? "https://api2.louiv.me").replace(/\/$/, "");
+const SANSEKAI_BASE = (process.env.SANSEKAI_BASE_URL ?? "https://api.sansekai.my.id/api").replace(/\/$/, "");
 
 // Simple in-memory cache used to reduce repeated upstream requests
 // for identical proxy paths. TTL is in milliseconds.
